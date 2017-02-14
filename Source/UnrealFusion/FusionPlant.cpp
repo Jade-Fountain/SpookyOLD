@@ -54,7 +54,17 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 //Update functions
 //===========================
 
+
 UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::AddPositionMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, float confidence)
+{
+}
+
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::AddRotationMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence)
+{
+}
+
 void UFusionPlant::Fuse()
 {
 	if (skeletons.size() > 0 && fusedSkeleton != NULL) {
@@ -100,6 +110,40 @@ void UFusionPlant::CopyPose(UPoseableMeshComponent* target, const UPoseableMeshC
 		}
 		target->RefreshBoneTransforms();
 	}
+}
+
+PositionMeasurement UFusionPlant::CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence)
+{
+	Eigen::Vector3f meas(position[0],position[1],position[2]);
+	Eigen::Matrix<float, PositionMeasurement::size, PositionMeasurement::size> un;
+	un.diagonal() = Eigen::Vector3f(uncertainty[0], uncertainty[1], uncertainty[2]);
+	
+	PositionMeasurement result;
+	result.systemName = TCHAR_TO_UTF8(*system_name);
+	result.sensorID = sensorID;
+	result.timeStamp = timestamp_sec;
+	result.data = meas;
+	result.uncertainty = un;
+	result.confidence = confidence;
+	
+	return result;
+}
+
+RotationMeasurement UFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence)
+{
+	Eigen::Vector4f meas(rotation.W, rotation.X, rotation.Y, rotation.Z);
+	Eigen::Matrix<float, RotationMeasurement::size, RotationMeasurement::size> un;
+	un.diagonal() = Eigen::Vector4f(uncertainty[0], uncertainty[1], uncertainty[2],uncertainty[3]);
+
+	RotationMeasurement result;
+	result.systemName = TCHAR_TO_UTF8(*system_name);
+	result.sensorID = sensorID;
+	result.timeStamp = timestamp_sec;
+	result.data = meas;
+	result.uncertainty = un;
+	result.confidence = confidence;
+	
+	return result;
 }
 
 //===========================

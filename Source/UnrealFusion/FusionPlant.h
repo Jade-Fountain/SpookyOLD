@@ -5,8 +5,11 @@
 #include "Components/ActorComponent.h"
 #include "Components/PoseableMeshComponent.h"
 
+#include "Fusion/FusionTypes.h"
+
 #include <iostream>
 #include <vector>
+#include <string>
 #include "FusionPlant.generated.h"
 
 
@@ -45,9 +48,25 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void SetOutputTarget(UPoseableMeshComponent* poseable_mesh);
 
+//Contruction of sensor nodes
+
+	////Add a new sensor node model
+	//UFUNCTION(BlueprintCallable, Category = "Fusion")
+	//void AddSensorNode(FString nodeName, FTransform initialState, FTransform initialCovariance);
+
+	////Add a new sensor node model
+	//UFUNCTION(BlueprintCallable, Category = "Fusion")
+	//void SetHomeCoordinateSpace(FString systemName);
+
+
 //===========================
 //Update functions
 //===========================
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void AddPositionMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, float confidence = 1);
+	
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void AddRotationMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence = 1);
 
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void Fuse();
@@ -57,6 +76,12 @@ public:
 //===========================
 
 	void CopyPose(UPoseableMeshComponent* target, const UPoseableMeshComponent* input);
+
+
+	PositionMeasurement CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence = 1);
+	RotationMeasurement CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence = 1);
+	//TransformMeasurement CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FTransform transform, FVector uncertainty, float confidence = 1);
+
 
 //===========================
 //DEBUG
