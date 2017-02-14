@@ -10,20 +10,17 @@
 /** Structs describing measurements
 *
 */
-struct PositionMeasurementType {
-	static const uint16 size = 3;
-};
+enum MeasurementType{
+	GENERIC = 0,
+	POSITION = 1,
+	ROTATION = 2,
+	RIGID_BODY = 3	
+}
 
-struct RotationMeasurementType {
-	static const uint16 size = 4;
-};
+//TODO: make this class a parent of different measurement types
+struct Measurement {
 
-struct TransformMeasurementType {
-	static const uint16 size = 7;
-};
-
-template <class T>
-struct MeasurementData {
+	MeasurementType type;
 
 	//Name of the sensor system from which the measurement came
 	std::string systemName = "";
@@ -47,10 +44,6 @@ struct MeasurementData {
 	float confidence;
 
 };
-
-using PositionMeasurement = MeasurementData<PositionMeasurementType>;
-using RotationMeasurement = MeasurementData<RotationMeasurementType>;
-//using TransformMeasurement = MeasurementData<TransformMeasurementType>;
 
 
 /**
