@@ -78,8 +78,8 @@ public:
 	void CopyPose(UPoseableMeshComponent* target, const UPoseableMeshComponent* input);
 
 
-	PositionMeasurement CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence = 1);
-	RotationMeasurement CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence = 1);
+	Measurement CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence = 1);
+	Measurement CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence = 1);
 	//TransformMeasurement CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FTransform transform, FVector uncertainty, float confidence = 1);
 
 

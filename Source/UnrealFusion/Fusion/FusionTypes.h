@@ -10,16 +10,18 @@
 /** Structs describing measurements
 *
 */
-enum MeasurementType{
+enum class MeasurementType {
 	GENERIC = 0,
 	POSITION = 1,
 	ROTATION = 2,
-	RIGID_BODY = 3	
-}
+	RIGID_BODY = 3,
+	SCALE = 4
+};
 
 //TODO: make this class a parent of different measurement types
-struct Measurement {
+class Measurement {
 
+public:
 	MeasurementType type;
 
 	//Name of the sensor system from which the measurement came
@@ -32,16 +34,20 @@ struct Measurement {
 	double timeStamp;
 
 	//Measurement dimensions
-	static const uint16 size = T::size;
+	uint16 size;
 
 	//Value of measurement
-	Eigen::Matrix<float, size, 1> data;
+	Eigen::Matrix<float, Eigen::Dynamic,1> data;
 
 	//Uncertainty in T
-	Eigen::Matrix<float, size, size> uncertainty;
+	Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> uncertainty;
 
 	//Confidence in T in [0,1]
 	float confidence;
+
+	bool check_consistent() {
+		return (size == data.size() == uncertainty.size());
+	}
 
 };
 
@@ -57,4 +63,17 @@ private:
 public:
 	SensorNode();
 	~SensorNode();
+
+	//void FuseWithInversion(){
+	//	std::vector<Measurement*> measurements;
+	//	for(auto& measurement : measurements){//In temporal order
+	//		Transform measured_pose = measurement->inverseMeasurement();
+	//	}
+	//}
+	//void Fuse(){
+	//	std::vector<Measurement*> measurements;
+	//	for(auto& measurement : measurements){//In temporal order
+	//		measurement->measure(pose);
+	//	}
+	//}
 };
