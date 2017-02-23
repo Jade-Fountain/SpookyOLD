@@ -119,13 +119,10 @@ Measurement UFusionPlant::CreatePositionMeasurement(FString system_name, int sen
 	Eigen::Matrix<float, 3, 3> un;
 	un.diagonal() = Eigen::Vector3f(uncertainty[0], uncertainty[1], uncertainty[2]);
 	
-	Measurement result;
-	result.type = MeasurementType::POSITION;
+	Measurement result = Measurement::createPositionMeasurement(meas, un);
 	result.systemName = TCHAR_TO_UTF8(*system_name);
 	result.sensorID = sensorID;
 	result.timeStamp = timestamp_sec;
-	result.data = meas;
-	result.uncertainty = un;
 	result.confidence = confidence;
 	
 	return result;

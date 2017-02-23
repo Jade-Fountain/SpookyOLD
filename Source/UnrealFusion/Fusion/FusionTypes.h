@@ -21,9 +21,19 @@ enum class MeasurementType {
 //TODO: make this class a parent of different measurement types
 class Measurement {
 
-public:
+	//Type of measurement
 	MeasurementType type;
 
+	//Measurement dimensions
+	uint16 size;
+
+	//Value of measurement
+	Eigen::Matrix<float, Eigen::Dynamic, 1> data;
+
+	//Uncertainty in T
+	Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> uncertainty;
+
+public:
 	//Name of the sensor system from which the measurement came
 	std::string systemName = "";
 
@@ -33,15 +43,6 @@ public:
 	//Timestamp (sec; from device)
 	double timeStamp;
 
-	//Measurement dimensions
-	uint16 size;
-
-	//Value of measurement
-	Eigen::Matrix<float, Eigen::Dynamic,1> data;
-
-	//Uncertainty in T
-	Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> uncertainty;
-
 	//Confidence in T in [0,1]
 	float confidence;
 
@@ -49,7 +50,12 @@ public:
 		return (size == data.size() == uncertainty.size());
 	}
 
+	static Measurement createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma);
+	static Measurement createQuaternionMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma);
+	static Measurement createScaleMeasurement(Eigen::Vector3f scale, Eigen::Matrix<float,3,3> sigma);
+	static Measurement createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma);
 };
+
 
 
 /**
