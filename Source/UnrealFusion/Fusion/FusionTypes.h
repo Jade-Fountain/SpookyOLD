@@ -28,10 +28,10 @@ class Measurement {
 	uint16 size;
 
 	//Value of measurement
-	Eigen::Matrix<float, Eigen::Dynamic, 1> data;
+	Eigen::VectorXf data;
 
 	//Uncertainty in T
-	Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> uncertainty;
+	Eigen::MatrixXf uncertainty;
 
 public:
 	//Name of the sensor system from which the measurement came
@@ -47,7 +47,7 @@ public:
 	float confidence = 0;
 
 	bool check_consistent() {
-		return (size == data.size() == uncertainty.size());
+		return (size == data.size() == uncertainty.size()[0]);
 	}
 
 	static Measurement createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma);
@@ -62,12 +62,15 @@ class PositionModel{
 	typedef Eigen::Matrix<float,3,3> Uncertainty;
 
 	static void updateState(State* state, Uncertainty* uncertainty, measurement){
-
+		//Use latest measurement
+		state = measurement.data.segment(0,3);//start,count
+		uncertainty = measurement.uncertainty.topLeftCorner(3,3);
 	}
 };
 
+
 /**
- * Classes for sensors
+ * Sensor Nodes model the state of the system with a tree of nodes
  */
 template <class Model>
 class SensorNode
@@ -76,36 +79,38 @@ private:
 	//Current best state estimate and variance
 	Model::State state;
 	Model::Uncertainty variance;
+	
+	//Queued messages, 
+	//TODO: in order of timestamp
+	std::queue<Measurement> measurements;
 
+	//Children of this node
+	std::vector<uint> children_indices;
+
+	//Parent of this node
+	uint parent_index;
+
+public:
 	//Called by parent node
-	void update(){	
+	void update(){
+		updateState();
 		for(auto& child : children){
 			child.update();
 		}
-		updateState();
 	}
 
 	//Computes update according to measurements
 	void updateState(){
-		for(auto& measurement : measurements){
+		while(!measurements.empty()) {
+			auto& measurement = measurements.pop_front();
 			Model::updateState(&state, &uncertainty, measurement);
 		}
 	}
 
-public:
 	SensorNode();
 	~SensorNode();
 
-	//void FuseWithInversion(){
-	//	std::vector<Measurement*> measurements;
-	//	for(auto& measurement : measurements){//In temporal order
-	//		Transform measured_pose = measurement->inverseMeasurement();
-	//	}
-	//}
-	//void Fuse(){
-	//	std::vector<Measurement*> measurements;
-	//	for(auto& measurement : measurements){//In temporal order
-	//		measurement->measure(pose);
-	//	}
-	//}
 };
+
+
+typedef SensorNode<PositionModel> DefaultSensorNode;
