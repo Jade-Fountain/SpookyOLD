@@ -24,7 +24,7 @@ Measurement Measurement::createScaleMeasurement(Eigen::Vector3f scale, Eigen::Ma
 	meas.uncertainty = sigma;
 	return meas;
 }
-Measurement Measurement::createRigidBodyMeasurement(Eigen::Vector<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma) {
+Measurement Measurement::createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma) {
 	Measurement meas;
 	meas.type = MeasurementType::RIGID_BODY;
 	meas.data = pos_quat;
@@ -39,4 +39,6 @@ SensorNode::SensorNode()
 SensorNode::~SensorNode()
 {
 }
+
+
 

@@ -41,10 +41,10 @@ public:
 	uint16 sensorID = 0;
 
 	//Timestamp (sec; from device)
-	double timeStamp;
+	double timeStamp = -1;
 
 	//Confidence in T in [0,1]
-	float confidence;
+	float confidence = 0;
 
 	bool check_consistent() {
 		return (size == data.size() == uncertainty.size());
@@ -56,16 +56,42 @@ public:
 	static Measurement createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma);
 };
 
+//NOTE: templating means each skeleton is of a particular model type1
+class PositionModel{
+	typedef Eigen::Vector3f State;
+	typedef Eigen::Matrix<float,3,3> Uncertainty;
 
+	static void updateState(State* state, Uncertainty* uncertainty, measurement){
+
+	}
+};
 
 /**
  * Classes for sensors
  */
-class UNREALFUSION_API SensorNode
+template <class Model>
+class SensorNode
 {
 private:
-	FTransform pose;
-	FTransform uncertainty;
+	//Current best state estimate and variance
+	Model::State state;
+	Model::Uncertainty variance;
+
+	//Called by parent node
+	void update(){	
+		for(auto& child : children){
+			child.update();
+		}
+		updateState();
+	}
+
+	//Computes update according to measurements
+	void updateState(){
+		for(auto& measurement : measurements){
+			Model::updateState(&state, &uncertainty, measurement);
+		}
+	}
+
 public:
 	SensorNode();
 	~SensorNode();

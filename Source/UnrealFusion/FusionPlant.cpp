@@ -63,7 +63,7 @@ void UFusionPlant::AddPositionMeasurement(FString nodeName, FString systemName, 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
 void UFusionPlant::AddRotationMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence)
 {
-	//RotationMeasurement measurement = 
+	Measurement measurement = CreateRotationMeasurement()
 }
 
 void UFusionPlant::Fuse()
@@ -115,11 +115,13 @@ void UFusionPlant::CopyPose(UPoseableMeshComponent* target, const UPoseableMeshC
 
 Measurement UFusionPlant::CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence)
 {
+	//Create basic measurement
 	Eigen::Vector3f meas(position[0],position[1],position[2]);
 	Eigen::Matrix<float, 3, 3> un;
 	un.diagonal() = Eigen::Vector3f(uncertainty[0], uncertainty[1], uncertainty[2]);
-	
 	Measurement result = Measurement::createPositionMeasurement(meas, un);
+	
+	//Add metadata
 	result.systemName = TCHAR_TO_UTF8(*system_name);
 	result.sensorID = sensorID;
 	result.timeStamp = timestamp_sec;
@@ -130,8 +132,52 @@ Measurement UFusionPlant::CreatePositionMeasurement(FString system_name, int sen
 
 Measurement UFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence)
 {
-	//Eigen::Vector4f meas(rotation.W, rotation.X, ro
-	Measurement result;
+	//Create basic measurement
+	Eigen::Vector4f meas(rotation.W, rotation.X, rotation.Y, rotation.Z);
+	Eigen::Matrix<float, 4, 4> un;
+	un.diagonal() = Eigen::Vector4f(uncertainty[0], uncertainty[1], uncertainty[2], uncertainty[3]);
+	Measurement result = Measurement::createRotationMeasurement(meas, un);
+
+	//Add metadata
+	result.systemName = TCHAR_TO_UTF8(*system_name);
+	result.sensorID = sensorID;
+	result.timeStamp = timestamp_sec;
+	result.confidence = confidence;
+
+	return result;
+}
+
+Measurement UFusionPlant::CreateScaleMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector scale, FVector uncertainty, float confidence)
+{
+	//Create basic measurement
+	Eigen::Vector3f meas(scale[0], scale[1], scale[2]);
+	Eigen::Matrix<float, 3, 3> un;
+	un.diagonal() = Eigen::Vector3f(uncertainty[0], uncertainty[1], uncertainty[2]);
+	Measurement result = Measurement::createScaleMeasurement(meas, un);
+
+	//Add metadata
+	result.systemName = TCHAR_TO_UTF8(*system_name);
+	result.sensorID = sensorID;
+	result.timeStamp = timestamp_sec;
+	result.confidence = confidence;
+
+	return result;
+}
+
+Measurement UFusionPlant::CreateRigidBodyMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector state, FVector uncertainty, float confidence)
+{
+	//Create basic measurement
+	Eigen::Eigen::Matrix<float, 7, 1> meas(state[0], state[1], state[2], state[3], state[4], state[5], state[6]);
+	Eigen::Matrix<float, 7, 7> un;
+	un.diagonal() = Eigen::Matrix<float, 7, 1>(uncertainty[0], uncertainty[1], uncertainty[2], uncertainty[3], uncertainty[4], uncertainty[5], uncertainty[6]);
+	Measurement result = Measurement::createRigidBodyMeasurement(meas, un);
+
+	//Add metadata
+	result.systemName = TCHAR_TO_UTF8(*system_name);
+	result.sensorID = sensorID;
+	result.timeStamp = timestamp_sec;
+	result.confidence = confidence;
+
 	return result;
 }
 
