@@ -6,6 +6,7 @@
 #include "Components/PoseableMeshComponent.h"
 
 #include "Fusion/FusionTypes.h"
+#include "Fusion/SkeletonModel.h"
 
 #include <iostream>
 #include <vector>

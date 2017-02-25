@@ -8,6 +8,27 @@
 #include "Eigen/Core"
 #pragma once
 
+
+
+/** System descriptor
+*
+*/
+class SystemDescriptor {
+public:
+	//Name of the system - used for checking system identity
+	std::string name;
+
+	//Overloaded operators check for valid system name and check equality
+	bool SystemDescriptor::operator==(const SystemDescriptor &other) const {
+		return name.size() > 0 && other.name.size() > 0 && name.compare(other.name) == 0;  // Compare the values, and return a bool result.
+	}
+	bool SystemDescriptor::operator!=(const SystemDescriptor &other) const {
+		return !(*this == other);
+	}
+	//Constructor
+	SystemDescriptor(std::string n = "") : name(n) {}
+};
+
 /** Structs describing measurements
 *
 */
@@ -26,7 +47,7 @@ class Measurement {
 	MeasurementType type;
 
 	//Measurement dimensions
-	uint16 size;
+	int size;
 
 	//Value of measurement
 	Eigen::VectorXf data;
@@ -40,7 +61,7 @@ public:
 	const Eigen::VectorXf& getData() const { return data; }
 
 	//Name of the sensor system from which the measurement came
-	std::string systemName = "";
+	SystemDescriptor system;
 
 	//Sensor number corresponding to measurement
 	int sensorID = 0;
@@ -56,8 +77,8 @@ public:
 		return (size == data.size() == uncertainty.rows() == uncertainty.cols());
 	}
 
-	bool setMetaData(std::string system_name, int sensor_id, float timestamp_sec, float confidence_){
-		systemName = system_name;
+	bool setMetaData(SystemDescriptor system_name, int sensor_id, float timestamp_sec, float confidence_){
+		system = system_name;
 		sensorID = sensor_id;
 		timeStamp = timestamp_sec;
 		confidence = confidence_;

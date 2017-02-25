@@ -4,14 +4,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include <string>
+#include <map>
 #include "Eigen/Core"
 #include "Fusion/FusionTypes.h"
 
 struct CalibrationData{
+	struct Data {
+		
+	};
 	bool calibrated = false;
 	Eigen::Matrix4f transform;
-	std::vector<Data> data
-}
+	std::vector<Data> dataSamples;
+};
 
 class SkeletonModel{
 private:
