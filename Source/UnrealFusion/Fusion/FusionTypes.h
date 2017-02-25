@@ -85,16 +85,16 @@ public:
 		confidence = confidence_;
 		return check_consistent();
 	}
-
+	
+	typedef std::shared_ptr<Measurement> Ptr;
 
 	//Static factory methods:
-	static Measurement createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma);
-	static Measurement createQuaternionMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma);
-	static Measurement createScaleMeasurement(Eigen::Vector3f scale, Eigen::Matrix<float,3,3> sigma);
-	static Measurement createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma);
+	static Measurement::Ptr createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma);
+	static Measurement::Ptr createQuaternionMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma);
+	static Measurement::Ptr createScaleMeasurement(Eigen::Vector3f scale, Eigen::Matrix<float,3,3> sigma);
+	static Measurement::Ptr createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma);
 };
 
-typedef std::shared_ptr<Measurement> MeasurementPointer;
 
 //NOTE: templating means each skeleton is of a particular model type1
 class CartesianModel{

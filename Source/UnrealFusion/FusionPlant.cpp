@@ -59,13 +59,13 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 UFUNCTION(BlueprintCallable, Category = "Fusion")
 void UFusionPlant::AddPositionMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, float confidence)
 {
-	Measurement m = CreatePositionMeasurement(systemName, sensorID, timestamp_sec, measurement, covariance, confidence);
+	Measurement::Ptr m = CreatePositionMeasurement(systemName, sensorID, timestamp_sec, measurement, covariance, confidence);
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
 void UFusionPlant::AddRotationMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence)
 {
-	Measurement m = CreateRotationMeasurement(systemName,sensorID,timestamp_sec,measurement,covariance,confidence);
+	Measurement::Ptr m = CreateRotationMeasurement(systemName,sensorID,timestamp_sec,measurement,covariance,confidence);
 }
 
 void UFusionPlant::Fuse()
@@ -115,72 +115,72 @@ void UFusionPlant::CopyPose(UPoseableMeshComponent* target, const UPoseableMeshC
 	}
 }
 
-Measurement UFusionPlant::CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence)
+Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence)
 {
 	//Create basic measurement
 	Eigen::Vector3f meas(position[0],position[1],position[2]);
 	Eigen::Matrix<float, 3, 3> un;
 	un.diagonal() = Eigen::Vector3f(uncertainty[0], uncertainty[1], uncertainty[2]);
-	Measurement result = Measurement::createCartesianMeasurement(meas, un);
+	Measurement::Ptr result = Measurement::createCartesianMeasurement(meas, un);
 	
 	//Add metadata
-	bool measurementConsistent = result.setMetaData(SystemDescriptor(TCHAR_TO_UTF8(*system_name)), sensorID, timestamp_sec, confidence);
+	bool measurementConsistent = result->setMetaData(SystemDescriptor(TCHAR_TO_UTF8(*system_name)), sensorID, timestamp_sec, confidence);
 	if(!measurementConsistent){
 		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
 	}
 	
-	return result;
+	return std::move(result);
 }
 
-Measurement UFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence)
+Measurement::Ptr UFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence)
 {
 	//Create basic measurement
 	Eigen::Vector4f meas(rotation.W, rotation.X, rotation.Y, rotation.Z);
 	Eigen::Matrix<float, 4, 4> un;
 	un.diagonal() = Eigen::Vector4f(&uncertainty[0]);
-	Measurement result = Measurement::createQuaternionMeasurement(meas, un);
+	Measurement::Ptr result = Measurement::createQuaternionMeasurement(meas, un);
 
 	//Add metadata
-	bool measurementConsistent = result.setMetaData(SystemDescriptor(TCHAR_TO_UTF8(*system_name)), sensorID, timestamp_sec, confidence);
+	bool measurementConsistent = result->setMetaData(SystemDescriptor(TCHAR_TO_UTF8(*system_name)), sensorID, timestamp_sec, confidence);
 	if(!measurementConsistent){
 		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
 	}
 
-	return result;
+	return std::move(result);
 }
 
-Measurement UFusionPlant::CreateScaleMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector scale, FVector uncertainty, float confidence)
+Measurement::Ptr UFusionPlant::CreateScaleMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector scale, FVector uncertainty, float confidence)
 {
 	//Create basic measurement
 	Eigen::Vector3f meas(&scale[0]);
 	Eigen::Matrix<float, 3, 3> un;
 	un.diagonal() = Eigen::Vector3f(&uncertainty[0]);
-	Measurement result = Measurement::createScaleMeasurement(meas, un);
+	Measurement::Ptr result = Measurement::createScaleMeasurement(meas, un);
 
 	//Add metadata
-	bool measurementConsistent = result.setMetaData(SystemDescriptor(TCHAR_TO_UTF8(*system_name)), sensorID, timestamp_sec, confidence);
+	bool measurementConsistent = result->setMetaData(SystemDescriptor(TCHAR_TO_UTF8(*system_name)), sensorID, timestamp_sec, confidence);
 	if(!measurementConsistent){
 		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
 	}
 
-	return result;
+	return std::move(result);
 }
 
-Measurement UFusionPlant::CreateRigidBodyMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector state, FVector uncertainty, float confidence)
+Measurement::Ptr UFusionPlant::CreateRigidBodyMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector state, FVector uncertainty, float confidence)
 {
 	//Create basic measurement
 	Eigen::Matrix<float, 7, 1> meas(&state[0]);
 	Eigen::Matrix<float, 7, 7> un;
 	un.diagonal() = Eigen::Matrix<float, 7, 1>(&uncertainty[0]);
-	Measurement result = Measurement::createRigidBodyMeasurement(meas, un);
+	Measurement::Ptr result = Measurement::createRigidBodyMeasurement(meas, un);
 
 	//Add metadata
-	bool measurementConsistent = result.setMetaData(SystemDescriptor(TCHAR_TO_UTF8(*system_name)), sensorID, timestamp_sec, confidence);
+	bool measurementConsistent = result->setMetaData(SystemDescriptor(TCHAR_TO_UTF8(*system_name)), sensorID, timestamp_sec, confidence);
 	if(!measurementConsistent){
 		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
 	}
 
-	return result;
+	return std::move(result);
 }
 
 //===========================
