@@ -15,6 +15,7 @@ namespace fusion {
 
 	//Centre of a fusion plant
 	class Core{
+	private:
 		//Raw data ordered by sytem
 		std::map<SystemDescriptor, SensorSystem> systems;
 
@@ -24,6 +25,16 @@ namespace fusion {
 
 		//Fused data
 		FusionGraph skeleton;
+	
+	public:
+		
+		//Adds a new measurement to the system
+		void addMeasurement(Measurement::Ptr m, std::string node_name);
+		
+		//Computes data added since last fuse() call. Should be called repeatedly	
+		void fuse();
+
+
 	};
 
 }

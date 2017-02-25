@@ -10,7 +10,7 @@
 namespace fusion {
 	
 
-	//NOTE: templating means each skeleton is of a particular model type1
+	//NOTE: templating means each skeleton is of a particular model type
 	//TODO: make folder for model.h files
 	class CartesianModel{
 	public:
