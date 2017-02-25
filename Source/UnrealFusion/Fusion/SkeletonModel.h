@@ -7,13 +7,17 @@
 #include "Eigen/Core"
 #include "Fusion/FusionTypes.h"
 
-class SkeletonModel{
-private:
-	//SkeletonData
-	std::vector<DefaultSensorNode> nodes;
+namespace fusion {
+
+	class SkeletonModel{
+	private:
+		//SkeletonData
+		std::vector<DefaultSensorNode> nodes;
 
 
-public:
-	SkeletonModel();
-	~SkeletonModel();
-};
+	public:
+		SkeletonModel();
+		~SkeletonModel();
+	};
+
+}

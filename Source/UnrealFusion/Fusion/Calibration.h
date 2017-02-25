@@ -7,12 +7,16 @@
 
 
 
-struct Calibration {
+namespace fusion {
 
-	bool calibrated = false;
+	struct Calibration {
 
-	//Transform maps
-	Eigen::Matrix4f transform;
+		bool calibrated = false;
 
-	std::pair<std::vector<Measurement>, std::vector<Measurement>> measurements;
-};
+		//Transform maps
+		Eigen::Matrix4f transform;
+
+		std::pair<std::vector<Measurement>, std::vector<Measurement>> measurements;
+	};
+
+}

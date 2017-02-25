@@ -2,14 +2,15 @@
 #include "UnrealFusion.h"
 #include "SkeletonModel.h"
 
+namespace fusion {
 
-SkeletonModel::SkeletonModel()
-{
+	SkeletonModel::SkeletonModel()
+	{
+	}
+
+	SkeletonModel::~SkeletonModel()
+	{
+	}
+
 }
-
-SkeletonModel::~SkeletonModel()
-{
-}
-
-
 

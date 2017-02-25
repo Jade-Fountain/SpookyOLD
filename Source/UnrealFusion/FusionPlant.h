@@ -5,16 +5,16 @@
 #include "Components/ActorComponent.h"
 #include "Components/PoseableMeshComponent.h"
 
+#include "Fusion/Core.h"
 #include "Fusion/FusionTypes.h"
 #include "Fusion/SkeletonModel.h"
 
 #include <iostream>
 #include <vector>
 #include <string>
-#include "Fusion/FusionPlant.h"
 
 //Must be last include
-#include "UFusionPlant.generated.h"
+#include "FusionPlant.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -23,7 +23,7 @@ class UNREALFUSION_API UFusionPlant : public UActorComponent
 	GENERATED_BODY()
 
 	//Fusionplant
-	FusionPlant plant;
+	fusion::Core plant;
 
 	//Input Skeletons
 	std::vector<UPoseableMeshComponent*> skeletons;
@@ -84,10 +84,10 @@ public:
 	void CopyPose(UPoseableMeshComponent* target, const UPoseableMeshComponent* input);
 
 
-	Measurement::Ptr CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence = 1);
-	Measurement::Ptr CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence = 1);
-	Measurement::Ptr CreateScaleMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector scale, FVector uncertainty, float confidence = 1);
-	Measurement::Ptr CreateRigidBodyMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector state, FVector uncertainty, float confidence = 1);
+	fusion::Measurement::Ptr CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence = 1);
+	fusion::Measurement::Ptr CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence = 1);
+	fusion::Measurement::Ptr CreateScaleMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector scale, FVector uncertainty, float confidence = 1);
+	fusion::Measurement::Ptr CreateRigidBodyMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector state, FVector uncertainty, float confidence = 1);
 
 
 //===========================
