@@ -3,14 +3,14 @@
 #include "UnrealFusion.h"
 #include "FusionTypes.h"
 
-Measurement Measurement::createPositionMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma) {
+Measurement Measurement::createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma) {
 	Measurement meas;
 	meas.type = MeasurementType::POSITION;
 	meas.data = position;
 	meas.uncertainty = sigma;
 	return meas;
 }
-Measurement Measurement::createRotationMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma) {
+Measurement Measurement::createQuaternionMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma) {
 	Measurement meas;
 	meas.type = MeasurementType::ROTATION;
 	meas.data = quaternion;
@@ -32,13 +32,6 @@ Measurement Measurement::createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos
 	return meas;
 }
 
-SensorNode::SensorNode()
-{
-}
-
-SensorNode::~SensorNode()
-{
-}
 
 
 

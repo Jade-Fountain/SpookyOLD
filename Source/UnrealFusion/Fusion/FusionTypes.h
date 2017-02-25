@@ -4,6 +4,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include <string>
+#include <queue>
 #include "Eigen/Core"
 #pragma once
 
@@ -34,6 +35,10 @@ class Measurement {
 	Eigen::MatrixXf uncertainty;
 
 public:
+	//Accessors
+	const Eigen::MatrixXf& getUncertainty() const { return uncertainty; }
+	const Eigen::VectorXf& getData() const { return data; }
+
 	//Name of the sensor system from which the measurement came
 	std::string systemName = "";
 
@@ -47,7 +52,7 @@ public:
 	float confidence = 0;
 
 	bool check_consistent() {
-		return (size == data.size() == uncertainty.size()[0]);
+		return (size == data.size() == uncertainty.rows() == uncertainty.cols());
 	}
 
 	static Measurement createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma);
@@ -57,14 +62,18 @@ public:
 };
 
 //NOTE: templating means each skeleton is of a particular model type1
-class PositionModel{
-	typedef Eigen::Vector3f State;
-	typedef Eigen::Matrix<float,3,3> Uncertainty;
-
-	static void updateState(State* state, Uncertainty* uncertainty, measurement){
+class CartesianModel{
+	//Data model for the state of the data
+	struct State{
+	public:
+		Eigen::Vector3f expectation;
+		Eigen::Matrix<float,3,3> uncertainty;
+	};
+	
+	static void updateState(State* state, Measurement measurement){
 		//Use latest measurement
-		state = measurement.data.segment(0,3);//start,count
-		uncertainty = measurement.uncertainty.topLeftCorner(3,3);
+		state->expectation = measurement.getData().segment(0,3);//start,count
+		state->uncertainty = measurement.getUncertainty().topLeftCorner(3,3);
 	}
 };
 
@@ -72,23 +81,22 @@ class PositionModel{
 /**
  * Sensor Nodes model the state of the system with a tree of nodes
  */
-template <class Model>
+template <typename Model>
 class SensorNode
 {
 private:
-	//Current best state estimate and variance
-	Model::State state;
-	Model::Uncertainty variance;
+	//Current best state estimate, typically including some estimate of variance or confidence
+	typename Model::State state;
 	
 	//Queued messages, 
-	//TODO: in order of timestamp
+	//TODO: order by timestamp
 	std::queue<Measurement> measurements;
 
 	//Children of this node
-	std::vector<uint> children_indices;
+	std::vector<int> children_indices;
 
 	//Parent of this node
-	uint parent_index;
+	int parent_index;
 
 public:
 	//Called by parent node
@@ -107,10 +115,10 @@ public:
 		}
 	}
 
-	SensorNode();
-	~SensorNode();
+	SensorNode() {}
+	~SensorNode() {}
 
 };
 
 
-typedef SensorNode<PositionModel> DefaultSensorNode;
+typedef SensorNode<CartesianModel> DefaultSensorNode;
