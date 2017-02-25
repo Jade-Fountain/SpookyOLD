@@ -8,7 +8,7 @@
 #include "Eigen/Core"
 #include "Fusion/FusionTypes.h"
 
-class SensorSystem {
+struct SensorSystem {
 
 };
 
@@ -17,7 +17,9 @@ private:
 	std::vector<DefaultSensorNode> nodes;
 
 	//sensorTransforms[(A,B)]: A -> B
-	std::map<std::pair<std::string,std::string>,Calibration> calibrations;
+	std::map<SystemPair, Calibration, SystemPairCompare> calibrations;
+	std::map<SystemDescriptor, SensorSystem> systems;
+
 public:
 	SkeletonModel();
 	~SkeletonModel();

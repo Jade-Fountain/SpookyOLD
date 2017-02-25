@@ -26,8 +26,21 @@ public:
 	bool SystemDescriptor::operator!=(const SystemDescriptor &other) const {
 		return !(*this == other);
 	}
+	//Comparators for maps
+	bool operator<(const SystemDescriptor& rhs) const { return name < rhs.name; }
+	bool operator>(const SystemDescriptor& rhs) const { return name > rhs.name; }
 	//Constructor
 	SystemDescriptor(std::string n = "") : name(n) {}
+};
+
+typedef std::pair<SystemDescriptor, SystemDescriptor> SystemPair;
+
+struct SystemPairCompare {
+	bool operator() (const SystemPair& lhs, const SystemPair& rhs) {
+		std::string lhs_combined = lhs.first.name + lhs.second.name;
+		std::string rhs_combined = rhs.first.name + rhs.second.name;
+		return lhs_combined < rhs_combined;
+	}
 };
 
 /** Structs describing measurements
