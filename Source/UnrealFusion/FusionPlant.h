@@ -7,7 +7,6 @@
 
 #include "Fusion/Core.h"
 #include "Fusion/FusionTypes.h"
-#include "Fusion/SkeletonModel.h"
 
 #include <iostream>
 #include <vector>

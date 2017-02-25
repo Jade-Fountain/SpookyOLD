@@ -16,7 +16,7 @@ namespace fusion {
 		//Transform maps
 		Eigen::Matrix4f transform;
 
-		std::pair<std::vector<Measurement>, std::vector<Measurement>> measurements;
+		std::pair<std::vector<Measurement::Ptr>, std::vector<Measurement::Ptr>> measurements;
 	};
 
 }
