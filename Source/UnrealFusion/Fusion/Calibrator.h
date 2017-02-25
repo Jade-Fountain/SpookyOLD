@@ -4,7 +4,7 @@
 #include <vector>
 #include "Eigen/Core"
 #include "Fusion/FusionTypes.h"
-
+#include "Fusion/Utilities/MatrixTypes.h"
 
 
 namespace fusion {
