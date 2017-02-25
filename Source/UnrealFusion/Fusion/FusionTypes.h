@@ -43,18 +43,29 @@ public:
 	std::string systemName = "";
 
 	//Sensor number corresponding to measurement
-	uint16 sensorID = 0;
+	int sensorID = 0;
 
 	//Timestamp (sec; from device)
 	double timeStamp = -1;
 
 	//Confidence in T in [0,1]
 	float confidence = 0;
-
+	
+	//Setup Methods
 	bool check_consistent() {
 		return (size == data.size() == uncertainty.rows() == uncertainty.cols());
 	}
 
+	bool setMetaData(std::string system_name, int sensor_id, float timestamp_sec, float confidence_){
+		systemName = system_name;
+		sensorID = sensor_id;
+		timeStamp = timestamp_sec;
+		confidence = confidence_;
+		return check_consistent();
+	}
+
+
+	//Static factory methods:
 	static Measurement createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma);
 	static Measurement createQuaternionMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma);
 	static Measurement createScaleMeasurement(Eigen::Vector3f scale, Eigen::Matrix<float,3,3> sigma);

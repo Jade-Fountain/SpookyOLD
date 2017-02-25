@@ -2,6 +2,7 @@
 
 #include "UnrealFusion.h"
 #include "FusionPlant.h"
+#include <iostream>
 
 
 //===========================
@@ -122,10 +123,10 @@ Measurement UFusionPlant::CreatePositionMeasurement(FString system_name, int sen
 	Measurement result = Measurement::createCartesianMeasurement(meas, un);
 	
 	//Add metadata
-	result.systemName = TCHAR_TO_UTF8(*system_name);
-	result.sensorID = sensorID;
-	result.timeStamp = timestamp_sec;
-	result.confidence = confidence;
+	bool measurementConsistent = result.setMetaData(TCHAR_TO_UTF8(*system_name), sensorID, timestamp_sec, confidence);
+	if(!measurementConsistent){
+		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
+	}
 	
 	return result;
 }
@@ -139,10 +140,10 @@ Measurement UFusionPlant::CreateRotationMeasurement(FString system_name, int sen
 	Measurement result = Measurement::createQuaternionMeasurement(meas, un);
 
 	//Add metadata
-	result.systemName = TCHAR_TO_UTF8(*system_name);
-	result.sensorID = sensorID;
-	result.timeStamp = timestamp_sec;
-	result.confidence = confidence;
+	bool measurementConsistent = result.setMetaData(TCHAR_TO_UTF8(*system_name), sensorID, timestamp_sec, confidence);
+	if(!measurementConsistent){
+		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
+	}
 
 	return result;
 }
@@ -156,10 +157,10 @@ Measurement UFusionPlant::CreateScaleMeasurement(FString system_name, int sensor
 	Measurement result = Measurement::createScaleMeasurement(meas, un);
 
 	//Add metadata
-	result.systemName = TCHAR_TO_UTF8(*system_name);
-	result.sensorID = sensorID;
-	result.timeStamp = timestamp_sec;
-	result.confidence = confidence;
+	bool measurementConsistent = result.setMetaData(TCHAR_TO_UTF8(*system_name), sensorID, timestamp_sec, confidence);
+	if(!measurementConsistent){
+		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
+	}
 
 	return result;
 }
@@ -173,10 +174,10 @@ Measurement UFusionPlant::CreateRigidBodyMeasurement(FString system_name, int se
 	Measurement result = Measurement::createRigidBodyMeasurement(meas, un);
 
 	//Add metadata
-	result.systemName = TCHAR_TO_UTF8(*system_name);
-	result.sensorID = sensorID;
-	result.timeStamp = timestamp_sec;
-	result.confidence = confidence;
+	bool measurementConsistent = result.setMetaData(TCHAR_TO_UTF8(*system_name), sensorID, timestamp_sec, confidence);
+	if(!measurementConsistent){
+		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
+	}
 
 	return result;
 }
