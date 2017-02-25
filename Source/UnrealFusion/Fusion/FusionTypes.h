@@ -5,6 +5,7 @@
 
 #include <string>
 #include <queue>
+#include <memory>
 #include "Eigen/Core"
 #pragma once
 
@@ -93,16 +94,18 @@ public:
 	static Measurement createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma);
 };
 
+typedef std::shared_ptr<Measurement> MeasurementPointer;
+
 //NOTE: templating means each skeleton is of a particular model type1
 class CartesianModel{
+public:
 	//Data model for the state of the data
 	struct State{
-	public:
 		Eigen::Vector3f expectation;
 		Eigen::Matrix<float,3,3> uncertainty;
 	};
 	
-	static void updateState(State* state, Measurement measurement){
+	static void updateState(State* state, const Measurement& measurement){
 		//Use latest measurement
 		state->expectation = measurement.getData().segment(0,3);//start,count
 		state->uncertainty = measurement.getUncertainty().topLeftCorner(3,3);
