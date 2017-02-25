@@ -11,7 +11,10 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "FusionPlant.generated.h"
+#include "Fusion/FusionPlant.h"
+
+//Must be last include
+#include "UFusionPlant.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -19,6 +22,8 @@ class UNREALFUSION_API UFusionPlant : public UActorComponent
 {
 	GENERATED_BODY()
 
+	//Fusionplant
+	FusionPlant plant;
 
 	//Input Skeletons
 	std::vector<UPoseableMeshComponent*> skeletons;

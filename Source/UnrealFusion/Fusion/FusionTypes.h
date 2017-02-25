@@ -138,7 +138,7 @@ private:
 	
 	//Queued messages, 
 	//TODO: order by timestamp
-	std::queue<Measurement> measurements;
+	std::queue<Measurement::Ptr> measurements;
 
 	//Children of this node
 	std::vector<int> children_indices;
