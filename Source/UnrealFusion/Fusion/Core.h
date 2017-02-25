@@ -21,7 +21,7 @@ namespace fusion {
 
 		//Calibration data per system pair (A,B) = std::pair<SystemDescriptor,SystemDescriptor>
 		//sensorTransforms[(A,B)]: A -> B
-		std::map<SystemPair, Calibration, SystemPairCompare> calibrations;
+		std::map<SystemPair, Calibrator, SystemPairCompare> calibrations;
 
 		//Fused data
 		FusionGraph skeleton;

@@ -10,7 +10,8 @@ namespace fusion {
 
 	//Computes data added since last fuse() call. Should be called repeatedly	
 	void Core::fuse() {
-		
+		skeleton->addMeasurementsToCalibrators(calibrators);
+		if()
 	}
 
 }
