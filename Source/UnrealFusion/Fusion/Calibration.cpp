@@ -12,7 +12,6 @@ namespace fusion {
 	}
 
 	void CalibrationDataSet::Stream::addMeasurement(const Measurement::Ptr& m) {
-		if (sensors.count(m->sensorID) == 0) sensors[m->sensorID] = std::vector<Measurement::Ptr>();
 		sensors[m->sensorID].push_back(m);
 	}
 

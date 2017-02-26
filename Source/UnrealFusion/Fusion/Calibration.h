@@ -5,6 +5,7 @@
 #include <map>
 #include "Eigen/Core"
 #include "FusionTypes.h"
+#include "Utilities/DataStructures.h"
 
 
 namespace fusion {
@@ -16,7 +17,7 @@ namespace fusion {
 		class Stream {
 		private:
 			//Stores sensor samples per ID
-			std::map<SensorID, std::vector<Measurement::Ptr>> sensors;
+			MapToVector<SensorID, Measurement::Ptr> sensors;
 		public:
 			void addMeasurement(const Measurement::Ptr& m);
 		};

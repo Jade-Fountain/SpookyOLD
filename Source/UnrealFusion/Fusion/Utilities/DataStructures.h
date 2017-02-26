@@ -54,4 +54,16 @@ namespace fusion {
 			return { width, height };
 		}
 	};
+
+	template <class X, class Y>
+	class MapToVector {
+	private:
+		std::map<X, std::vector<Y>> data;
+	public:
+		std::vector<Y>& operator[] (const X& x) {
+			//TODO: make more efficient!
+			if (data.count(x) == 0) data[x] = std::vector<Y>();
+			return data[x];
+		}
+	};
 }
