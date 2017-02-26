@@ -26,8 +26,9 @@ namespace fusion {
 	}
 
 	void Calibrator::addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
+		//TODO: Decide if new enough
 		for (auto& m : measurementQueue) {
-			//TODO: Decide if new enough
+			addMeasurement(m.first, m.second);
 		}
 	}
 }
