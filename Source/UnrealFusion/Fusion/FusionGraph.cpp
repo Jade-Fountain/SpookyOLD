@@ -3,6 +3,12 @@
 #include "FusionGraph.h"
 
 namespace fusion {
+	
+	void FusionGraph::addNode(const NodeDescriptor & node, const NodeDescriptor & parent) {
+		safeAccess(nodes, node).desc = node;
+		safeAccess(nodes, node).parent_desc = parent;
+	}
+
 
 	std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> FusionGraph::getMeasurements() {
 		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> measurements;

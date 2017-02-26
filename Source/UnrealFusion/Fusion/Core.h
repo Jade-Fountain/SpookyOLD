@@ -26,10 +26,23 @@ namespace fusion {
 		//Fused data
 		FusionGraph skeleton;
 
-		//Queue of latest measurements
+		//TODO?:Queue of latest measurements
 		
 	public:
+
+		////////////////////////////////////////////////////
+		//					Initialisation
+		////////////////////////////////////////////////////
+
+		//Adds a node to the fusion graph model
+		void addNode(const NodeDescriptor& node, const NodeDescriptor& parent);
 		
+		//Computes necessary metadata after setup
+		void finaliseSetup();
+
+		////////////////////////////////////////////////////
+		//					Runtime
+		////////////////////////////////////////////////////
 		//Adds a new measurement to the system
 		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
 		

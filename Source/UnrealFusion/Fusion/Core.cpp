@@ -2,6 +2,15 @@
 #include "Core.h"
 namespace fusion {
 
+	void Core::addNode(const NodeDescriptor & node, const NodeDescriptor & parent)
+	{
+		skeleton.addNode(node, parent);
+	}
+
+	void Core::finaliseSetup()
+	{
+	}
+
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
 		//systems[m->system].addMeasurement(m);

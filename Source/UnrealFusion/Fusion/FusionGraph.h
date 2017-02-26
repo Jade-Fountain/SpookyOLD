@@ -47,6 +47,8 @@ namespace fusion {
 			std::vector<NodeDescriptor> children_desc;
 			//Parent of this node
 			NodeDescriptor parent_desc;
+			//Own name
+			NodeDescriptor desc;
 		
 			////Called by parent node
 			//void update(){
@@ -69,12 +71,18 @@ namespace fusion {
 	*				Public methods
 	*//////////////////////////////////////////////////////////////////
 	public:
+		//Adds node to the skeleton
+		void addNode(const NodeDescriptor & node, const NodeDescriptor & parent);
+
 		//Returns a list of pending measurments
 		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> getMeasurements();
 
 		//Adds a measurement to be fused on next fusion call
 		void addMeasurement(const NodeDescriptor& node, const Measurement::Ptr& m);
-
+	
+	/*//////////////////////////////////////////////////////////////////
+	*				Private Data
+	*//////////////////////////////////////////////////////////////////
 	private:
 		//SkeletonData
 		std::map<NodeDescriptor, DefaultSensorNode> nodes;
