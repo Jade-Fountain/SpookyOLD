@@ -6,11 +6,17 @@ namespace fusion {
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
 		//systems[m->system].addMeasurement(m);
 		//skeleton->addMeasurement(node, m);
-		calibrator.addMeasurement(m, node);
 	}
 
 	//Computes data added since last fuse() call. Should be called repeatedly	
 	void Core::fuse() {
+		std::vector<std::pair<Measurement::Ptr,NodeDescriptor>> measurementQueue = skeleton.getMeasurements();
+		//TODO: check novelty of measurement frame
+		for (auto& m : measurementQueue) {
+			calibrator.addMeasurement(m.first,//Measurement
+									  m.second);//NodeDescriptor
+		}
+
 //		if()
 	}
 

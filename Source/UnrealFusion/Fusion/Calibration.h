@@ -41,8 +41,9 @@ namespace fusion {
 		std::map<SystemPair, CalibrationResult> results;
 
 	public:
-
+		//Add data for later calibration
 		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
+		//
 	};
 
 }

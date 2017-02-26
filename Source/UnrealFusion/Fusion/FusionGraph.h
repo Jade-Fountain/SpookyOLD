@@ -29,44 +29,55 @@ namespace fusion {
 
 	class FusionGraph {
 
-		/**
-		 * Sensor Nodes model the state of the system with a tree of nodes
-		 */
+	/*//////////////////////////////////////////////////////////////////
+	* Sensor Nodes model the state of the system with a tree of nodes
+	*//////////////////////////////////////////////////////////////////
 		template <typename Model>
-		class Node
+		struct Node
 		{
-		private:
+		public:
 			//Current best state estimate, typically including some estimate of variance or confidence
 			typename Model::State state;
 			//Queued messages, 
 			//TODO: order by timestamp
-			std::queue<Measurement::Ptr> measurements;
+			std::vector<Measurement::Ptr> measurements;
+
 			//Children of this node
-			std::vector<int> children_indices;
+			std::vector<NodeDescriptor> children_desc;
 			//Parent of this node
-			int parent_index;
-		public:
-			//Called by parent node
-			void update(){
-				updateState();
-				for(auto& child : children){
-					child.update();
-				}
-			}
-			//Computes update according to measurements
-			void updateState(){
-				while(!measurements.empty()) {
-					auto& measurement = measurements.pop_front();
-					Model::updateState(&state, &uncertainty, measurement);
-				}
-			}
+			NodeDescriptor parent_desc;
+		
+			////Called by parent node
+			//void update(){
+			//	updateState();
+			//	for(auto& child : children){
+			//		child.update();
+			//	}
+			//}
+			////Computes update according to measurements
+			//void updateState(){
+			//	while(!measurements.empty()) {
+			//		auto& measurement = measurements.pop_front();
+			//		Model::updateState(&state, &uncertainty, measurement);
+			//	}
+			//}
 		};
 		typedef Node<CartesianModel> DefaultSensorNode;
 
+	/*//////////////////////////////////////////////////////////////////
+	*				Public methods
+	*//////////////////////////////////////////////////////////////////
+	public:
+		//Returns a list of pending measurments
+		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> getMeasurements();
+
+		//Adds a measurement to be fused on next fusion call
+		void addMeasurement(const NodeDescriptor& node, const Measurement::Ptr& m);
 
 	private:
 		//SkeletonData
-		std::vector<DefaultSensorNode> nodes;
+		std::map<NodeDescriptor, DefaultSensorNode> nodes;
+
 
 
 	};

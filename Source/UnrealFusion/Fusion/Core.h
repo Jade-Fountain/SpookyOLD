@@ -25,7 +25,9 @@ namespace fusion {
 
 		//Fused data
 		FusionGraph skeleton;
-	
+
+		//Queue of latest measurements
+		
 	public:
 		
 		//Adds a new measurement to the system
