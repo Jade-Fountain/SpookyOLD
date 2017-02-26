@@ -7,7 +7,12 @@ namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	void CalibrationDataSet::addMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node) {
+		SystemNodePair key = SystemNodePair(system, node);
+		data[key].addMeasurement(m);
+	}
 
+	void CalibrationDataSet::Stream::addMeasurement(const Measurement::Ptr& m) {
+		sensors[m->sensorID].push_back(m);
 	}
 
 

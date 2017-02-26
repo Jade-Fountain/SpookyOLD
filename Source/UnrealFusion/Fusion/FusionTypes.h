@@ -34,7 +34,7 @@ namespace fusion {
 		SystemDescriptor(std::string n = "") : name(n) {}
 	};
 
-	class NodeDescriptor : SystemDescriptor {};
+	class NodeDescriptor : public SystemDescriptor {};
 
 	typedef std::pair<SystemDescriptor, SystemDescriptor> SystemPair;
 	typedef std::pair<SystemDescriptor, NodeDescriptor> SystemNodePair;
@@ -92,7 +92,7 @@ namespace fusion {
 		SystemDescriptor system;
 
 		//Sensor number corresponding to measurement
-		int sensorID = 0;
+		SensorID sensorID = 0;
 
 		//Timestamp (sec; from device)
 		double timeStamp = -1;

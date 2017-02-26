@@ -13,17 +13,17 @@ namespace fusion {
 	class CalibrationDataSet {
 
 		//Encapsulation for accessing measurements corresponding to 
-		class CalibrationData {
+		class Stream {
 		private:
 			//Stores sensor samples per ID
 			std::map<SensorID, std::vector<Measurement::Ptr>> sensors;
 		public:
-
+			void addMeasurement(const Measurement::Ptr& m);
 		};
 
 	private:
 		//Stores the data for each System and each node which has sensors from that system
-		std::map<SystemNodePair, CalibrationData> data;
+		std::map<SystemNodePair, Stream> data;
 	public:
 		void addMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
 
