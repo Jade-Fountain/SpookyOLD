@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include "Eigen/Core"
 #include "FusionTypes.h"
 #include "Utilities/DataStructures.h"
@@ -40,10 +41,13 @@ namespace fusion {
 		//Storage of output data
 		SafeMap<SystemPair, CalibrationResult> results;
 
+		//Checks there is data corresponding to more than one system for a given node in a measurement group
+		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> filterLonelyData(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue);
 	public:
 		//Add data for later calibration
 		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
 		void addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue);
+
 		//
 	};
 
