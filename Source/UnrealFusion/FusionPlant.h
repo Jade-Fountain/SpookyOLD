@@ -52,7 +52,9 @@ public:
 	//Set the output target which will have the complete fused skeleton pose applied
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void SetOutputTarget(UPoseableMeshComponent* poseable_mesh);
-
+	
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void FinaliseSetup();
 //Contruction of sensor nodes
 
 	////Add a new sensor node model

@@ -43,13 +43,14 @@ namespace fusion {
 			//TODO: order by timestamp
 			std::vector<Measurement::Ptr> measurements;
 
-			//Children of this node
-			std::vector<NodeDescriptor> children_desc;
-			//Parent of this node
-			NodeDescriptor parent_desc;
 			//Own name
 			NodeDescriptor desc;
-		
+			//Parent of this node
+			NodeDescriptor parent_desc;
+			//TODO: Compute children of this node from parents
+			//std::vector<NodeDescriptor> children_desc;
+
+
 			////Called by parent node
 			//void update(){
 			//	updateState();

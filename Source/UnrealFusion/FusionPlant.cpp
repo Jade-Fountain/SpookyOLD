@@ -51,10 +51,14 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
 	for (auto& bone : boneInfo) {
 		plant.addNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))), 
-					  fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[bone.ParentIndex].Name.GetPlainNameString()))));
+					  fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[std::max(0,bone.ParentIndex)].Name.GetPlainNameString()))));
 	}
 }
 
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::FinaliseSetup() {
+	plant.finaliseSetup();
+}
 
 //===========================
 //Update functions
@@ -77,9 +81,10 @@ void UFusionPlant::AddRotationMeasurement(FString nodeName, FString systemName, 
 
 void UFusionPlant::Fuse()
 {
-	if (skeletons.size() > 0 && fusedSkeleton != NULL) {
-		CopyPose(fusedSkeleton, skeletons[0]);
-	}
+	plant.fuse();
+	//if (skeletons.size() > 0 && fusedSkeleton != NULL) {
+	//	CopyPose(fusedSkeleton, skeletons[0]);
+	//}
 }
 
 //===========================
