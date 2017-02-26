@@ -38,6 +38,7 @@ namespace fusion {
 
 	typedef std::pair<SystemDescriptor, SystemDescriptor> SystemPair;
 	typedef std::pair<SystemDescriptor, NodeDescriptor> SystemNodePair;
+	typedef uint32 SensorID;
 
 	struct SystemPairCompare {
 		bool operator() (const SystemPair& lhs, const SystemPair& rhs) {
@@ -45,6 +46,15 @@ namespace fusion {
 			std::string rhs_combined = rhs.first.name + rhs.second.name;
 			return lhs_combined < rhs_combined;
 		}
+	};
+
+	//Results of a calibration are stored in this struct
+	struct CalibrationResult {
+		SystemPair systems;
+		bool calibrated = false;
+		//Maps first to second
+		Eigen::Matrix4f transform;
+		float quality = 0;
 	};
 
 	/** Structs describing measurements

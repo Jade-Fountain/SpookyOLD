@@ -3,9 +3,9 @@
 #include <string>
 #include <map>
 #include "Eigen/Core"
-#include "Fusion/FusionTypes.h"
-#include "Fusion/Calibration.h"
-#include "Fusion/FusionGraph.h"
+#include "FusionTypes.h"
+#include "Calibration.h"
+#include "FusionGraph.h"
 
 namespace fusion {
 
@@ -21,7 +21,7 @@ namespace fusion {
 
 		//Calibration data per system pair (A,B) = std::pair<SystemDescriptor,SystemDescriptor>
 		//sensorTransforms[(A,B)]: A -> B
-		std::map<SystemPair, Calibrator, SystemPairCompare> calibrations;
+		Calibrator calibrator;
 
 		//Fused data
 		FusionGraph skeleton;
@@ -29,7 +29,7 @@ namespace fusion {
 	public:
 		
 		//Adds a new measurement to the system
-		void addMeasurement(Measurement::Ptr m, std::string node_name);
+		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
 		
 		//Computes data added since last fuse() call. Should be called repeatedly	
 		void fuse();

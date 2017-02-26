@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 #include "Eigen/Core"
-#include "Fusion/FusionTypes.h"
+#include "FusionTypes.h"
 
 namespace fusion {
 	

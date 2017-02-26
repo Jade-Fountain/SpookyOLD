@@ -2,27 +2,46 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include "Eigen/Core"
-#include "Fusion/FusionTypes.h"
-
+#include "FusionTypes.h"
 
 
 namespace fusion {
 
+	//Encapsulation for storing measurements	
+	class CalibrationDataSet {
+
+		//Encapsulation for accessing measurements corresponding to 
+		class CalibrationData {
+		private:
+			//Stores sensor samples per ID
+			std::map<SensorID, std::vector<Measurement::Ptr>> sensors;
+		public:
+
+		};
+
+	private:
+		//Stores the data for each System and each node which has sensors from that system
+		std::map<SystemNodePair, CalibrationData> data;
+	public:
+		void addMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
+
+	};
+
+
 	class Calibrator {
 	private:
-		bool calibrated = false;
+		
+		//Table for looking up data relevant to determining transforms
+		CalibrationDataSet calibrationSet;
 
-		//Transform maps
-		Eigen::Matrix4f transform;
+		//Storage of output data
+		std::map<SystemPair, CalibrationResult> results;
 
-		//Data relevant to determining transform
-		//std::pair<std::vector<Measurement::Ptr>, std::vector<Measurement::Ptr>> measurements; //OLD 
-//		std::map<NodeIndex,std::map<SystemDescriptor,std::vector<Measurement::Ptr>> measurements;
-	
 	public:
 
-
+		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
 	};
 
 }
