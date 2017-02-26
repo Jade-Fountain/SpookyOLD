@@ -2,6 +2,9 @@
 
 #include <vector>
 
+//WARNING: this file is not complete
+
+
 namespace fusion {
 	//TODO: fix the memory issues with this class
 	//template <class T>
@@ -29,6 +32,7 @@ namespace fusion {
 	//	}
 	//};
 
+	//TODO: finish
 	template <class T>
 	class ObMatrix {
 	private:

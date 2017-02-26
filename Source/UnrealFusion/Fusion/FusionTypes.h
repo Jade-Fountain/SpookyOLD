@@ -34,7 +34,10 @@ namespace fusion {
 		SystemDescriptor(std::string n = "") : name(n) {}
 	};
 
+	class NodeDescriptor : SystemDescriptor {};
+
 	typedef std::pair<SystemDescriptor, SystemDescriptor> SystemPair;
+	typedef std::pair<SystemDescriptor, NodeDescriptor> SystemNodePair;
 
 	struct SystemPairCompare {
 		bool operator() (const SystemPair& lhs, const SystemPair& rhs) {
