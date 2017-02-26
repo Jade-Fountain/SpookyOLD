@@ -43,6 +43,7 @@ namespace fusion {
 	public:
 		//Add data for later calibration
 		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
+		void addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue);
 		//
 	};
 

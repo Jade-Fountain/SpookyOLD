@@ -21,8 +21,13 @@ namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//									Calibrator
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//TODO: check novelty
 	void Calibrator::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
 		calibrationSet.addMeasurement(m, m->system, node);
+	}
+
+	void Calibrator::addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
+		for (auto& m : measurementQueue) {
+			//TODO: Decide if new enough
+		}
 	}
 }

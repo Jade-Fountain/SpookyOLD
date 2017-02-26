@@ -10,14 +10,9 @@ namespace fusion {
 
 	//Computes data added since last fuse() call. Should be called repeatedly	
 	void Core::fuse() {
-		std::vector<std::pair<Measurement::Ptr,NodeDescriptor>> measurementQueue = skeleton.getMeasurements();
-		//TODO: check novelty of measurement frame
-		for (auto& m : measurementQueue) {
-			calibrator.addMeasurement(m.first,//Measurement
-									  m.second);//NodeDescriptor
-		}
+		//Add new data to calibration, with checking for usefulness
+		calibrator.addMeasurementGroup(skeleton.getMeasurements());
 
-//		if()
 	}
 
 }
