@@ -15,7 +15,7 @@ namespace fusion {
 	}
 
 	void FusionGraph::addMeasurement(const NodeDescriptor& node, const Measurement::Ptr& m) {
-
+		safeAccess(nodes,node).measurements.push_back(m);
 	}
 
 

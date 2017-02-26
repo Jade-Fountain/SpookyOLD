@@ -56,14 +56,21 @@ namespace fusion {
 	};
 
 	template <class X, class Y>
-	class MapToVector {
+	class SafeMap {
 	private:
-		std::map<X, std::vector<Y>> data;
+		std::map<X, Y> data;
 	public:
-		std::vector<Y>& operator[] (const X& x) {
+		Y& operator[] (const X& x) {
 			//TODO: make more efficient!
-			if (data.count(x) == 0) data[x] = std::vector<Y>();
+			if (data.count(x) == 0) data[x] = Y();
 			return data[x];
 		}
 	};
+
+	template<class X, class Y>
+	Y& safeAccess(std::map<X, Y>& m, const X& x) {
+		if (m.count(x) == 0) m[x] = Y();
+		return m[x];
+	}
+
 }

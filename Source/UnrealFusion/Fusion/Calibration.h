@@ -17,7 +17,7 @@ namespace fusion {
 		class Stream {
 		private:
 			//Stores sensor samples per ID
-			MapToVector<SensorID, Measurement::Ptr> sensors;
+			SafeMap<SensorID, std::vector<Measurement::Ptr>> sensors;
 		public:
 			void addMeasurement(const Measurement::Ptr& m);
 		};
@@ -38,7 +38,7 @@ namespace fusion {
 		CalibrationDataSet calibrationSet;
 
 		//Storage of output data
-		std::map<SystemPair, CalibrationResult> results;
+		SafeMap<SystemPair, CalibrationResult> results;
 
 	public:
 		//Add data for later calibration

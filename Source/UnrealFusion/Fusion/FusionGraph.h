@@ -6,6 +6,7 @@
 #include <map>
 #include "Eigen/Core"
 #include "FusionTypes.h"
+#include "Utilities/DataStructures.h"
 
 namespace fusion {
 	

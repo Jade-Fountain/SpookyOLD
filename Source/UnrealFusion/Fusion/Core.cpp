@@ -5,7 +5,7 @@ namespace fusion {
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
 		//systems[m->system].addMeasurement(m);
-		//skeleton->addMeasurement(node, m);
+		skeleton.addMeasurement(node, m);
 	}
 
 	//Computes data added since last fuse() call. Should be called repeatedly	
