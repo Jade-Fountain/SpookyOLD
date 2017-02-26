@@ -34,7 +34,10 @@ namespace fusion {
 		SystemDescriptor(std::string n = "") : name(n) {}
 	};
 
-	class NodeDescriptor : public SystemDescriptor {};
+	class NodeDescriptor : public SystemDescriptor {
+	public:
+		NodeDescriptor(std::string n = "") : SystemDescriptor(n) {}
+	};
 
 	typedef std::pair<SystemDescriptor, SystemDescriptor> SystemPair;
 	typedef std::pair<SystemDescriptor, NodeDescriptor> SystemNodePair;

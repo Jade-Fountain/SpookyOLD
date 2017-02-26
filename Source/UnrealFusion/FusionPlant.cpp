@@ -60,12 +60,14 @@ UFUNCTION(BlueprintCallable, Category = "Fusion")
 void UFusionPlant::AddPositionMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, float confidence)
 {
 	Measurement::Ptr m = CreatePositionMeasurement(systemName, sensorID, timestamp_sec, measurement, covariance, confidence);
+	plant.addMeasurement(m, fusion::NodeDescriptor(TCHAR_TO_UTF8(*nodeName)));
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
 void UFusionPlant::AddRotationMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence)
 {
 	Measurement::Ptr m = CreateRotationMeasurement(systemName,sensorID,timestamp_sec,measurement,covariance,confidence);
+	plant.addMeasurement(m, fusion::NodeDescriptor(TCHAR_TO_UTF8(*nodeName)));
 }
 
 void UFusionPlant::Fuse()
