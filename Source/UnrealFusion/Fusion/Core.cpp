@@ -21,6 +21,7 @@ namespace fusion {
 	void Core::fuse() {
 		//Add new data to calibration, with checking for usefulness
 		calibrator.addMeasurementGroup(skeleton.getMeasurements());
+		calibrator.calibrate();
 		skeleton.fuse();
 	}
 

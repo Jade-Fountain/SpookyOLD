@@ -7,12 +7,13 @@
 #include "Eigen/Core"
 #include "FusionTypes.h"
 #include "Utilities/DataStructures.h"
-
+#include "Utilities/CalibrationUtilities.h"
 
 namespace fusion {
 
 	//Encapsulation for storing measurements	
 	class CalibrationDataSet {
+	public:
 
 		//Encapsulation for accessing measurements corresponding to 
 		class Stream {
@@ -22,12 +23,22 @@ namespace fusion {
 			void addMeasurement(const Measurement::Ptr& m);
 		};
 
-	private:
+
 		//Stores the data for each System and each node which has sensors from that system
-		std::map<SystemNodePair, Stream> data;
-	public:
+		//Picture it as a table of sensors with Systems naming the rows and Nodes naming the columns
+		//Example:
+		//			N1	N2	N3		...
+		//		S1	s1	s2	s3,s4
+		//		S2	r1	-	-
+		//		S3	-	q1	-
+		//
+		std::map<SystemNodePair, Stream> systemNodeTable;
+		std::set<SystemDescriptor> systems;
+		std::set<NodeDescriptor> nodes;
+
+		//Helper methods
 		void addMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
-		float compareMeasurementToLatest(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
+		float compareMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
 
 	};
 
@@ -53,7 +64,8 @@ namespace fusion {
 		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
 		void addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue);
 
-		//
+		//Calibrate
+		void calibrate();
 	};
 
 }

@@ -6,15 +6,22 @@ namespace fusion {
 	//									CalibrationDataSet
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void CalibrationDataSet::addMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node) {
-		SystemNodePair key = SystemNodePair(system, node);
-		data[key].addMeasurement(m);
+	void CalibrationDataSet::Stream::addMeasurement(const Measurement::Ptr& m) {
+		sensors[m->sensorID].push_back(m);
 	}
 
-	float CalibrationDataSet::compareMeasurementToLatest(const Measurement::Ptr & m, const SystemDescriptor & system, const NodeDescriptor & node)
+	void CalibrationDataSet::addMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node) {
+		SystemNodePair sysNode = SystemNodePair(system, node);
+		systemNodeTable[sysNode].addMeasurement(m);
+		//Store info for later
+		systems.insert(system);
+		nodes.insert(node);
+	}
+
+	float CalibrationDataSet::compareMeasurement(const Measurement::Ptr & m, const SystemDescriptor & system, const NodeDescriptor & node)
 	{
-		SystemNodePair key = SystemNodePair(system, node);
-		std::vector<Measurement::Ptr>& stream = data[key].sensors[m->sensorID];
+		SystemNodePair sysNode = SystemNodePair(system, node);
+		std::vector<Measurement::Ptr>& stream = systemNodeTable[sysNode].sensors[m->sensorID];
 		//If no previous recorded data, return max difference
 		if (stream.size() == 0) {
 			return float(std::numeric_limits<float>::max());
@@ -22,11 +29,6 @@ namespace fusion {
 		//Otherwise compare the measurements
 		return stream.back()->compare(m);
 	}
-
-	void CalibrationDataSet::Stream::addMeasurement(const Measurement::Ptr& m) {
-		sensors[m->sensorID].push_back(m);
-	}
-
 
 
 
@@ -58,7 +60,7 @@ namespace fusion {
 		for (auto& m : measurements) {
 			auto& mes = m.first;
 			auto& node = m.second;
-			float diff = calibrationSet.compareMeasurementToLatest(mes, mes->system, node);
+			float diff = calibrationSet.compareMeasurement(mes, mes->system, node);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true
 			if (diff > threshold) {
@@ -86,6 +88,31 @@ namespace fusion {
 			//Store the (refs to) the relevant measurements
 			for (auto& m : measurements) {
 				addMeasurement(m.first, m.second);
+			}
+
+		}
+	}
+
+	void Calibrator::calibrate()
+	{
+		std::map < NodeDescriptor, std::vector<SystemDescriptor>> calibrationGroup;
+		//For each unordered pairing of systems, check if there are common nodes
+		for (std::set<SystemDescriptor>::iterator system1 = calibrationSet.systems.begin(); system1 != calibrationSet.systems.end(); system1++) {
+			for (std::set<SystemDescriptor>::iterator system2 = std::next(system1); system2 != calibrationSet.systems.end(); system2++) {
+				for (auto& node : calibrationSet.nodes) {
+					
+					SystemNodePair sysNode1(*system1, node);
+					SystemNodePair sysNode2(*system2, node);
+					
+					//If there is an entry for each system in the table, add the systems to the node calibration group
+					if (calibrationSet.systemNodeTable.count(sysNode1) > 0 &&
+						calibrationSet.systemNodeTable.count(sysNode2) > 0) {
+						//TODO:Check data counts
+
+						safeAccess(calibrationGroup, node).push_back(*system1);
+						safeAccess(calibrationGroup, node).push_back(*system2);
+					}
+				}
 			}
 		}
 	}
