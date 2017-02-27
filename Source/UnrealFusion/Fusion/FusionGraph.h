@@ -92,7 +92,7 @@ namespace fusion {
 		std::map<NodeDescriptor, DefaultSensorNode> nodes;
 		
 		//Clears measurements in graph
-		void clearMeasurements()
+		void clearMeasurements();
 
 
 	};
