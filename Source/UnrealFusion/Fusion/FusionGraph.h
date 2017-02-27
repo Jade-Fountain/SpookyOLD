@@ -80,6 +80,9 @@ namespace fusion {
 
 		//Adds a measurement to be fused on next fusion call
 		void addMeasurement(const NodeDescriptor& node, const Measurement::Ptr& m);
+
+		//Compute best model for given data and prior
+		void fuse();
 	
 	/*//////////////////////////////////////////////////////////////////
 	*				Private Data
@@ -87,7 +90,9 @@ namespace fusion {
 	private:
 		//SkeletonData
 		std::map<NodeDescriptor, DefaultSensorNode> nodes;
-
+		
+		//Clears measurements in graph
+		void clearMeasurements()
 
 
 	};

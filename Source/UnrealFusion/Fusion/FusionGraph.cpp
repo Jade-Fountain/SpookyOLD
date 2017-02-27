@@ -24,6 +24,18 @@ namespace fusion {
 		safeAccess(nodes,node).measurements.push_back(m);
 	}
 
+	void FusionGraph::fuse() {
+		//TODO: implement fusion
+		//For now, just empty measurements
+		clearMeasurements();
+	}
+
+	void  FusionGraph::clearMeasurements() {
+		for (auto& node : nodes) {
+			node.second.measurements.clear();
+		}
+	}
+
 
 
 
