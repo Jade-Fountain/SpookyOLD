@@ -23,12 +23,16 @@ namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>
-		Calibrator::filterLonelyData(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
+	Calibrator::filterLonelyData(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
+		//Init result
 		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> result;
+		//Structure for counting systems per node
 		SafeMap<NodeDescriptor, std::set<SystemDescriptor>> systemsPerNode;
+		//Count
 		for (auto& m : measurementQueue) {
 			systemsPerNode[m.second].insert(m.first->system);
 		}
+		//Push back relevant measurments
 		for (auto& m : measurementQueue) {
 			if (systemsPerNode[m.second].size() > 1) {
 				result.push_back(m);

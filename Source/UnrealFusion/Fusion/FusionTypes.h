@@ -42,7 +42,7 @@ namespace fusion {
 
 	typedef std::pair<SystemDescriptor, SystemDescriptor> SystemPair;
 	typedef std::pair<SystemDescriptor, NodeDescriptor> SystemNodePair;
-	typedef uint32 SensorID;
+	typedef int SensorID;
 
 	struct SystemPairCompare {
 		bool operator() (const SystemPair& lhs, const SystemPair& rhs) {
