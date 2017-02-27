@@ -124,6 +124,9 @@ namespace fusion {
 		static Measurement::Ptr createQuaternionMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma);
 		static Measurement::Ptr createScaleMeasurement(Eigen::Vector3f scale, Eigen::Matrix<float,3,3> sigma);
 		static Measurement::Ptr createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma);
+		
+		//Method for getting the distance between two measurements
+		float compare(const Measurement::Ptr & other);
 	};
 
 

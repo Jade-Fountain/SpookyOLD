@@ -38,6 +38,14 @@ namespace fusion {
 		return std::move(meas);
 	}
 
+	float Measurement::compare(const Measurement::Ptr& other) {
+		if (type != other->type) {
+			throw std::runtime_error(__FILE__ + __LINE__ + std::string(" : Cannot compare two measurements of differing type"));
+		}
+		//TODO: add conditionals for better metrics for rotations etc.
+		return (data - other->data).norm();
+	}
+
 }
 
 
