@@ -135,7 +135,7 @@ namespace fusion {
 						const std::vector<Measurement::Ptr>& measurements1 = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
 						const std::vector<Measurement::Ptr>& measurements2 = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
 
-
+						//
 
 						safeAccess(calibrationGroup, node).push_back(*system1);
 						safeAccess(calibrationGroup, node).push_back(*system2);
