@@ -19,8 +19,13 @@ namespace fusion {
 		class Stream {
 		public:
 			//Stores sensor samples per ID
-			SafeMap<SensorID, std::vector<Measurement::Ptr>> sensors;
+			std::map<SensorID, std::vector<Measurement::Ptr>> sensors;
+			//Adds a measurement to the stream
 			void addMeasurement(const Measurement::Ptr& m);
+			//Gets the size of the largest sensor stream and the corresponding sensor ID
+			std::pair<SensorID, size_t> maxCount();
+			//
+			const std::vector<Measurement::Ptr>& get
 		};
 
 
