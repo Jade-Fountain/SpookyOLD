@@ -1,5 +1,6 @@
 #include "UnrealFusion.h"
 #include "Calibration.h"
+#include "Fusion/Utilities/CalibrationUtilities.h"
 
 namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,21 +161,27 @@ namespace fusion {
 */
 	}
 
-	Eigen::Transform<float, 3, Eigen::Affine> Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2)
+	Eigen::Transform<float, 3, Eigen::Affine> Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
 	{
-		switch (measurements1.front()->type) {
+		switch (m1.front()->type) {
 		case MeasurementType::POSITION:
-			if (measurements2.front()->type == MeasurementType::POSITION) {
-				return calPosPos(measurements1, measurements2);
+			if (m2.front()->type == MeasurementType::POSITION) {
+				return calPosPos(m1, m2);
 			}
 			break;
 		}
 		return Eigen::Transform<float, 3, Eigen::Affine>();
 	}
 
-	Eigen::Transform<float, 3, Eigen::Affine> Calibrator::calPosPos(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2)
+	Eigen::Transform<float, 3, Eigen::Affine> Calibrator::calPosPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
 	{
-		return Eigen::Transform<float, 3, Eigen::Affine>();
+		std::vector<Eigen::Vector3f> pos1(m1.size());
+		std::vector<Eigen::Vector3f> pos2(m2.size());
+		for (int i = 0; i < m1.size(); i++) {
+			pos1[i] = m1[i]->getData();
+			pos2[i] = m2[i]->getData();
+		}
+		return utility::PositionalCalibration::calibrateIdenticalPair(pos1, pos2);
 	}
 
 }

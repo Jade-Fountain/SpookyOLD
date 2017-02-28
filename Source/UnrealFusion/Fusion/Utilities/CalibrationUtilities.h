@@ -4,7 +4,7 @@
 #include<Eigen/SVD>
 #include<Eigen/Geometry>
 #include "Logging.h"
-
+#pragma once
 namespace fusion{
 	namespace utility{
 
@@ -32,7 +32,7 @@ namespace fusion{
 		//}
 
 		class PositionalCalibration{
-
+		public:
 			//For calibrating a pair of systems with two sensors measuring the same point from two different reference frames
 			// Xa = b
 			// or XA = B
@@ -50,9 +50,13 @@ namespace fusion{
 				}
 
 				Eigen::Matrix4f X = B * pInv(A);
+				Eigen::Quaternionf q(X.block<3,3>(0,0));
+				Eigen::Translation3f t(X.block<3,1>(0,3));
 				
 				//TODO:make sure normalised
-				Eigen::Transform<float, 3, Eigen::Affine> TX;
+				Eigen::Transform<float, 3, Eigen::Affine> TX(t);
+				TX.rotate(q);
+
 				std::stringstream ss;
 				ss << "Result: " << X << "\n";
 				//ss << TX << std::endl;
