@@ -71,21 +71,21 @@ namespace fusion {
 	}
 
 	bool Calibrator::checkChanges(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurements) {
-		FUSION_LOG("Measurement count to check: " + std::to_string(measurements.size()));
+		//FUSION_LOG("Measurement count to check: " + std::to_string(measurements.size()));
 		//Check change for each measurement
+		bool result = false;
 		for (auto& m : measurements) {
 			auto& mes = m.first;
 			auto& node = m.second;
-			FUSION_LOG("Measurement: " + mes->system.name);
-			FUSION_LOG("Node: " + node.name);
+			//FUSION_LOG("Measurement: " + mes->system.name);
+			//FUSION_LOG("Node: " + node.name);
 			float diff = calibrationSet.compareMeasurement(mes, mes->system, node);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true
-			if (diff > diff_threshold) {
-				return true;
-			}
+			
+			result = result || (diff > diff_threshold);
 		}
-		return false;
+		return result;
 	}
 
 
@@ -125,14 +125,14 @@ namespace fusion {
 	}
 
 	void Calibrator::addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
-		FUSION_LOG("MeasurementQueue for calibration: " + std::to_string(measurementQueue.size()));
+		//FUSION_LOG("MeasurementQueue for calibration: " + std::to_string(measurementQueue.size()));
 		//Check there is data corresponding to more than one system for a given node, otherwise useless
 		auto measurements = filterLonelyData(measurementQueue);
-		FUSION_LOG("Valid measurements for calibration: " + std::to_string(measurements.size()));
+		//FUSION_LOG("Valid measurements for calibration: " + std::to_string(measurements.size()));
 
 		//Decide if data is useful
 		bool dataNovel = checkChanges(measurements);
-		FUSION_LOG(dataNovel ? "Data is novel" : "Data is NOT novel! Waiting for more data.");
+		//FUSION_LOG(dataNovel ? "Data is novel" : "Data is NOT novel! Waiting for more data.");
 
 		if (dataNovel) {
 			//Store the (refs to) the relevant measurements
