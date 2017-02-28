@@ -77,7 +77,7 @@ namespace fusion {
 			float diff = calibrationSet.compareMeasurement(mes, mes->system, node);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true
-			if (diff > threshold) {
+			if (diff > diff_threshold) {
 				return true;
 			}
 		}
@@ -165,7 +165,7 @@ namespace fusion {
 						std::pair<SensorID, size_t> max2 = calibrationSet.systemNodeTable[sysNode2].maxCount();
 
 						//Streams of different length - we cant use this data
-						if (max1.second != max2.second) {
+						if (max1.second != max2.second && max1.second > count_threshold && max2.second > count_threshold) {
 							//TODO: do something
 							continue; //cannot calibrate this pair of sensors
 						}
