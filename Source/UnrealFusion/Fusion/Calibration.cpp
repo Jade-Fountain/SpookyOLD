@@ -136,6 +136,7 @@ namespace fusion {
 						const std::vector<Measurement::Ptr>& measurements2 = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
 
 						//
+						auto result = calibrateStreams(measurements1, measurements2);
 
 						safeAccess(calibrationGroup, node).push_back(*system1);
 						safeAccess(calibrationGroup, node).push_back(*system2);
@@ -157,6 +158,23 @@ namespace fusion {
 			}
 		}
 */
+	}
+
+	Eigen::Transform<float, 3, Eigen::Affine> Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2)
+	{
+		switch (measurements1.front()->type) {
+		case MeasurementType::POSITION:
+			if (measurements2.front()->type == MeasurementType::POSITION) {
+				return calPosPos(measurements1, measurements2);
+			}
+			break;
+		}
+		return Eigen::Transform<float, 3, Eigen::Affine>();
+	}
+
+	Eigen::Transform<float, 3, Eigen::Affine> Calibrator::calPosPos(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2)
+	{
+		return Eigen::Transform<float, 3, Eigen::Affine>();
 	}
 
 }

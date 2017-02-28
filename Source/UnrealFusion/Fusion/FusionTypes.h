@@ -64,7 +64,7 @@ namespace fusion {
 	/** Structs describing measurements
 	*
 	*/
-	enum class MeasurementType {
+	enum MeasurementType {
 		GENERIC = 0,
 		POSITION = 1,
 		ROTATION = 2,
@@ -74,13 +74,13 @@ namespace fusion {
 
 	//TODO: make this class a parent of different measurement types
 	class Measurement {
-
+	public:
 		//Type of measurement
 		MeasurementType type;
 
 		//Measurement dimensions
 		int size;
-
+	private:
 		//Value of measurement
 		Eigen::VectorXf data;
 

@@ -69,6 +69,12 @@ namespace fusion {
 
 		//Calibrate
 		void calibrate();
+
+		//Calibrate two particular data streams
+		Eigen::Transform<float, 3, Eigen::Affine> calibrateStreams(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2);
+
+		//Different types of calibration:
+		Eigen::Transform<float, 3, Eigen::Affine> calPosPos(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2);
 	};
 
 }
