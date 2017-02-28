@@ -1,6 +1,7 @@
 #include "UnrealFusion.h"
 #include "Calibration.h"
 #include "Fusion/Utilities/CalibrationUtilities.h"
+#include "Logging.h"
 
 namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,10 +71,13 @@ namespace fusion {
 	}
 
 	bool Calibrator::checkChanges(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurements) {
+		FUSION_LOG("Measurement count to check: " + std::to_string(measurements.size()));
 		//Check change for each measurement
 		for (auto& m : measurements) {
 			auto& mes = m.first;
 			auto& node = m.second;
+			FUSION_LOG("Measurement: " + mes->system.name);
+			FUSION_LOG("Node: " + node.name);
 			float diff = calibrationSet.compareMeasurement(mes, mes->system, node);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true
@@ -94,6 +98,7 @@ namespace fusion {
 			}
 			break;
 		}
+		FUSION_LOG("WARNING : no calibration model found for measurement types: " + std::to_string(m1.front()->type) + " and " + std::to_string(m2.front()->type));
 		return CalibrationResult();
 	}
 
@@ -120,15 +125,18 @@ namespace fusion {
 	}
 
 	void Calibrator::addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
-		
+		FUSION_LOG("MeasurementQueue for calibration: " + std::to_string(measurementQueue.size()));
 		//Check there is data corresponding to more than one system for a given node, otherwise useless
 		auto measurements = filterLonelyData(measurementQueue);
-		
+		FUSION_LOG("Valid measurements for calibration: " + std::to_string(measurements.size()));
+
 		//Decide if data is useful
 		bool dataNovel = checkChanges(measurements);
+		FUSION_LOG(dataNovel ? "Data is novel" : "Data is NOT novel! Waiting for more data.");
 
 		if (dataNovel) {
 			//Store the (refs to) the relevant measurements
+			FUSION_LOG("Adding calibration measurments!!");
 			for (auto& m : measurements) {
 				addMeasurement(m.first, m.second);
 			}
@@ -149,6 +157,9 @@ namespace fusion {
 				//Create key for the pair of systems
 				SystemPair sysPair(*system1,*system2);
 
+				//Debug
+				FUSION_LOG("Calibrating systems: " + system1->name +" and " + system2->name);
+
 				//Loop through nodes and calibrate with them if they provide relevant info
 				for (auto& node : calibrationSet.nodes) {
 					
@@ -156,6 +167,9 @@ namespace fusion {
 					SystemNodePair sysNode1(*system1, node);
 					SystemNodePair sysNode2(*system2, node);
 					
+					//Debug
+					FUSION_LOG("Calibrating with node: " + node.name);
+
 					//If there is an entry for each system in the table, add the systems to the node calibration group
 					if (calibrationSet.systemNodeTable.count(sysNode1) > 0 &&
 						calibrationSet.systemNodeTable.count(sysNode2) > 0) 
@@ -164,11 +178,13 @@ namespace fusion {
 						std::pair<SensorID, size_t> max1 = calibrationSet.systemNodeTable[sysNode1].maxCount();
 						std::pair<SensorID, size_t> max2 = calibrationSet.systemNodeTable[sysNode2].maxCount();
 
-						//Streams of different length - we cant use this data
-						if (max1.second != max2.second && max1.second < count_threshold && max2.second < count_threshold) {
-							//TODO: do something
-							continue; //cannot calibrate this pair of sensors
+						//Streams of different length or not long enough- we cant use this data
+						if (max1.second != max2.second || max1.second < count_threshold || max2.second < count_threshold) {
+							//TODO: do something?
+							continue; //cannot calibrate this pair of sensors yet
 						}
+						//Debug
+						FUSION_LOG("Calibrating Ready! " + node.name);
 
 						//Get measurements
 						const std::vector<Measurement::Ptr>& measurements1 = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];

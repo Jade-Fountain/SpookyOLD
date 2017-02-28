@@ -2,6 +2,7 @@
 #include <string>
 #pragma once
 
-inline void LOG_WARNING(std::string s){
-	UE_LOG(LogTemp, Warning, TEXT("FUSION LOG : %s"),s.c_str());
+inline void FUSION_LOG(std::string s){
+	FString str(s.c_str());
+	UE_LOG(LogTemp, Warning, TEXT("FUSION LOG : %s"),*str);
 }

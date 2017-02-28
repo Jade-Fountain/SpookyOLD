@@ -58,9 +58,9 @@ namespace fusion{
 				TX.rotate(q);
 
 				std::stringstream ss;
-				ss << "Result: " << X << "\n";
+				ss << "Result:\n" << X << "\n";
 				//ss << TX << std::endl;
-				LOG_WARNING(ss.str());
+				FUSION_LOG(ss.str());
 				//
 				return TX;
 			}	

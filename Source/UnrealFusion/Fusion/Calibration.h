@@ -53,7 +53,7 @@ namespace fusion {
 		//----------------
 
 		//Difference threshold: store new measurement if difference to last measurement is larger than this
-		float diff_threshold = 0.1;
+		float diff_threshold = 10;
 		//Count Threshold: Calibrate when this many samples acquired
 		int count_threshold = 100;
 
