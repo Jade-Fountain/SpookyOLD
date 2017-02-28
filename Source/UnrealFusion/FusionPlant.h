@@ -19,11 +19,11 @@ USTRUCT()
 struct FCalibrationResult {
 	GENERATED_BODY()
 		
-	UPROPERTY() FTransform transform;
-	UPROPERTY() bool calibrated = false;
-	UPROPERTY() float quality = 0;
-	UPROPERTY() FString system1;
-	UPROPERTY() FString system2;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FTransform transform;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") bool calibrated = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") float quality = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FString system1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FString system2;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
