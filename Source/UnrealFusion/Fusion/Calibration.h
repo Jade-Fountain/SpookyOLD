@@ -48,20 +48,35 @@ namespace fusion {
 
 	class Calibrator {
 	private:
+		//----------------
+		//PRIVATE MEMBERS
+		//----------------
+
 		//Difference threshold
 		float threshold = 0.1;
 
 		//Table for looking up data relevant to determining transforms
 		CalibrationDataSet calibrationSet;
 
-		//Storage of output data
-		SafeMap<SystemPair, CalibrationResult> results;
+		//Data for resulting calibrations
+		std::map<SystemPair, CalibrationResult> calibrationResults;
+		
+		//----------------
+		//PRIVATE METHODS
+		//----------------
 
 		//Checks there is data corresponding to more than one system for a given node in a measurement group
 		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> filterLonelyData(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue);
 
 		//Returns true if sufficient movement has occurred to warrant recording of data
 		bool checkChanges(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurements);
+
+		//Calibrate two particular data streams
+		CalibrationResult calibrateStreams(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2);
+
+		//Different types of calibration:
+		CalibrationResult calPosPos(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2);
+
 	public:
 		//Add data for later calibration
 		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
@@ -70,11 +85,8 @@ namespace fusion {
 		//Calibrate
 		void calibrate();
 
-		//Calibrate two particular data streams
-		Eigen::Transform<float, 3, Eigen::Affine> calibrateStreams(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2);
-
-		//Different types of calibration:
-		Eigen::Transform<float, 3, Eigen::Affine> calPosPos(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2);
+		//Searches for calibration results and returns them for use in fusion
+		CalibrationResult getResultsFor(SystemDescriptor s1, SystemDescriptor s2);
 	};
 
 }

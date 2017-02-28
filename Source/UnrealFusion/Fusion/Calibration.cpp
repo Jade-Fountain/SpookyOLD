@@ -83,6 +83,35 @@ namespace fusion {
 		}
 		return false;
 	}
+
+
+	CalibrationResult Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
+	{
+		switch (m1.front()->type) {
+		case MeasurementType::POSITION:
+			if (m2.front()->type == MeasurementType::POSITION) {
+				return calPosPos(m1, m2);
+			}
+			break;
+		}
+		return CalibrationResult();
+	}
+
+	CalibrationResult Calibrator::calPosPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
+	{
+		std::vector<Eigen::Vector3f> pos1(m1.size());
+		std::vector<Eigen::Vector3f> pos2(m2.size());
+		for (int i = 0; i < m1.size(); i++) {
+			pos1[i] = m1[i]->getData();
+			pos2[i] = m2[i]->getData();
+		}
+		CalibrationResult result;
+		result.systems = SystemPair(m1.front()->system, m2.front()->system);
+		result.transform = utility::PositionalCalibration::calibrateIdenticalPair(pos1, pos2);
+		result.quality = 1;//TODO: utility::PositionalCalibration::checkError(pos1, pos2, result.transform);
+		result.calibrated = true;
+		return result;
+	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//									Calibrator:Public
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,8 +143,16 @@ namespace fusion {
 		//For each unordered pairing of systems, check if there are common nodes
 		for (std::set<SystemDescriptor>::iterator system1 = calibrationSet.systems.begin(); system1 != calibrationSet.systems.end(); system1++) {
 			for (std::set<SystemDescriptor>::iterator system2 = std::next(system1); system2 != calibrationSet.systems.end(); system2++) {
+				
+				//Init list of calibration results: on result for each node
+				std::vector<CalibrationResult> results;
+				//Create key for the pair of systems
+				SystemPair sysPair(*system1,*system2);
+
+				//Loop through nodes and calibrate with them if they provide relevant info
 				for (auto& node : calibrationSet.nodes) {
 					
+					//Keys for accessing data streams
 					SystemNodePair sysNode1(*system1, node);
 					SystemNodePair sysNode2(*system2, node);
 					
@@ -127,6 +164,7 @@ namespace fusion {
 						std::pair<SensorID, size_t> max1 = calibrationSet.systemNodeTable[sysNode1].maxCount();
 						std::pair<SensorID, size_t> max2 = calibrationSet.systemNodeTable[sysNode2].maxCount();
 
+						//Streams of different length - we cant use this data
 						if (max1.second != max2.second) {
 							//TODO: do something
 							continue; //cannot calibrate this pair of sensors
@@ -136,52 +174,33 @@ namespace fusion {
 						const std::vector<Measurement::Ptr>& measurements1 = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
 						const std::vector<Measurement::Ptr>& measurements2 = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
 
-						//
-						auto result = calibrateStreams(measurements1, measurements2);
+						//Perform calibration
+						results.push_back(calibrateStreams(measurements1, measurements2));
 
-						safeAccess(calibrationGroup, node).push_back(*system1);
-						safeAccess(calibrationGroup, node).push_back(*system2);
 					}
 				}
-			}
-		}
-/*
-		for (auto& n : calibrationGroup) {
-			auto& node = n.first;
-			for (int i = 0; i < calibrationGroup.size() - 1; i += 2) {
-				SystemDescriptor& system1 = n.second[i];
-				SystemDescriptor& system2 = n.second[i+1];
 
-				SystemNodePair sysNode1(system1, node);
-				SystemNodePair sysNode2(system2, node);
-				
-				calibrationSet.systemNodeTable[]
+				//TODO: result = combineResults(results); // combine multiple results
+				//Store results
+				if (results.size() > 0) {
+					calibrationResults[sysPair] = results.front();
+				}
+
 			}
 		}
-*/
 	}
 
-	Eigen::Transform<float, 3, Eigen::Affine> Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
+	CalibrationResult Calibrator::getResultsFor(SystemDescriptor s1, SystemDescriptor s2)
 	{
-		switch (m1.front()->type) {
-		case MeasurementType::POSITION:
-			if (m2.front()->type == MeasurementType::POSITION) {
-				return calPosPos(m1, m2);
-			}
-			break;
+		SystemPair forward(s1, s2);
+		SystemPair reverse(s1, s2);
+		if (calibrationResults.count(forward) > 0) {
+			return calibrationResults[forward];
 		}
-		return Eigen::Transform<float, 3, Eigen::Affine>();
-	}
-
-	Eigen::Transform<float, 3, Eigen::Affine> Calibrator::calPosPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
-	{
-		std::vector<Eigen::Vector3f> pos1(m1.size());
-		std::vector<Eigen::Vector3f> pos2(m2.size());
-		for (int i = 0; i < m1.size(); i++) {
-			pos1[i] = m1[i]->getData();
-			pos2[i] = m2[i]->getData();
+		if(calibrationResults.count(reverse) > 0) {
+			return calibrationResults[reverse].inverse();
 		}
-		return utility::PositionalCalibration::calibrateIdenticalPair(pos1, pos2);
+		return CalibrationResult();
 	}
 
 }

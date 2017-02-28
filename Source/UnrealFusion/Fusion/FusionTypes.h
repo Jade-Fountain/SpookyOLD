@@ -7,10 +7,15 @@
 #include <queue>
 #include <memory>
 #include "Eigen/Core"
+#include "Eigen/Geometry"
 #pragma once
 
 
 namespace fusion {
+
+	//Basic types:
+	typedef Eigen::Transform<float, 3, Eigen::Affine> Transform3D;
+
 
 	/** System descriptor
 	*
@@ -52,13 +57,21 @@ namespace fusion {
 		}
 	};
 
+
 	//Results of a calibration are stored in this struct
-	struct CalibrationResult {
+	class CalibrationResult {
+	public:
 		SystemPair systems;
 		bool calibrated = false;
 		//Maps first to second
-		Eigen::Matrix4f transform;
+		Transform3D transform;
 		float quality = 0;
+
+		CalibrationResult inverse() {
+			CalibrationResult result = *this;
+			result.transform = transform.inverse();
+			return result;
+		}
 	};
 
 	/** Structs describing measurements
