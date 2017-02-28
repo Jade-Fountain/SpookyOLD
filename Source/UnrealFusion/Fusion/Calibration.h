@@ -53,9 +53,9 @@ namespace fusion {
 		//----------------
 
 		//Difference threshold: store new measurement if difference to last measurement is larger than this
-		float diff_threshold = 0.5;
+		float diff_threshold = 0.1;
 		//Count Threshold: Calibrate when this many samples acquired
-		int count_threshold = 50;
+		int count_threshold = 150;
 
 		//Table for looking up data relevant to determining transforms
 		CalibrationDataSet calibrationSet;

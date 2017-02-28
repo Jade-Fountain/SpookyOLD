@@ -147,10 +147,13 @@ namespace fusion {
 			for (std::set<SystemDescriptor>::iterator system2 = std::next(system1); system2 != calibrationSet.systems.end(); system2++) {
 				
 				//Init list of calibration results: on result for each node
-				std::vector<CalibrationResult> results;
+				//std::vector<CalibrationResult> results;
+
 				//Create key for the pair of systems
 				SystemPair sysPair(*system1,*system2);
-
+				
+				std::vector<Measurement::Ptr> measurements1;
+				std::vector<Measurement::Ptr> measurements2;
 
 				//Loop through nodes and calibrate with them if they provide relevant info
 				for (auto& node : calibrationSet.nodes) {
@@ -175,16 +178,17 @@ namespace fusion {
 						}
 
 						//Get measurements
-						const std::vector<Measurement::Ptr>& measurements1 = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
-						const std::vector<Measurement::Ptr>& measurements2 = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
+						const auto& m1 = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
+						measurements1.insert(measurements1.end(),m1.begin(),m1.end());
+						const auto& m2 = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
+						measurements2.insert(measurements2.end(), m2.begin(), m2.end());
 
 						//Perform calibration
-						results.push_back(calibrateStreams(measurements1, measurements2));
-						
-						//Debug
-						std::stringstream ss;
-						ss << "Results for X: " << system1->name << " --> " << system2->name << "("<< node.name << ")\n" << results.back().transform.matrix() << "\n";
-						FUSION_LOG(ss.str());
+						//
+						////Debug
+						//std::stringstream ss;
+						//ss << "Results for X: " << system1->name << " --> " << system2->name << "("<< node.name << ")\n" << results.back().transform.matrix() << "\n";
+						//FUSION_LOG(ss.str());
 						
 						//Clear the data used for calibration
 						calibrationSet.systemNodeTable[sysNode1].sensors[max1.first].clear();
@@ -194,8 +198,13 @@ namespace fusion {
 
 				//TODO: result = combineResults(results); // combine multiple results
 				//Store results
-				if (results.size() > 0) {
-					calibrationResults[sysPair] = results.front();
+				if (measurements1.size() > 0) {
+					calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2);
+
+					//Debug
+					std::stringstream ss;
+					ss << "Results for X: " << system1->name << " --> " << system2->name << "(Combined nodes)\n" << calibrationResults[sysPair].transform.matrix() << "\n";
+					FUSION_LOG(ss.str());
 				}
 
 			}
