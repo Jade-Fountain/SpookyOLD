@@ -1,7 +1,9 @@
 #include<iostream>
+#include<string>
 #include<Eigen/Core>
 #include<Eigen/SVD>
-
+#include<Eigen/Geometry>
+#include "Logging.h"
 
 namespace fusion{
 	namespace utility{
@@ -34,7 +36,7 @@ namespace fusion{
 			//For calibrating a pair of systems with two sensors measuring the same point from two different reference frames
 			// Xa = b
 			// or XA = B
-			static inline Eigen::Matrix4f calibrateIdenticalPair(const std::vector<Eigen::Vector3f>& samplesA, const std::vector<Eigen::Vector3f> samplesB){
+			static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateIdenticalPair(const std::vector<Eigen::Vector3f>& samplesA, const std::vector<Eigen::Vector3f> samplesB){
 				if (samplesA.size() != samplesB.size()) {
 					throw std::runtime_error(__FILE__ + __LINE__ + std::string(" : samplesA and samplesB of different size"));
 				}
@@ -47,8 +49,16 @@ namespace fusion{
 					B.col(i) << samplesB[i] , 1;
 				}
 
+				Eigen::Matrix4f X = B * pInv(A);
+				
 				//TODO:make sure normalised
-				return B * pInv(A);
+				Eigen::Transform<float, 3, Eigen::Affine> TX;
+				std::stringstream ss;
+				ss << "Result: " << X << "\n";
+				//ss << TX << std::endl;
+				LOG_WARNING(ss.str());
+				//
+				return TX;
 			}	
 
 
