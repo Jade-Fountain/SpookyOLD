@@ -3,6 +3,11 @@ DerivedDataCache
 Intermediate
 Saved
 Source/UnrealFusion/Eigen
+ipch
+x64
+.vs
+Release
+FusionTesting/x64
 *.VC.db
 *.opensdf
 *.opendb

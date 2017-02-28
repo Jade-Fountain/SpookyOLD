@@ -3,7 +3,7 @@
 #include<Eigen/Core>
 #include<Eigen/SVD>
 #include<Eigen/Geometry>
-#include "Logging.h"
+//#include "Logging.h"
 #pragma once
 namespace fusion{
 	namespace utility{
@@ -38,7 +38,7 @@ namespace fusion{
 			// or XA = B
 			static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateIdenticalPair(const std::vector<Eigen::Vector3f>& samplesA, const std::vector<Eigen::Vector3f> samplesB){
 				if (samplesA.size() != samplesB.size()) {
-					throw std::runtime_error(__FILE__ + __LINE__ + std::string(" : samplesA and samplesB of different size"));
+					throw std::runtime_error(std::string(__FILE__) + std::to_string(__LINE__) + std::string(" : samplesA and samplesB of different size"));
 				}
 
 				Eigen::MatrixXf A(4, samplesA.size());
@@ -60,7 +60,7 @@ namespace fusion{
 				std::stringstream ss;
 				ss << "Result:\n" << X << "\n";
 				//ss << TX << std::endl;
-				FUSION_LOG(ss.str());
+				//FUSION_LOG(ss.str());
 				//
 				return TX;
 			}	

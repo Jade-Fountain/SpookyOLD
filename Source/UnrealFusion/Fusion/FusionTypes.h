@@ -1,8 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#pragma once
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include <string>
 #include <queue>
 #include <memory>
