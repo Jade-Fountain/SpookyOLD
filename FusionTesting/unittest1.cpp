@@ -36,7 +36,7 @@ namespace FusionTesting
 			int N = 1000;
 			std::vector<Eigen::Vector3f> samplesA(N);
 			std::vector<Eigen::Vector3f> samplesB(N);
-			float noise = 0.01;
+			float noise = 0.01f;
 
 			Eigen::Transform<float, 3, Eigen::Affine> X = Eigen::Quaternionf::UnitRandom() * Eigen::Translation3f(Eigen::Vector3f::Random());
 

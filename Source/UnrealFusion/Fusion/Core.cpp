@@ -25,4 +25,8 @@ namespace fusion {
 		skeleton.fuse();
 	}
 
+	CalibrationResult Core::getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2) {
+		return calibrator.getResultsFor(s1, s2);
+	}
+
 }

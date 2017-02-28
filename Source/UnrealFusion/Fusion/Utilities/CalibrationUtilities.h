@@ -48,20 +48,16 @@ namespace fusion{
 					A.col(i) << samplesA[i] , 1;
 					B.col(i) << samplesB[i] , 1;
 				}
-
+				
+				//Make sure normalised
 				Eigen::Matrix4f X = B * pInv(A);
 				Eigen::Quaternionf q(X.block<3,3>(0,0));
+				q.normalize();
 				Eigen::Translation3f t(X.block<3,1>(0,3));
 				
-				//TODO:make sure normalised
 				Eigen::Transform<float, 3, Eigen::Affine> TX(t);
 				TX.rotate(q);
 
-				std::stringstream ss;
-				ss << "Result:\n" << X << "\n";
-				//ss << TX << std::endl;
-				//FUSION_LOG(ss.str());
-				//
 				return TX;
 			}	
 

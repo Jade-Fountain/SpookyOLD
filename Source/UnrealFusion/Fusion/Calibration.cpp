@@ -71,14 +71,11 @@ namespace fusion {
 	}
 
 	bool Calibrator::checkChanges(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurements) {
-		//FUSION_LOG("Measurement count to check: " + std::to_string(measurements.size()));
 		//Check change for each measurement
 		bool result = false;
 		for (auto& m : measurements) {
 			auto& mes = m.first;
 			auto& node = m.second;
-			//FUSION_LOG("Measurement: " + mes->system.name);
-			//FUSION_LOG("Node: " + node.name);
 			float diff = calibrationSet.compareMeasurement(mes, mes->system, node);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true
@@ -125,14 +122,11 @@ namespace fusion {
 	}
 
 	void Calibrator::addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
-		//FUSION_LOG("MeasurementQueue for calibration: " + std::to_string(measurementQueue.size()));
 		//Check there is data corresponding to more than one system for a given node, otherwise useless
 		auto measurements = filterLonelyData(measurementQueue);
-		//FUSION_LOG("Valid measurements for calibration: " + std::to_string(measurements.size()));
 
 		//Decide if data is useful
 		bool dataNovel = checkChanges(measurements);
-		//FUSION_LOG(dataNovel ? "Data is novel" : "Data is NOT novel! Waiting for more data.");
 
 		if (dataNovel) {
 			//Store the (refs to) the relevant measurements
@@ -157,8 +151,6 @@ namespace fusion {
 				//Create key for the pair of systems
 				SystemPair sysPair(*system1,*system2);
 
-				//Debug
-				FUSION_LOG("Calibrating systems: " + system1->name +" and " + system2->name);
 
 				//Loop through nodes and calibrate with them if they provide relevant info
 				for (auto& node : calibrationSet.nodes) {
@@ -167,8 +159,6 @@ namespace fusion {
 					SystemNodePair sysNode1(*system1, node);
 					SystemNodePair sysNode2(*system2, node);
 					
-					//Debug
-					FUSION_LOG("Calibrating with node: " + node.name);
 
 					//If there is an entry for each system in the table, add the systems to the node calibration group
 					if (calibrationSet.systemNodeTable.count(sysNode1) > 0 &&
@@ -183,8 +173,6 @@ namespace fusion {
 							//TODO: do something?
 							continue; //cannot calibrate this pair of sensors yet
 						}
-						//Debug
-						FUSION_LOG("Calibrating Ready! " + node.name);
 
 						//Get measurements
 						const std::vector<Measurement::Ptr>& measurements1 = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
@@ -192,7 +180,15 @@ namespace fusion {
 
 						//Perform calibration
 						results.push_back(calibrateStreams(measurements1, measurements2));
-
+						
+						//Debug
+						std::stringstream ss;
+						ss << "Results for X: " << system1->name << " --> " << system2->name << "("<< node.name << ")\n" << results.back().transform.matrix() << "\n";
+						FUSION_LOG(ss.str());
+						
+						//Clear the data used for calibration
+						calibrationSet.systemNodeTable[sysNode1].sensors[max1.first].clear();
+						calibrationSet.systemNodeTable[sysNode2].sensors[max2.first].clear();
 					}
 				}
 

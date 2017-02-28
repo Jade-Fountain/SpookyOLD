@@ -86,6 +86,26 @@ void UFusionPlant::Fuse()
 	//	CopyPose(fusedSkeleton, skeletons[0]);
 	//}
 }
+//===========================
+//Data retrieval functions
+//===========================
+
+FCalibrationResult UFusionPlant::getCalibrationResult(FString s1, FString s2)
+{
+	fusion::CalibrationResult T = plant.getCalibrationResult(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)),fusion::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
+	Eigen::Quaternionf q(T.transform.matrix().block<3,3>(0,0));
+	Eigen::Vector3f v(T.transform.matrix().block<3, 1>(0, 3));
+	FQuat fq(q.x(), q.y(), q.z(), q.w());
+	
+	FCalibrationResult result;
+	result.transform.SetRotation(fq);
+	result.transform.SetTranslation(FVector(v[0], v[1], v[2]));
+	result.calibrated = T.calibrated;
+	result.quality = T.quality;
+	result.system1 = FString(T.systems.first.name.c_str());
+	result.system2 = FString(T.systems.second.name.c_str());
+	return result;
+}
 
 //===========================
 //Utility

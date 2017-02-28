@@ -9,15 +9,12 @@
 
 namespace fusion {
 
-	class SensorSystem {
-
-	};
 
 	//Centre of a fusion plant
 	class Core{
 	private:
-		//Raw data ordered by sytem
-		std::map<SystemDescriptor, SensorSystem> systems;
+		//TODO: (IF NEEDED) Raw data ordered by sytem
+		//std::map<SystemDescriptor, SensorSystem> systems;
 
 		//Calibration data per system pair (A,B) = std::pair<SystemDescriptor,SystemDescriptor>
 		//sensorTransforms[(A,B)]: A -> B
@@ -49,6 +46,8 @@ namespace fusion {
 		//Computes data added since last fuse() call. Should be called repeatedly	
 		void fuse();
 
+		//Returns mapping from s1 to s2
+		CalibrationResult getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2);
 
 	};
 

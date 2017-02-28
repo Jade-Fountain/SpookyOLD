@@ -15,6 +15,16 @@
 //Must be last include
 #include "FusionPlant.generated.h"
 
+USTRUCT()
+struct FCalibrationResult {
+	GENERATED_BODY()
+		
+	UPROPERTY() FTransform transform;
+	UPROPERTY() bool calibrated = false;
+	UPROPERTY() float quality = 0;
+	UPROPERTY() FString system1;
+	UPROPERTY() FString system2;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UNREALFUSION_API UFusionPlant : public UActorComponent
@@ -32,6 +42,7 @@ protected:
 	UPoseableMeshComponent* fusedSkeleton;
 
 public:	
+
 	// Sets default values for this component's properties
 	UFusionPlant();
 
@@ -55,7 +66,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void FinaliseSetup();
-//Contruction of sensor nodes
+//TODO: Contruction of sensor nodes
 
 	////Add a new sensor node model
 	//UFUNCTION(BlueprintCallable, Category = "Fusion")
@@ -77,6 +88,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void Fuse();
+
+//===========================
+//Data retrieval functions
+//===========================
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	FCalibrationResult getCalibrationResult(FString s1, FString s2);
 
 //===========================
 //Utility
