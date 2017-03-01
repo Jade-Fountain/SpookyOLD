@@ -114,6 +114,24 @@ namespace fusion {
 		result.calibrated = true;
 		return result;
 	}
+
+	//CalibrationResult Calibrator::calTT(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
+	//{
+	//	std::vector<std::vector<Eigen::Matrix4f>> pos1(m1.size());
+	//	std::vector<std::vector<Eigen::Matrix4f>> pos2(m2.size());
+	//	std::map<NodeDescriptor, int> nodes;
+	//	int node_count = 0;
+	//	for (int i = 0; i < m1.size(); i++) {
+	//		pos1[i] = m1[i]->getData();
+	//		pos2[i] = m2[i]->getData();
+	//	}
+	//	CalibrationResult result;
+	//	result.systems = SystemPair(m1.front()->system, m2.front()->system);
+	//	result.transform = utility::PositionalCalibration::calibrateIdenticalPair(pos1, pos2);
+	//	result.quality = 1;//TODO: utility::PositionalCalibration::checkError(pos1, pos2, result.transform);
+	//	result.calibrated = true;
+	//	return result;
+	//}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//									Calibrator:Public
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////

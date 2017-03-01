@@ -2,6 +2,7 @@
 
 #include <string>
 #include <queue>
+#include <set>
 #include <memory>
 #include "Eigen/Core"
 #include "Eigen/Geometry"
@@ -113,6 +114,9 @@ namespace fusion {
 
 		//Confidence in T in [0,1]
 		float confidence = 0;
+
+		//Possible nodes which this sensor is attached to
+		std::set<NodeDescriptor> nodes;
 		
 		//Setup Methods
 		bool check_consistent() {

@@ -14,6 +14,7 @@ namespace fusion {
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
 		//systems[m->system].addMeasurement(m);
+		m->nodes.insert(node);
 		skeleton.addMeasurement(node, m);
 	}
 
