@@ -170,11 +170,7 @@ Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, in
 	Measurement::Ptr result = Measurement::createCartesianMeasurement(meas, un);
 	
 	//Add metadata
-	plant.setMeasurementSensorInfo(result, fusion::SystemDescriptor(TCHAR_TO_UTF8(*system_name)), fusion::SensorID(sensorID));
-	bool measurementConsistent = result->setMetaData(timestamp_sec, confidence);
-	if (!measurementConsistent) {
-		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
-	}
+	SetCommonMeasurementData(result, system_name, sensorID, timestamp_sec, confidence);
 
 	return std::move(result);
 }
@@ -188,12 +184,8 @@ Measurement::Ptr UFusionPlant::CreateRotationMeasurement(FString system_name, in
 	Measurement::Ptr result = Measurement::createQuaternionMeasurement(meas, un);
 
 	//Add metadata
-	plant.setMeasurementSensorInfo(result, fusion::SystemDescriptor(TCHAR_TO_UTF8(*system_name)), fusion::SensorID(sensorID));
-	bool measurementConsistent = result->setMetaData(timestamp_sec, confidence);
-	if(!measurementConsistent){
-		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
-	}
-
+	SetCommonMeasurementData(result, system_name, sensorID, timestamp_sec, confidence);
+	
 	return std::move(result);
 }
 
@@ -206,12 +198,8 @@ Measurement::Ptr UFusionPlant::CreateScaleMeasurement(FString system_name, int s
 	Measurement::Ptr result = Measurement::createScaleMeasurement(meas, un);
 
 	//Add metadata
-	plant.setMeasurementSensorInfo(result, fusion::SystemDescriptor(TCHAR_TO_UTF8(*system_name)), fusion::SensorID(sensorID));
-	bool measurementConsistent = result->setMetaData(timestamp_sec, confidence);
-	if (!measurementConsistent) {
-		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
-	}
-
+	SetCommonMeasurementData(result, system_name, sensorID, timestamp_sec, confidence);
+	
 	return std::move(result);
 }
 
@@ -224,15 +212,20 @@ Measurement::Ptr UFusionPlant::CreateRigidBodyMeasurement(FString system_name, i
 	Measurement::Ptr result = Measurement::createRigidBodyMeasurement(meas, un);
 	
 	//Add metadata
-	plant.setMeasurementSensorInfo(result, fusion::SystemDescriptor(TCHAR_TO_UTF8(*system_name)), fusion::SensorID(sensorID));
-	bool measurementConsistent = result->setMetaData(timestamp_sec, confidence);
-	if (!measurementConsistent) {
-		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
-	}
-
+	SetCommonMeasurementData(result, system_name, sensorID, timestamp_sec, confidence);
 
 	return std::move(result);
 }
+
+void UFusionPlant::SetCommonMeasurementData(Measurement::Ptr& m, FString system_name, int sensorID, float timestamp_sec, float confidence){
+	//Add metadata
+	plant.setMeasurementSensorInfo(m, fusion::SystemDescriptor(TCHAR_TO_UTF8(*system_name)), fusion::SensorID(sensorID));
+	bool measurementConsistent = m->setMetaData(timestamp_sec, confidence);
+	if (!measurementConsistent) {
+		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
+	}
+}
+
 
 //===========================
 //DEBUG
