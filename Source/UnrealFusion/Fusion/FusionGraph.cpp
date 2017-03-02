@@ -5,8 +5,8 @@
 namespace fusion {
 	
 	void FusionGraph::addNode(const NodeDescriptor & node, const NodeDescriptor & parent) {
-		safeAccess(nodes, node).desc = node;
-		safeAccess(nodes, node).parent_desc = parent;
+		utility::safeAccess(nodes, node).desc = node;
+		utility::safeAccess(nodes, node).parent_desc = parent;
 	}
 
 
@@ -21,7 +21,7 @@ namespace fusion {
 	}
 
 	void FusionGraph::addMeasurement(const NodeDescriptor& node, const Measurement::Ptr& m) {
-		safeAccess(nodes,node).measurements.push_back(m);
+		utility::safeAccess(nodes,node).measurements.push_back(m);
 	}
 
 	void FusionGraph::fuse() {

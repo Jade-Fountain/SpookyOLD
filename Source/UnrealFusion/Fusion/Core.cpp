@@ -14,7 +14,7 @@ namespace fusion {
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
 		//systems[m->system].addMeasurement(m);
-		m->nodes.insert(node);
+		m->addNode(node);
 		skeleton.addMeasurement(node, m);
 	}
 
@@ -28,6 +28,18 @@ namespace fusion {
 
 	CalibrationResult Core::getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2) {
 		return calibrator.getResultsFor(s1, s2);
+	}
+
+	void Core::setMeasurementSensorInfo(Measurement::Ptr & m, SystemDescriptor system, SensorID id)
+	{
+		//If we haven't seen this sensor already, initialise
+		if (utility::safeAccess(sensors, system).count(id) == 0) {
+			utility::safeAccess(sensors, system)[id] = std::make_unique<Sensor>();
+			utility::safeAccess(sensors, system)[id]->system = system;
+			utility::safeAccess(sensors, system)[id]->id = id;
+		}
+		//Set pointer in measurement
+		m->setSensor(sensors[system][id]);
 	}
 
 }

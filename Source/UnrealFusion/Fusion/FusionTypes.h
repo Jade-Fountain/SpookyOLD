@@ -6,6 +6,7 @@
 #include <memory>
 #include "Eigen/Core"
 #include "Eigen/Geometry"
+#include "Logging.h"
 #pragma once
 
 
@@ -83,31 +84,60 @@ namespace fusion {
 		SCALE = 4
 	};
 
+	class Sensor {
+	public:
+		//=================================================
+		//Name of the sensor system from which the measurement came
+		SystemDescriptor system;
+
+		//Sensor number corresponding to measurement
+		SensorID id = 0;
+
+		//Possible nodes which this sensor is attached to
+		std::set<NodeDescriptor> nodes;
+		//=================================================
+
+		typedef std::shared_ptr<Sensor> Ptr;
+
+		//Accessors:
+		bool isAmbiguous() { return nodes.size() != 1; }
+
+		NodeDescriptor getNode() {
+			if (nodes.size() != 1) {
+				FUSION_LOG(__FILE__ + __LINE__ + std::string(" : attempted to get node of ambiguous sensor"));
+				return "__AMBIGUOUS__"; //In this case we basically return an error
+			}
+			return *nodes.begin();
+		}
+
+		const std::set<NodeDescriptor>& getNodes() {
+			return nodes;
+		}
+		
+		void addNode(const NodeDescriptor& node) {
+			nodes.insert(node);
+		}
+
+	};
+
 	//TODO: make this class a parent of different measurement types
 	class Measurement {
-	public:
-		//Type of measurement
-		MeasurementType type;
+	private:		
 
 		//Measurement dimensions
 		int size;
-	private:
 		//Value of measurement
 		Eigen::VectorXf data;
 
 		//Uncertainty in T
 		Eigen::MatrixXf uncertainty;
 
+		//Sensor information
+		Sensor::Ptr sensor;
 	public:
 		//Accessors
 		const Eigen::MatrixXf& getUncertainty() const { return uncertainty; }
 		const Eigen::VectorXf& getData() const { return data; }
-
-		//Name of the sensor system from which the measurement came
-		SystemDescriptor system;
-
-		//Sensor number corresponding to measurement
-		SensorID sensorID = 0;
 
 		//Timestamp (sec; from device)
 		double timeStamp = -1;
@@ -115,21 +145,20 @@ namespace fusion {
 		//Confidence in T in [0,1]
 		float confidence = 0;
 
-		//Possible nodes which this sensor is attached to
-		std::set<NodeDescriptor> nodes;
-		
+		//Type of measurement
+		MeasurementType type;
+
 		//Setup Methods
 		bool check_consistent() {
 			return (size == data.size() == uncertainty.rows() == uncertainty.cols());
 		}
 
-		bool setMetaData(SystemDescriptor system_name, int sensor_id, float timestamp_sec, float confidence_){
-			system = system_name;
-			sensorID = sensor_id;
+		bool setMetaData(float timestamp_sec, float confidence_){
 			timeStamp = timestamp_sec;
 			confidence = confidence_;
 			return check_consistent();
 		}
+
 		
 		typedef std::shared_ptr<Measurement> Ptr;
 
@@ -141,6 +170,30 @@ namespace fusion {
 		
 		//Method for getting the distance between two measurements
 		float compare(const Measurement::Ptr & other);
+
+		//----------------------
+		//Accessors
+		//----------------------
+		NodeDescriptor getNode() {
+			return sensor->getNode();
+		}
+		const std::set<NodeDescriptor>& getNodes() {
+			return sensor->getNodes();
+		}
+		SystemDescriptor getSystem() {
+			return sensor->system;
+		}
+		SensorID getSensorID() {
+			return sensor->id;
+		}
+
+		void setSensor(Sensor::Ptr& sensor_) {
+			sensor = sensor_;
+		}
+
+		void addNode(const NodeDescriptor& node) {
+			sensor->addNode(node);
+		}
 	};
 
 

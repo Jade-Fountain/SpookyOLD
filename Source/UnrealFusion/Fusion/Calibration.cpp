@@ -9,7 +9,7 @@ namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	void CalibrationDataSet::Stream::addMeasurement(const Measurement::Ptr& m) {
-		safeAccess(sensors,m->sensorID).push_back(m);
+		utility::safeAccess(sensors,m->getSensorID()).push_back(m);
 	}
 
 	std::pair<SensorID, size_t> CalibrationDataSet::Stream::maxCount()
@@ -36,7 +36,7 @@ namespace fusion {
 	float CalibrationDataSet::compareMeasurement(const Measurement::Ptr & m, const SystemDescriptor & system, const NodeDescriptor & node)
 	{
 		SystemNodePair sysNode = SystemNodePair(system, node);
-		std::vector<Measurement::Ptr>& stream = safeAccess(systemNodeTable[sysNode].sensors,m->sensorID);
+		std::vector<Measurement::Ptr>& stream = utility::safeAccess(systemNodeTable[sysNode].sensors,m->getSensorID());
 		//If no previous recorded data, return max difference
 		if (stream.size() == 0) {
 			return float(std::numeric_limits<float>::max());
@@ -56,10 +56,10 @@ namespace fusion {
 		//Init result
 		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> result;
 		//Structure for counting systems per node
-		SafeMap<NodeDescriptor, std::set<SystemDescriptor>> systemsPerNode;
+		utility::SafeMap<NodeDescriptor, std::set<SystemDescriptor>> systemsPerNode;
 		//Count
 		for (auto& m : measurementQueue) {
-			systemsPerNode[m.second].insert(m.first->system);
+			systemsPerNode[m.second].insert(m.first->getSystem());
 		}
 		//Push back relevant measurments
 		for (auto& m : measurementQueue) {
@@ -76,7 +76,7 @@ namespace fusion {
 		for (auto& m : measurements) {
 			auto& mes = m.first;
 			auto& node = m.second;
-			float diff = calibrationSet.compareMeasurement(mes, mes->system, node);
+			float diff = calibrationSet.compareMeasurement(mes, mes->getSystem(), node);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true
 			
@@ -108,7 +108,7 @@ namespace fusion {
 			pos2[i] = m2[i]->getData();
 		}
 		CalibrationResult result;
-		result.systems = SystemPair(m1.front()->system, m2.front()->system);
+		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
 		result.transform = utility::PositionalCalibration::calibrateIdenticalPair(pos1, pos2);
 		result.quality = 1;//TODO: utility::PositionalCalibration::checkError(pos1, pos2, result.transform);
 		result.calibrated = true;
@@ -117,11 +117,13 @@ namespace fusion {
 
 	//CalibrationResult Calibrator::calTT(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
 	//{
+	//	//
 	//	std::vector<std::vector<Eigen::Matrix4f>> pos1(m1.size());
 	//	std::vector<std::vector<Eigen::Matrix4f>> pos2(m2.size());
 	//	std::map<NodeDescriptor, int> nodes;
 	//	int node_count = 0;
 	//	for (int i = 0; i < m1.size(); i++) {
+	//		nodes[*(m1[i]->getNode())]
 	//		pos1[i] = m1[i]->getData();
 	//		pos2[i] = m2[i]->getData();
 	//	}
@@ -136,7 +138,7 @@ namespace fusion {
 	//									Calibrator:Public
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	void Calibrator::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
-		calibrationSet.addMeasurement(m, m->system, node);
+		calibrationSet.addMeasurement(m, m->getSystem(), node);
 	}
 
 	void Calibrator::addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {

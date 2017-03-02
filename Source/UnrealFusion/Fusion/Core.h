@@ -6,7 +6,7 @@
 #include "FusionTypes.h"
 #include "Calibration.h"
 #include "FusionGraph.h"
-
+#include "Fusion/Utilities/DataStructures.h"
 namespace fusion {
 
 
@@ -23,7 +23,8 @@ namespace fusion {
 		//Fused data
 		FusionGraph skeleton;
 
-		//TODO?:Queue of latest measurements
+		//Sensor list
+		std::map<SystemDescriptor, std::map<SensorID, Sensor::Ptr>> sensors;
 		
 	public:
 
@@ -48,6 +49,8 @@ namespace fusion {
 
 		//Returns mapping from s1 to s2
 		CalibrationResult getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2);
+
+		void setMeasurementSensorInfo(Measurement::Ptr& m, SystemDescriptor system, SensorID id);
 
 	};
 
