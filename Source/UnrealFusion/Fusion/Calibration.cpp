@@ -2,6 +2,7 @@
 #include "Calibration.h"
 #include "Fusion/Utilities/CalibrationUtilities.h"
 #include "Logging.h"
+#include "Fusion/Utilities/Conventions.h"
 
 namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,6 +95,10 @@ namespace fusion {
 				return calPosPos(m1, m2);
 			}
 			break;
+		case MeasurementType::RIGID_BODY:
+			if (m2.front()->type == MeasurementType::RIGID_BODY) {
+				return calTT(m1, m2);
+			}
 		}
 		FUSION_LOG("WARNING : no calibration model found for measurement types: " + std::to_string(m1.front()->type) + " and " + std::to_string(m2.front()->type));
 		return CalibrationResult();
@@ -109,31 +114,38 @@ namespace fusion {
 		}
 		CalibrationResult result;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
-		result.transform = utility::PositionalCalibration::calibrateIdenticalPair(pos1, pos2);
-		result.quality = 1;//TODO: utility::PositionalCalibration::checkError(pos1, pos2, result.transform);
+		result.transform = utility::calibration::Position::calibrateIdenticalPair(pos1, pos2, &result.error);
+		result.quality = 1;//TODO: compute error
 		result.calibrated = true;
 		return result;
 	}
 
-	//CalibrationResult Calibrator::calTT(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
-	//{
-	//	//
-	//	std::vector<std::vector<Eigen::Matrix4f>> pos1(m1.size());
-	//	std::vector<std::vector<Eigen::Matrix4f>> pos2(m2.size());
-	//	std::map<NodeDescriptor, int> nodes;
-	//	int node_count = 0;
-	//	for (int i = 0; i < m1.size(); i++) {
-	//		nodes[*(m1[i]->getNode())]
-	//		pos1[i] = m1[i]->getData();
-	//		pos2[i] = m2[i]->getData();
-	//	}
-	//	CalibrationResult result;
-	//	result.systems = SystemPair(m1.front()->system, m2.front()->system);
-	//	result.transform = utility::PositionalCalibration::calibrateIdenticalPair(pos1, pos2);
-	//	result.quality = 1;//TODO: utility::PositionalCalibration::checkError(pos1, pos2, result.transform);
-	//	result.calibrated = true;
-	//	return result;
-	//}
+	CalibrationResult Calibrator::calTT(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
+	{
+		//At least one node
+		std::vector<std::vector<Eigen::Matrix4f>> pos1(1);
+		std::vector<std::vector<Eigen::Matrix4f>> pos2(1);
+		std::map<NodeDescriptor, int> nodes;
+		nodes[m1.front()->getNode()] = 0;
+		for (int i = 0; i < m1.size(); i++) {
+			const auto& currentNode = m1[i]->getNode();
+			if (nodes.count(currentNode) == 0) {
+				pos1.push_back(std::vector<Eigen::Matrix4f>());
+				pos2.push_back(std::vector<Eigen::Matrix4f>());
+				nodes[currentNode] = nodes.size() - 1;
+			}
+			int index = nodes[currentNode];
+			pos1[index].push_back(utility::convention::unserialiseTo4x4f(m1[i]->getData()));
+			pos2[index].push_back(utility::convention::unserialiseTo4x4f(m2[i]->getData()));
+		}
+		CalibrationResult result;
+		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
+		result.transform = utility::calibration::Transform::twoSystems(pos1, pos2, &result.error);
+		result.quality = 1;//TODO: compute quality
+		result.calibrated = true;
+		return result;
+	}
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//									Calibrator:Public
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +162,7 @@ namespace fusion {
 
 		if (dataNovel) {
 			//Store the (refs to) the relevant measurements
-			FUSION_LOG("Adding calibration measurments!!");
+			//FUSION_LOG("Adding calibration measurments!!");
 			for (auto& m : measurements) {
 				addMeasurement(m.first, m.second);
 			}

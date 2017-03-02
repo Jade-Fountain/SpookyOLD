@@ -45,13 +45,13 @@ namespace FusionTesting
 				samplesB[i] = X * samplesA[i] + Eigen::Vector3f::Random() * 0.01;
 			}
 
-			
-			Eigen::Transform<float, 3, Eigen::Affine> X_ = fusion::utility::PositionalCalibration::calibrateIdenticalPair(samplesA, samplesB);
+			float error = 0;
+			Eigen::Transform<float, 3, Eigen::Affine> X_ = fusion::utility::calibration::Position::calibrateIdenticalPair(samplesA, samplesB, &error);
 
 			std::stringstream ss;
 			ss << "Correct X = \n" << X.matrix() << std::endl;
 			ss << "Calibration Result X = \n" << X_.matrix() << std::endl;
-			ss << "Max error = " << (X.matrix() - X_.matrix()).maxCoeff() << std::endl;
+			ss << "Error = " << error << std::endl;
 			std::wstring widestr = utf8_decode(ss.str());
 
 			bool close_enough = X.isApprox(X_,noise);

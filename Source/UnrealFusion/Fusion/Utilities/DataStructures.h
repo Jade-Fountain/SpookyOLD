@@ -24,5 +24,6 @@ namespace fusion {
 			if (m.count(x) == 0) m[x] = Y();
 			return m[x];
 		}
+
 	}
 }

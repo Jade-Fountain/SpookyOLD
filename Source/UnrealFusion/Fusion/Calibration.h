@@ -55,7 +55,7 @@ namespace fusion {
 		//Difference threshold: store new measurement if difference to last measurement is larger than this
 		float diff_threshold = 0.1;
 		//Count Threshold: Calibrate when this many samples acquired
-		int count_threshold = 150;
+		int count_threshold = 50;
 
 		//Table for looking up data relevant to determining transforms
 		CalibrationDataSet calibrationSet;
@@ -78,6 +78,7 @@ namespace fusion {
 
 		//Different types of calibration:
 		CalibrationResult calPosPos(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2);
+		CalibrationResult calTT(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2);
 
 	public:
 		//Add data for later calibration

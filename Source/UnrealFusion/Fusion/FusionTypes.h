@@ -64,6 +64,7 @@ namespace fusion {
 		bool calibrated = false;
 		//Maps first to second
 		Transform3D transform;
+		float error = 0;
 		float quality = 0;
 
 		CalibrationResult inverse() {
@@ -170,6 +171,9 @@ namespace fusion {
 		
 		//Method for getting the distance between two measurements
 		float compare(const Measurement::Ptr & other);
+
+		//Data helpers
+
 
 		//----------------------
 		//Accessors
