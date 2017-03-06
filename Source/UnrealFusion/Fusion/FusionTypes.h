@@ -26,11 +26,13 @@
 
 namespace fusion {
 
-	//Basic types:
+	//For convenience and abstraction, typedef some basic structs
+
+	//Mapping between two affine spaces
 	typedef Eigen::Transform<float, 3, Eigen::Affine> Transform3D;
 
 
-	/** System descriptor
+	/** System descriptor - abstraction for a string type to be used as a map key - might be changed later
 	*
 	*/
 	class SystemDescriptor {
@@ -52,16 +54,17 @@ namespace fusion {
 		SystemDescriptor(std::string n = "") : name(n) {}
 	};
 
-	/*class NodeDescriptor : public SystemDescriptor {
-	public:
-		NodeDescriptor(std::string n = "") : SystemDescriptor(n) {}
-	};*/
+	//Node descriptor uses the same class as systemdescriptor
 	typedef SystemDescriptor NodeDescriptor;
 
+	//Map key types
 	typedef std::pair<SystemDescriptor, SystemDescriptor> SystemPair;
 	typedef std::pair<SystemDescriptor, NodeDescriptor> SystemNodePair;
+	
+	//Sensor ID type
 	typedef int SensorID;
 
+	//Function to overload system pair map keying
 	struct SystemPairCompare {
 		bool operator() (const SystemPair& lhs, const SystemPair& rhs) {
 			std::string lhs_combined = lhs.first.name + lhs.second.name;
@@ -71,16 +74,21 @@ namespace fusion {
 	};
 
 
-	//Results of a calibration are stored in this struct
+	//Results of a calibration are stored in this struct and returned
 	class CalibrationResult {
 	public:
+		//systems = [domain,range]
 		SystemPair systems;
+		//Has calibration given a valid result
 		bool calibrated = false;
-		//Maps first to second
+		//Maps systems.first to systems.second
 		Transform3D transform;
+		//Error is the mean re-projection error
 		float error = 0;
+		//Quality is a qualitative measure in [0,1] of the estimated accuracy of the result
 		float quality = 0;
 
+		//Returns the inverse of the calibration result
 		CalibrationResult inverse() {
 			CalibrationResult result = *this;
 			result.transform = transform.inverse();
@@ -99,6 +107,7 @@ namespace fusion {
 		SCALE = 4
 	};
 
+	//Sensor describes all persistent parameters of a given sensor
 	class Sensor {
 	public:
 		//=================================================
@@ -112,11 +121,13 @@ namespace fusion {
 		std::set<NodeDescriptor> nodes;
 		//=================================================
 
+		//Typedef ptr to this class for neater code later
 		typedef std::shared_ptr<Sensor> Ptr;
 
 		//Accessors:
 		bool isAmbiguous() { return nodes.size() != 1; }
 
+		//Returns a valid node only when there is only one possibility
 		NodeDescriptor getNode() {
 			if (nodes.size() != 1) {
 				FUSION_LOG(__FILE__ + __LINE__ + std::string(" : attempted to get node of ambiguous sensor"));
@@ -125,17 +136,19 @@ namespace fusion {
 			return *nodes.begin();
 		}
 
+		//gets all possible nodes
 		const std::set<NodeDescriptor>& getNodes() {
 			return nodes;
 		}
 		
+		//Adds a node as a possible sensor location
 		void addNode(const NodeDescriptor& node) {
 			nodes.insert(node);
 		}
 
 	};
 
-	//TODO: make this class a parent of different measurement types
+	//Class describing individual sensor reading taken at a particular time
 	class Measurement {
 	private:		
 

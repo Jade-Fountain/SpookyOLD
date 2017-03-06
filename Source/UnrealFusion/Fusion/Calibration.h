@@ -43,7 +43,7 @@ namespace fusion {
 
 
 		//Stores the data for each System and each node which has sensors from that system
-		//Picture it as a table of sensors with Systems naming the rows and Nodes naming the columns
+		//Picture it as a table of sensor streams with Systems naming the rows and Nodes naming the columns
 		//Example:
 		//			N1	N2	N3		...
 		//		S1	s1	s2	s3,s4
