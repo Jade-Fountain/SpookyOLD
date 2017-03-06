@@ -26,6 +26,10 @@ namespace fusion {
 
 	void CalibrationDataSet::Stream::addMeasurement(const Measurement::Ptr& m) {
 		utility::safeAccess(sensors, m->getSensorID()).push_back(m);
+		while (sensors[m->getSensorID()].size() > max_samples) {
+			//Erase oldest data
+			sensors[m->getSensorID()].erase(sensors[m->getSensorID()].begin());
+		}
 	}
 
 	std::pair<SensorID, size_t> CalibrationDataSet::Stream::maxCount()
@@ -103,16 +107,65 @@ namespace fusion {
 
 	void Calibrator::calibrateInitial(SystemDescriptor system1, SystemDescriptor system2)
 	{
-
-		//Init list of calibration results: on result for each node
-		//std::vector<CalibrationResult> results;
-
 		//Create key for the pair of systems
 		SystemPair sysPair(system1, system2);
 
 		//Initialise vectors of measurements relevant to calibrating system1 and system2
 		std::vector<Measurement::Ptr> measurements1;
 		std::vector<Measurement::Ptr> measurements2;
+
+		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, initial_threshold);
+
+		//Calibrate
+		if (measurements1.size() > 0) {
+			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2);
+
+			//Debug
+			std::stringstream ss;
+			ss << "Results for X: " << system1.name << " --> " << system2.name << "(Combined nodes)\n" << calibrationResults[sysPair].transform.matrix() << "\n";
+			FUSION_LOG(ss.str());
+		}
+	}
+
+	void Calibrator::refineCalibration(SystemDescriptor system1, SystemDescriptor system2) {
+		//Create key for the pair of systems
+		SystemPair sysPair(system1, system2);
+
+		//Initialise vectors of measurements relevant to calibrating system1 and system2
+		std::vector<Measurement::Ptr> measurements1;
+		std::vector<Measurement::Ptr> measurements2;
+
+		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, initial_threshold);
+
+		//Calibrate
+		if (measurements1.size() > 0) {
+			//Do something
+		}
+	}
+
+	void Calibrator::detectFaults(SystemDescriptor system1, SystemDescriptor system2) {
+		//Create key for the pair of systems
+		SystemPair sysPair(system1, system2);
+
+		//Initialise vectors of measurements relevant to calibrating system1 and system2
+		std::vector<Measurement::Ptr> measurements1;
+		std::vector<Measurement::Ptr> measurements2;
+
+		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, initial_threshold);
+
+		//Calibrate
+		if (measurements1.size() > 0) {
+			//Do something
+		}
+	}
+
+	void Calibrator::getRelevantMeasurements(
+		SystemDescriptor system1, 
+		SystemDescriptor system2,
+		std::vector<Measurement::Ptr>* measurements1,
+		std::vector<Measurement::Ptr>* measurements2,
+		int minMeasurementCount
+	){
 
 		//Loop through nodes and build up relevant measurements
 		for (auto& node : calibrationSet.nodes) {
@@ -131,16 +184,16 @@ namespace fusion {
 				std::pair<SensorID, size_t> max2 = calibrationSet.systemNodeTable[sysNode2].maxCount();
 
 				//Streams of different length or not long enough- we cant use this data
-				if (max1.second != max2.second || max1.second < count_threshold || max2.second < count_threshold) {
+				if (max1.second != max2.second || max1.second < minMeasurementCount || max2.second < minMeasurementCount) {
 					//TODO: do something?
 					continue; //cannot calibrate this pair of sensors yet
 				}
 
 				//Get measurements
 				const auto& m1 = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
-				measurements1.insert(measurements1.end(), m1.begin(), m1.end());
+				measurements1->insert(measurements1->end(), m1.begin(), m1.end());
 				const auto& m2 = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
-				measurements2.insert(measurements2.end(), m2.begin(), m2.end());
+				measurements2->insert(measurements2->end(), m2.begin(), m2.end());
 
 				//Perform calibration
 				//
@@ -153,16 +206,6 @@ namespace fusion {
 				calibrationSet.systemNodeTable[sysNode1].sensors[max1.first].clear();
 				calibrationSet.systemNodeTable[sysNode2].sensors[max2.first].clear();
 			}
-		}
-
-		//Calibrate
-		if (measurements1.size() > 0) {
-			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2);
-
-			//Debug
-			std::stringstream ss;
-			ss << "Results for X: " << system1.name << " --> " << system2.name << "(Combined nodes)\n" << calibrationResults[sysPair].transform.matrix() << "\n";
-			FUSION_LOG(ss.str());
 		}
 	}
 
@@ -266,10 +309,10 @@ namespace fusion {
 					calibrateInitial(*system1, *system2);
 					break;
 				case (CalibrationResult::State::REFINING):
-					//TODO: bundle adjustment
+					refineCalibration(*system1, *system2);
 					break;
 				case (CalibrationResult::State::CALIBRATED):
-					//TODO: fault detection
+					detectFaults(*system1, *system2);
 					break;
 				}
 			}

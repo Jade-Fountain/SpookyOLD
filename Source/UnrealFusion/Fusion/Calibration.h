@@ -33,6 +33,9 @@ namespace fusion {
 		//Encapsulation for accessing measurements corresponding to 
 		class Stream {
 		public:
+			//Upper bound for number of samples. 
+			//Ideally shouldnt reach this, but included as safety
+			int max_samples = 1000;
 			//Stores sensor samples per ID
 			std::map<SensorID, std::vector<Measurement::Ptr>> sensors;
 			//Adds a measurement to the stream
@@ -72,7 +75,7 @@ namespace fusion {
 		//Difference threshold: store new measurement if difference to last measurement is larger than this
 		float diff_threshold = 0.1;
 		//Count Threshold: Calibrate when this many samples acquired
-		int count_threshold = 50;
+		int initial_threshold = 50;
 
 		//Table for looking up data relevant to determining transforms
 		CalibrationDataSet calibrationSet;
@@ -92,6 +95,15 @@ namespace fusion {
 
 		//Calibrate with no prior knowledge available
 		void calibrateInitial(SystemDescriptor system1, SystemDescriptor system2);
+
+		//Refine calibration continuously
+		void refineCalibration(SystemDescriptor system1, SystemDescriptor system2);
+
+		//Detect faults and reset calibration if found
+		void detectFaults(SystemDescriptor system1, SystemDescriptor system2);
+
+		//Gets the measurements relevant to calibration of system1 and system2
+		void getRelevantMeasurements(SystemDescriptor system1, SystemDescriptor system2, std::vector<Measurement::Ptr>* measurements1, std::vector<Measurement::Ptr>* measurements2, int minMeasurementCount);
 
 		//Calibrate two particular data streams
 		CalibrationResult calibrateStreams(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2);
