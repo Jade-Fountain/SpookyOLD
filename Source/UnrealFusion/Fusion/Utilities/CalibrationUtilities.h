@@ -96,6 +96,11 @@ namespace fusion{
 				}
 			}
 
+			static inline float qualityFromError(float error, float scale) {
+				float e = error / scale;
+				return 1 / (1 + e*e);
+			}
+
 		}
 	}
 }

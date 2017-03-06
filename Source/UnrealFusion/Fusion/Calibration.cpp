@@ -25,12 +25,12 @@ namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	void CalibrationDataSet::Stream::addMeasurement(const Measurement::Ptr& m) {
-		utility::safeAccess(sensors,m->getSensorID()).push_back(m);
+		utility::safeAccess(sensors, m->getSensorID()).push_back(m);
 	}
 
 	std::pair<SensorID, size_t> CalibrationDataSet::Stream::maxCount()
 	{
-		std::pair<SensorID, size_t> result(0,0);
+		std::pair<SensorID, size_t> result(0, 0);
 		for (auto& sensor : sensors) {
 			size_t s = sensor.second.size();
 			if (result.second < s) {
@@ -52,7 +52,7 @@ namespace fusion {
 	float CalibrationDataSet::compareMeasurement(const Measurement::Ptr & m, const SystemDescriptor & system, const NodeDescriptor & node)
 	{
 		SystemNodePair sysNode = SystemNodePair(system, node);
-		std::vector<Measurement::Ptr>& stream = utility::safeAccess(systemNodeTable[sysNode].sensors,m->getSensorID());
+		std::vector<Measurement::Ptr>& stream = utility::safeAccess(systemNodeTable[sysNode].sensors, m->getSensorID());
 		//If no previous recorded data, return max difference
 		if (stream.size() == 0) {
 			return float(std::numeric_limits<float>::max());
@@ -68,7 +68,7 @@ namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>
-	Calibrator::filterLonelyData(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
+		Calibrator::filterLonelyData(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
 		//Init result
 		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> result;
 		//Structure for counting systems per node
@@ -95,10 +95,75 @@ namespace fusion {
 			float diff = calibrationSet.compareMeasurement(mes, mes->getSystem(), node);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true
-			
+
 			result = result || (diff > diff_threshold);
 		}
 		return result;
+	}
+
+	void Calibrator::calibrateInitial(SystemDescriptor system1, SystemDescriptor system2)
+	{
+
+		//Init list of calibration results: on result for each node
+		//std::vector<CalibrationResult> results;
+
+		//Create key for the pair of systems
+		SystemPair sysPair(system1, system2);
+
+		//Initialise vectors of measurements relevant to calibrating system1 and system2
+		std::vector<Measurement::Ptr> measurements1;
+		std::vector<Measurement::Ptr> measurements2;
+
+		//Loop through nodes and build up relevant measurements
+		for (auto& node : calibrationSet.nodes) {
+
+			//Keys for accessing data streams
+			SystemNodePair sysNode1(system1, node);
+			SystemNodePair sysNode2(system2, node);
+
+
+			//If there is an entry for each system in the table, check if there is sufficient data for calibration
+			if (calibrationSet.systemNodeTable.count(sysNode1) > 0 &&
+				calibrationSet.systemNodeTable.count(sysNode2) > 0)
+			{
+				//Get maximum length of sensor stream
+				std::pair<SensorID, size_t> max1 = calibrationSet.systemNodeTable[sysNode1].maxCount();
+				std::pair<SensorID, size_t> max2 = calibrationSet.systemNodeTable[sysNode2].maxCount();
+
+				//Streams of different length or not long enough- we cant use this data
+				if (max1.second != max2.second || max1.second < count_threshold || max2.second < count_threshold) {
+					//TODO: do something?
+					continue; //cannot calibrate this pair of sensors yet
+				}
+
+				//Get measurements
+				const auto& m1 = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
+				measurements1.insert(measurements1.end(), m1.begin(), m1.end());
+				const auto& m2 = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
+				measurements2.insert(measurements2.end(), m2.begin(), m2.end());
+
+				//Perform calibration
+				//
+				////Debug
+				//std::stringstream ss;
+				//ss << "Results for X: " << system1.name << " --> " << system2.name << "("<< node.name << ")\n" << results.back().transform.matrix() << "\n";
+				//FUSION_LOG(ss.str());
+
+				//Clear the data used for calibration
+				calibrationSet.systemNodeTable[sysNode1].sensors[max1.first].clear();
+				calibrationSet.systemNodeTable[sysNode2].sensors[max2.first].clear();
+			}
+		}
+
+		//Calibrate
+		if (measurements1.size() > 0) {
+			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2);
+
+			//Debug
+			std::stringstream ss;
+			ss << "Results for X: " << system1.name << " --> " << system2.name << "(Combined nodes)\n" << calibrationResults[sysPair].transform.matrix() << "\n";
+			FUSION_LOG(ss.str());
+		}
 	}
 
 
@@ -129,9 +194,11 @@ namespace fusion {
 		}
 		CalibrationResult result;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
+		//Compute transform and error
 		result.transform = utility::calibration::Position::calibrateIdenticalPair(pos1, pos2, &result.error);
-		result.quality = 1;//TODO: compute error
-		result.calibrated = true;
+		//TODO: compute quality
+		result.quality = utility::calibration::qualityFromError(result.error,1);
+		result.state = CalibrationResult::State::REFINING;
 		return result;
 	}
 
@@ -155,9 +222,11 @@ namespace fusion {
 		}
 		CalibrationResult result;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
+		//Compute transform and error
 		result.transform = utility::calibration::Transform::twoSystems(pos1, pos2, &result.error);
-		result.quality = 1;//TODO: compute quality
-		result.calibrated = true;
+		//TODO: compute quality
+		result.quality = utility::calibration::qualityFromError(result.error, 1);
+		result.state = CalibrationResult::State::REFINING;
 		return result;
 	}
 
@@ -187,73 +256,22 @@ namespace fusion {
 
 	void Calibrator::calibrate()
 	{
-		std::map < NodeDescriptor, std::vector<SystemDescriptor>> calibrationGroup;
-
 		//For each unordered pairing of systems, check if there are common nodes
 		for (std::set<SystemDescriptor>::iterator system1 = calibrationSet.systems.begin(); system1 != calibrationSet.systems.end(); system1++) {
 			for (std::set<SystemDescriptor>::iterator system2 = std::next(system1); system2 != calibrationSet.systems.end(); system2++) {
-				
-				//Init list of calibration results: on result for each node
-				//std::vector<CalibrationResult> results;
-
-				//Create key for the pair of systems
-				SystemPair sysPair(*system1,*system2);
-				
-				std::vector<Measurement::Ptr> measurements1;
-				std::vector<Measurement::Ptr> measurements2;
-
-				//Loop through nodes and calibrate with them if they provide relevant info
-				for (auto& node : calibrationSet.nodes) {
-					
-					//Keys for accessing data streams
-					SystemNodePair sysNode1(*system1, node);
-					SystemNodePair sysNode2(*system2, node);
-					
-
-					//If there is an entry for each system in the table, add the systems to the node calibration group
-					if (calibrationSet.systemNodeTable.count(sysNode1) > 0 &&
-						calibrationSet.systemNodeTable.count(sysNode2) > 0) 
-					{
-						//TODO:Check data counts
-						std::pair<SensorID, size_t> max1 = calibrationSet.systemNodeTable[sysNode1].maxCount();
-						std::pair<SensorID, size_t> max2 = calibrationSet.systemNodeTable[sysNode2].maxCount();
-
-						//Streams of different length or not long enough- we cant use this data
-						if (max1.second != max2.second || max1.second < count_threshold || max2.second < count_threshold) {
-							//TODO: do something?
-							continue; //cannot calibrate this pair of sensors yet
-						}
-
-						//Get measurements
-						const auto& m1 = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
-						measurements1.insert(measurements1.end(),m1.begin(),m1.end());
-						const auto& m2 = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
-						measurements2.insert(measurements2.end(), m2.begin(), m2.end());
-
-						//Perform calibration
-						//
-						////Debug
-						//std::stringstream ss;
-						//ss << "Results for X: " << system1->name << " --> " << system2->name << "("<< node.name << ")\n" << results.back().transform.matrix() << "\n";
-						//FUSION_LOG(ss.str());
-						
-						//Clear the data used for calibration
-						calibrationSet.systemNodeTable[sysNode1].sensors[max1.first].clear();
-						calibrationSet.systemNodeTable[sysNode2].sensors[max2.first].clear();
-					}
+				CalibrationResult r = getResultsFor(*system1, *system2);
+				switch (r.state) {
+				case (CalibrationResult::State::UNCALIBRATED):
+					//Called multiple times until calibration ready - then it performs calibration and sets r.calibrated
+					calibrateInitial(*system1, *system2);
+					break;
+				case (CalibrationResult::State::REFINING):
+					//TODO: bundle adjustment
+					break;
+				case (CalibrationResult::State::CALIBRATED):
+					//TODO: fault detection
+					break;
 				}
-
-				//TODO: result = combineResults(results); // combine multiple results
-				//Store results
-				if (measurements1.size() > 0) {
-					calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2);
-
-					//Debug
-					std::stringstream ss;
-					ss << "Results for X: " << system1->name << " --> " << system2->name << "(Combined nodes)\n" << calibrationResults[sysPair].transform.matrix() << "\n";
-					FUSION_LOG(ss.str());
-				}
-
 			}
 		}
 	}
@@ -268,7 +286,9 @@ namespace fusion {
 		if(calibrationResults.count(reverse) > 0) {
 			return calibrationResults[reverse].inverse();
 		}
-		return CalibrationResult();
+		calibrationResults[forward] = CalibrationResult();
+		calibrationResults[forward].systems = forward;
+		return calibrationResults[forward];
 	}
 
 }

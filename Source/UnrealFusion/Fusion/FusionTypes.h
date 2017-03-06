@@ -77,10 +77,16 @@ namespace fusion {
 	//Results of a calibration are stored in this struct and returned
 	class CalibrationResult {
 	public:
+		enum State {
+			UNCALIBRATED = 0,
+			REFINING = 1,
+			CALIBRATED = 2
+		};
+
 		//systems = [domain,range]
 		SystemPair systems;
-		//Has calibration given a valid result
-		bool calibrated = false;
+		//Calibration state describes
+		State state = UNCALIBRATED;
 		//Maps systems.first to systems.second
 		Transform3D transform;
 		//Error is the mean re-projection error
@@ -93,6 +99,11 @@ namespace fusion {
 			CalibrationResult result = *this;
 			result.transform = transform.inverse();
 			return result;
+		}
+
+		//Checks if sensor is calibrated
+		bool calibrated() {
+			return state != UNCALIBRATED;
 		}
 	};
 

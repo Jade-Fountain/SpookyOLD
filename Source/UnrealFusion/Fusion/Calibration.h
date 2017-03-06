@@ -51,7 +51,9 @@ namespace fusion {
 		//		S3	-	q1	-
 		//
 		std::map<SystemNodePair, Stream> systemNodeTable;
+		//Row labels:
 		std::set<SystemDescriptor> systems;
+		//Column labels:
 		std::set<NodeDescriptor> nodes;
 
 		//Helper methods
@@ -87,6 +89,9 @@ namespace fusion {
 
 		//Returns true if sufficient movement has occurred to warrant recording of data
 		bool checkChanges(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurements);
+
+		//Calibrate with no prior knowledge available
+		void calibrateInitial(SystemDescriptor system1, SystemDescriptor system2);
 
 		//Calibrate two particular data streams
 		CalibrationResult calibrateStreams(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2);
