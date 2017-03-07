@@ -72,6 +72,7 @@ namespace fusion{
 				static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateIdenticalPair(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,
+					//TODO:: const std::vector<float>& weights = std::vector<float>(),
 					float* error = NULL
 				) {
 					if (samplesA.size() != samplesB.size()) {
