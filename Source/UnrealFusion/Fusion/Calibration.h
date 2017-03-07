@@ -85,7 +85,7 @@ namespace fusion {
 		std::map<CalibrationResult::State, int> count_threshold = 
 		{	
 			{CalibrationResult::State::UNCALIBRATED,50},
-			{CalibrationResult::State::REFINING,10},
+			{CalibrationResult::State::REFINING,50},
 			{CalibrationResult::State::CALIBRATED,20} 
 		};
 

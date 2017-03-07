@@ -121,9 +121,9 @@ namespace fusion {
 			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2, getResultsFor(system1,system2));
 
 			//Debug
-			std::stringstream ss;
-			ss << "Results for X: " << system1.name << " --> " << system2.name << "(Combined nodes)\n" << calibrationResults[sysPair].transform.matrix() << "\n";
-			FUSION_LOG(ss.str());
+			//std::stringstream ss;
+			//ss << "Results for X: " << system1.name << " --> " << system2.name << "(Combined nodes)\n" << calibrationResults[sysPair].transform.matrix() << "\n";
+			//FUSION_LOG(ss.str());
 		}
 	}
 
@@ -195,6 +195,7 @@ namespace fusion {
 		return CalibrationResult();
 	}
 
+	//TODO: refactor this mess
 	CalibrationResult Calibrator::calPosPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib)	{
 		std::vector<Eigen::Vector3f> pos1(m1.size());
 		std::vector<Eigen::Vector3f> pos2(m2.size());
@@ -208,12 +209,30 @@ namespace fusion {
 		switch (calib.state) {
 		case (CalibrationResult::State::UNCALIBRATED):
 			result.transform = utility::calibration::Position::calibrateIdenticalPair(pos1, pos2, &result.error);
+			result.quality = utility::calibration::qualityFromError(result.error, 1);
+			FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error));
+			result.state = CalibrationResult::State::CALIBRATED;
+			break;
 		case (CalibrationResult::State::REFINING):
-			result.transform = utility::calibration::Position::refineIdenticalPair(pos1, pos2, calib.transform, &result.error);
+			//TODO: refinement calibration
+			/*result.transform = utility::calibration::Position::refineIdenticalPairSimple(pos1, pos2, calib.transform, &result.error);
+			result.quality = utility::calibration::qualityFromError(result.error, 1);
+			if (result.error < 0.0005) {
+				FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error));
+				result.state = CalibrationResult::State::CALIBRATED;
+			} else {
+				FUSION_LOG(" result.error " + std::to_string(result.error));
+				result.state = CalibrationResult::State::REFINING;
+			}*/
+			break;
+		case (CalibrationResult::State::CALIBRATED):
+			FUSION_LOG(" Already calibrated Doing nothing");
+			/*if (detectFault()) {
+				//TODO: add fault detection
+			}*/
+			return calib;
+			break;
 		}
-		
-		result.quality = utility::calibration::qualityFromError(result.error,1);
-		result.state = CalibrationResult::State::REFINING;
 		return result;
 	}
 
