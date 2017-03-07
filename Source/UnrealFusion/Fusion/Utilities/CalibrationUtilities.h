@@ -27,11 +27,22 @@ namespace fusion{
 			//Source: https://fuyunfei1.gitbooks.io/c-tips/content/pinv_with_eigen.html
 			//Pseudo inverse
 			template<typename _Matrix_Type_>
-			_Matrix_Type_ pInv(const _Matrix_Type_ &a, double epsilon = std::numeric_limits<double>::epsilon())
+			static inline _Matrix_Type_ pInv(const _Matrix_Type_ &a, double epsilon = std::numeric_limits<double>::epsilon())
 			{
 				Eigen::JacobiSVD< _Matrix_Type_ > svd(a, Eigen::ComputeThinU | Eigen::ComputeThinV);
 				double tolerance = epsilon * std::max(a.cols(), a.rows()) *svd.singularValues().array().abs()(0);
 				return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
+			}
+
+			static inline Eigen::Transform<float, 3, Eigen::Affine> matrixToTransform3D(const Eigen::Matrix4f& X) {
+				//Make sure normalised
+				Eigen::Quaternionf q(X.block<3, 3>(0, 0));
+				q.normalize();
+				Eigen::Translation3f t(X.block<3, 1>(0, 3));
+
+				Eigen::Transform<float, 3, Eigen::Affine> TX(t);
+				TX.rotate(q);
+				return TX;
 			}
 
 			//For calibrating data with position only
@@ -41,8 +52,9 @@ namespace fusion{
 				// or XA = B
 				static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateIdenticalPair(
 					const std::vector<Eigen::Vector3f>& samplesA,
-					const std::vector<Eigen::Vector3f> samplesB,
-					float* error = NULL) {
+					const std::vector<Eigen::Vector3f>& samplesB,
+					float* error = NULL
+				) {
 					if (samplesA.size() != samplesB.size()) {
 						throw std::runtime_error(std::string(__FILE__) + std::to_string(__LINE__) + std::string(" : samplesA and samplesB of different size"));
 					}
@@ -57,12 +69,46 @@ namespace fusion{
 
 					//Make sure normalised
 					Eigen::Matrix4f X = B * pInv(A);
-					Eigen::Quaternionf q(X.block<3, 3>(0, 0));
-					q.normalize();
-					Eigen::Translation3f t(X.block<3, 1>(0, 3));
+					Eigen::Transform<float, 3, Eigen::Affine> TX = matrixToTransform3D(X);
 
-					Eigen::Transform<float, 3, Eigen::Affine> TX(t);
-					TX.rotate(q);
+					if (error != NULL) {
+						*error = (TX.matrix() * A - B).norm() / samplesA.size();
+					}
+
+					return TX;
+				}
+				
+				static inline Eigen::Transform<float, 3, Eigen::Affine> refineIdenticalPair(
+					const std::vector<Eigen::Vector3f>& samplesA,
+					const std::vector<Eigen::Vector3f>& samplesB,
+					const Eigen::Transform<float, 3, Eigen::Affine>& X,
+					float* error = NULL
+				) {
+					Eigen::MatrixXf A(4, samplesA.size());
+					Eigen::MatrixXf B(4, samplesB.size());
+
+					for (int i = 0; i < samplesA.size(); i++) {
+						A.col(i) << samplesA[i], 1;
+						B.col(i) << samplesB[i], 1;
+					}
+
+					Eigen::MatrixXf E = B - X.matrix() * A;
+
+					Eigen::Matrix4f dX;
+
+					for (int i = 0; i < 4; i++) {
+						for (int j = 0; j < 4; j++) {
+							dX(i, j) = 0;
+							float max_n = A.cols() / 4;
+							for (int n = 0; n < max_n; n++) {
+								dX(i, j) = A(i, j + 4 * n) / (max_n - 1);
+							}
+						}
+					}
+
+					dX = dX * E.norm() / dX.norm();
+
+					Eigen::Transform<float, 3, Eigen::Affine> TX = matrixToTransform3D(X.matrix() + dX);
 
 					if (error != NULL) {
 						*error = (TX.matrix() * A - B).norm() / samplesA.size();
@@ -83,8 +129,8 @@ namespace fusion{
 				//For calibrating a pair of systems with two sensors connected by a rigid body
 				// XA = bY
 				static inline Eigen::Transform<float, 3, Eigen::Affine> twoSystems(
-					std::vector<std::vector<Eigen::Matrix4f>> samplesA, 
-					std::vector<std::vector<Eigen::Matrix4f>> samplesB,
+					const std::vector<std::vector<Eigen::Matrix4f>>& samplesA, 
+					const std::vector<std::vector<Eigen::Matrix4f>>& samplesB,
 					float* error = NULL)
 				{
 
