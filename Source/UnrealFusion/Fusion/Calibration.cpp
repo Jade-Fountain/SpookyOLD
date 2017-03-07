@@ -105,7 +105,7 @@ namespace fusion {
 		return result;
 	}
 
-	void Calibrator::calibrateInitial(SystemDescriptor system1, SystemDescriptor system2)
+	void Calibrator::calibrateSystems(SystemDescriptor system1, SystemDescriptor system2)
 	{
 		//Create key for the pair of systems
 		SystemPair sysPair(system1, system2);
@@ -114,48 +114,16 @@ namespace fusion {
 		std::vector<Measurement::Ptr> measurements1;
 		std::vector<Measurement::Ptr> measurements2;
 
-		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, initial_threshold);
+		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, count_threshold[getResultsFor(system1,system2).state]);
 
 		//Calibrate
 		if (measurements1.size() > 0) {
-			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2);
+			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2, getResultsFor(system1,system2));
 
 			//Debug
 			std::stringstream ss;
 			ss << "Results for X: " << system1.name << " --> " << system2.name << "(Combined nodes)\n" << calibrationResults[sysPair].transform.matrix() << "\n";
 			FUSION_LOG(ss.str());
-		}
-	}
-
-	void Calibrator::refineCalibration(SystemDescriptor system1, SystemDescriptor system2) {
-		//Create key for the pair of systems
-		SystemPair sysPair(system1, system2);
-
-		//Initialise vectors of measurements relevant to calibrating system1 and system2
-		std::vector<Measurement::Ptr> measurements1;
-		std::vector<Measurement::Ptr> measurements2;
-
-		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, initial_threshold);
-
-		//Calibrate
-		if (measurements1.size() > 0) {
-			//Do something
-		}
-	}
-
-	void Calibrator::detectFaults(SystemDescriptor system1, SystemDescriptor system2) {
-		//Create key for the pair of systems
-		SystemPair sysPair(system1, system2);
-
-		//Initialise vectors of measurements relevant to calibrating system1 and system2
-		std::vector<Measurement::Ptr> measurements1;
-		std::vector<Measurement::Ptr> measurements2;
-
-		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, initial_threshold);
-
-		//Calibrate
-		if (measurements1.size() > 0) {
-			//Do something
 		}
 	}
 
@@ -210,12 +178,12 @@ namespace fusion {
 	}
 
 
-	CalibrationResult Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
+	CalibrationResult Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib)
 	{
 		switch (m1.front()->type) {
 		case MeasurementType::POSITION:
 			if (m2.front()->type == MeasurementType::POSITION) {
-				return calPosPos(m1, m2);
+				return calPosPos(m1, m2, calib);
 			}
 			break;
 		case MeasurementType::RIGID_BODY:
@@ -227,8 +195,7 @@ namespace fusion {
 		return CalibrationResult();
 	}
 
-	CalibrationResult Calibrator::calPosPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
-	{
+	CalibrationResult Calibrator::calPosPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib)	{
 		std::vector<Eigen::Vector3f> pos1(m1.size());
 		std::vector<Eigen::Vector3f> pos2(m2.size());
 		for (int i = 0; i < m1.size(); i++) {
@@ -238,8 +205,13 @@ namespace fusion {
 		CalibrationResult result;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
 		//Compute transform and error
-		result.transform = utility::calibration::Position::calibrateIdenticalPair(pos1, pos2, &result.error);
-		//TODO: compute quality
+		switch (calib.state) {
+		case (CalibrationResult::State::UNCALIBRATED):
+			result.transform = utility::calibration::Position::calibrateIdenticalPair(pos1, pos2, &result.error);
+		case (CalibrationResult::State::REFINING):
+			result.transform = utility::calibration::Position::refineIdenticalPair(pos1, pos2, calib.transform, &result.error);
+		}
+		
 		result.quality = utility::calibration::qualityFromError(result.error,1);
 		result.state = CalibrationResult::State::REFINING;
 		return result;
@@ -302,19 +274,9 @@ namespace fusion {
 		//For each unordered pairing of systems, check if there are common nodes
 		for (std::set<SystemDescriptor>::iterator system1 = calibrationSet.systems.begin(); system1 != calibrationSet.systems.end(); system1++) {
 			for (std::set<SystemDescriptor>::iterator system2 = std::next(system1); system2 != calibrationSet.systems.end(); system2++) {
-				CalibrationResult r = getResultsFor(*system1, *system2);
-				switch (r.state) {
-				case (CalibrationResult::State::UNCALIBRATED):
-					//Called multiple times until calibration ready - then it performs calibration and sets r.calibrated
-					calibrateInitial(*system1, *system2);
-					break;
-				case (CalibrationResult::State::REFINING):
-					refineCalibration(*system1, *system2);
-					break;
-				case (CalibrationResult::State::CALIBRATED):
-					detectFaults(*system1, *system2);
-					break;
-				}
+
+				calibrateSystems(*system1, *system2);
+				
 			}
 		}
 	}
