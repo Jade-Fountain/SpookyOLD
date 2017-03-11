@@ -1,0 +1,271 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Bound",
+				"BoundingBox"
+			],
+			[
+				"bound",
+				"bounding_box"
+			],
+			[
+				"image",
+				"image_file_path"
+			],
+			[
+				"proj",
+				"proj_co"
+			],
+			[
+				"vert",
+				"vert_array"
+			],
+			[
+				"current",
+				"currentCamera"
+			],
+			[
+				"Touch",
+				"TouchStates"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/Python/Python.sublime-build",
+					""
+				],
+				[
+					"Packages/Python/Python.sublime-build",
+					"Syntax Check"
+				]
+			],
+			[
+				"Packages/Python/Python.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/Users/User/Code/UnrealFusion"
+	],
+	"file_history":
+	[
+		"/C/Users/User/Code/UnrealFusion/.gitignore",
+		"/C/Users/User/Code/UnrealFusion/README.md",
+		"/C/Users/User/Code/DeepLearningRenderer/scripts/addons/blender/DeepLearningRenderer/geometry.py",
+		"/C/Users/User/Code/DeepLearningRenderer/scripts/addons/blender/DeepLearningRenderer/ui.py",
+		"/C/Program Files/Blender Foundation/Blender/2.78/scripts/addons/DeepLearningRenderer/ui.py",
+		"/C/Users/User/Code/DeepLearningRenderer/scripts/setup_addon.bat",
+		"/C/Users/User/Code/DeepLearningRenderer/scripts/setup_addons.py",
+		"/E/Unity/VRGame/Assets/Scripts/CrazyCube.cs",
+		"/E/Unity/VRGame/Assets/Scripts/Notes.txt",
+		"/E/Unity/VRGame/Assets/Scripts/Grabbing.cs"
+	],
+	"find":
+	{
+		"height": 31.0
+	},
+	"find_in_files":
+	{
+		"height": 138.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"TODO",
+			"factor",
+			"movementsPerPoint",
+			"i",
+			"x0",
+			"1.0",
+			"hdriLocation",
+			"x",
+			"setWorldHDRIMap",
+			"Texture",
+			"bpy.context.",
+			"v",
+			"vt",
+			"..",
+			"\"touch.d",
+			"\"touch",
+			"\")",
+			"state",
+			"\",\"",
+			",",
+			"InputFilter",
+			"Touch",
+			"Button",
+			"thumb_stick",
+			"touch",
+			"InputFilter",
+			",",
+			";"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 28.0
+	},
+	"input":
+	{
+		"height": 43.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 560.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "unrealfusion.sublime-project",
+	"replace":
+	{
+		"height": 58.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"gun",
+				"Assets\\Scripts\\Gun.cs"
+			],
+			[
+				"cra",
+				"Assets\\Scripts\\CrazyCube.cs"
+			],
+			[
+				"hand",
+				"Assets\\Scripts\\Hand.cs"
+			],
+			[
+				"inp",
+				"Assets\\Scripts\\ObjectInput.cs"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 417.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

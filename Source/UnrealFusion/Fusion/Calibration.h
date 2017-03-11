@@ -109,14 +109,24 @@ namespace fusion {
 		void calibrateSystems(SystemDescriptor system1, SystemDescriptor system2);
 
 		//Gets the measurements relevant to calibration of system1 and system2
+		//Returns an empty list if calibration not ready yet
 		void getRelevantMeasurements(SystemDescriptor system1, SystemDescriptor system2, std::vector<Measurement::Ptr>* measurements1, std::vector<Measurement::Ptr>* measurements2, int minMeasurementCount);
 
 		//Calibrate two particular data streams
 		CalibrationResult calibrateStreams(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2, const CalibrationResult& calib);
+		
+		//----------------
+		//CALIBRATION METHODS
 
-		//Different types of calibration:
-		CalibrationResult calPosPos(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2, const CalibrationResult& calib);
-		CalibrationResult calTT(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2);
+		//Different types of calibration procedures:
+		//see CalibrationProcedures.cpp for definitions
+		//----------------
+
+		//Calibrate two correlated positional measurements
+		CalibrationResult calPos(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2, const CalibrationResult& calib) const;
+
+		//Calibrate two rigidly linked 6DoF sensors
+		CalibrationResult cal6DoF(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2) const;
 
 	public:
 		//Add data for later calibration

@@ -15,7 +15,6 @@
 */
 #include "UnrealFusion.h"
 #include "Calibration.h"
-#include "Fusion/Utilities/CalibrationUtilities.h"
 #include "Logging.h"
 #include "Fusion/Utilities/Conventions.h"
 
@@ -180,88 +179,20 @@ namespace fusion {
 
 	CalibrationResult Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib)
 	{
+		//Bulk logic to route calibration procedures at runtime
 		switch (m1.front()->type) {
 		case MeasurementType::POSITION:
 			if (m2.front()->type == MeasurementType::POSITION) {
-				return calPosPos(m1, m2, calib);
+				return calPos(m1, m2, calib);
 			}
 			break;
 		case MeasurementType::RIGID_BODY:
 			if (m2.front()->type == MeasurementType::RIGID_BODY) {
-				return calTT(m1, m2);
+				return cal6DoF(m1, m2);
 			}
 		}
 		FUSION_LOG("WARNING : no calibration model found for measurement types: " + std::to_string(m1.front()->type) + " and " + std::to_string(m2.front()->type));
 		return CalibrationResult();
-	}
-
-	//TODO: refactor this mess
-	CalibrationResult Calibrator::calPosPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib)	{
-		std::vector<Eigen::Vector3f> pos1(m1.size());
-		std::vector<Eigen::Vector3f> pos2(m2.size());
-		for (int i = 0; i < m1.size(); i++) {
-			pos1[i] = m1[i]->getData();
-			pos2[i] = m2[i]->getData();
-		}
-		CalibrationResult result;
-		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
-		//Compute transform and error
-		switch (calib.state) {
-		case (CalibrationResult::State::UNCALIBRATED):
-			result.transform = utility::calibration::Position::calibrateIdenticalPair(pos1, pos2, &result.error);
-			result.quality = utility::calibration::qualityFromError(result.error, 1);
-			FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error));
-			result.state = CalibrationResult::State::CALIBRATED;
-			break;
-		case (CalibrationResult::State::REFINING):
-			//TODO: refinement calibration
-			/*result.transform = utility::calibration::Position::refineIdenticalPairSimple(pos1, pos2, calib.transform, &result.error);
-			result.quality = utility::calibration::qualityFromError(result.error, 1);
-			if (result.error < 0.0005) {
-				FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error));
-				result.state = CalibrationResult::State::CALIBRATED;
-			} else {
-				FUSION_LOG(" result.error " + std::to_string(result.error));
-				result.state = CalibrationResult::State::REFINING;
-			}*/
-			break;
-		case (CalibrationResult::State::CALIBRATED):
-			FUSION_LOG(" Already calibrated Doing nothing");
-			/*if (detectFault()) {
-				//TODO: add fault detection
-			}*/
-			return calib;
-			break;
-		}
-		return result;
-	}
-
-	CalibrationResult Calibrator::calTT(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)
-	{
-		//At least one node
-		std::vector<std::vector<Eigen::Matrix4f>> pos1(1);
-		std::vector<std::vector<Eigen::Matrix4f>> pos2(1);
-		std::map<NodeDescriptor, int> nodes;
-		nodes[m1.front()->getNode()] = 0;
-		for (int i = 0; i < m1.size(); i++) {
-			const auto& currentNode = m1[i]->getNode();
-			if (nodes.count(currentNode) == 0) {
-				pos1.push_back(std::vector<Eigen::Matrix4f>());
-				pos2.push_back(std::vector<Eigen::Matrix4f>());
-				nodes[currentNode] = nodes.size() - 1;
-			}
-			int index = nodes[currentNode];
-			pos1[index].push_back(utility::convention::unserialiseTo4x4f(m1[i]->getData()));
-			pos2[index].push_back(utility::convention::unserialiseTo4x4f(m2[i]->getData()));
-		}
-		CalibrationResult result;
-		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
-		//Compute transform and error
-		result.transform = utility::calibration::Transform::twoSystems(pos1, pos2, &result.error);
-		//TODO: compute quality
-		result.quality = utility::calibration::qualityFromError(result.error, 1);
-		result.state = CalibrationResult::State::REFINING;
-		return result;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -94,6 +94,9 @@ namespace fusion {
 		//Quality is a qualitative measure in [0,1] of the estimated accuracy of the result
 		float quality = 0;
 
+		//Relevance - parameter used to detect when a system config has changed
+		float relevance = 1;
+
 		//Returns the inverse of the calibration result
 		CalibrationResult inverse() {
 			CalibrationResult result = *this;

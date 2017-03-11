@@ -66,6 +66,22 @@ namespace fusion{
 
 			//For calibrating data with position only
 			namespace Position {
+
+				static inline float getError(
+					const std::vector<Eigen::Vector3f>& samplesA,
+					const std::vector<Eigen::Vector3f>& samplesB,
+					const Eigen::Transform<float, 3, Eigen::Affine>& X
+				) {
+					Eigen::MatrixXf A(4, samplesA.size());
+					Eigen::MatrixXf B(4, samplesB.size());
+
+					for (int i = 0; i < samplesA.size(); i++) {
+						A.col(i) << samplesA[i], 1;
+						B.col(i) << samplesB[i], 1;
+					}
+
+					return (X.matrix() * A - B).norm() / samplesA.size();
+				}
 				//For calibrating a pair of systems with two sensors measuring the same point from two different reference frames
 				// Xa = b
 				// or XA = B
@@ -153,19 +169,14 @@ namespace fusion{
 					Eigen::Transform<float, 3, Eigen::Affine> TX = slerpTransform3D(X, X_new, learning_rate);
 
 					if (error != NULL) {
-						Eigen::MatrixXf A(4, samplesA.size());
-						Eigen::MatrixXf B(4, samplesB.size());
-
-						for (int i = 0; i < samplesA.size(); i++) {
-							A.col(i) << samplesA[i], 1;
-							B.col(i) << samplesB[i], 1;
-						}
-
-						*error = (TX.matrix() * A - B).norm() / samplesA.size() * (learning_rate) + *error;
+						*error = getError(samplesA,samplesB,X_new) * (learning_rate) + *error;
 					}
 
 					return TX;
 				}
+
+				
+
 			}
 
 			//For calibrating rotation only
