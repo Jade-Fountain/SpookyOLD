@@ -67,6 +67,11 @@ namespace fusion{
 			//For calibrating data with position only
 			namespace Position {
 
+				//Common functions for position data
+				static inline float errorFunc(const Eigen::MatrixXf E) {
+					return E.rowwise().mean().norm();
+					//return E.norm() / E.cols();
+				}
 				static inline float getError(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,
@@ -80,7 +85,7 @@ namespace fusion{
 						B.col(i) << samplesB[i], 1;
 					}
 
-					return (X.matrix() * A - B).norm() / samplesA.size();
+					return errorFunc(X.matrix() * A - B);
 				}
 				//For calibrating a pair of systems with two sensors measuring the same point from two different reference frames
 				// Xa = b
@@ -109,8 +114,7 @@ namespace fusion{
 
 					if (error != NULL) {
 						auto E = TX.matrix() * A - B;
-						float normE = E.norm();
-						*error = normE / samplesA.size();
+						*error = errorFunc(E);
 					}
 
 					return TX;
@@ -150,7 +154,7 @@ namespace fusion{
 					Eigen::Transform<float, 3, Eigen::Affine> TX = matrixToTransform3D(X.matrix() + dX);
 
 					if (error != NULL) {
-						*error = (TX.matrix() * A - B).norm() / samplesA.size();
+						*error = errorFunc(TX.matrix() * A - B);
 					}
 
 					return TX;
@@ -175,7 +179,38 @@ namespace fusion{
 					return TX;
 				}
 
-				
+
+				//Simple refinement
+				static inline Eigen::Transform<float, 3, Eigen::Affine> refineIdenticalPairPosition(
+					const std::vector<Eigen::Vector3f>& samplesA,
+					const std::vector<Eigen::Vector3f>& samplesB,
+					const Eigen::Transform<float, 3, Eigen::Affine>& X,
+					float* error = NULL
+				) {
+					float learning_rate = 1;
+					
+					Eigen::MatrixXf A(4, samplesA.size());
+					Eigen::MatrixXf B(4, samplesB.size());
+
+					for (int i = 0; i < samplesA.size(); i++) {
+						A.col(i) << samplesA[i], 1;
+						B.col(i) << samplesB[i], 1;
+					}
+
+					Eigen::MatrixXf E = B - X.matrix() * A;
+
+					Eigen::Vector3f meanError = E.rowwise().mean();
+
+					Eigen::Transform<float, 3, Eigen::Affine> X_new = X;
+
+					X_new.translate(meanError);
+
+					if (error != NULL) {
+						*error = getError(samplesA, samplesB, X_new) * (learning_rate) + *error;
+					}
+
+					return X_new;
+				}
 
 			}
 

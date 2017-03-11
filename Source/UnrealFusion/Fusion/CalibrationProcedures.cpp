@@ -23,6 +23,10 @@ namespace fusion {
 	//TODO: refactor this mess
 	CalibrationResult Calibrator::calPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& currentCalibration)	const
 	{
+		float quality_threshold = 0.8;
+		float qualityScaleFactor = 0.05;
+		float fault_hysteresis_rate = 1;
+		float fault_threshold = 0.75;
 		std::vector<Eigen::Vector3f> pos1(m1.size());
 		std::vector<Eigen::Vector3f> pos2(m2.size());
 		for (int i = 0; i < m1.size(); i++) {
@@ -35,30 +39,28 @@ namespace fusion {
 		switch (currentCalibration.state) {
 		case (CalibrationResult::State::UNCALIBRATED):
 			result.transform = utility::calibration::Position::calibrateIdenticalPair(pos1, pos2, &result.error);
-			result.quality = utility::calibration::qualityFromError(result.error, 0.05);
+			result.quality = utility::calibration::qualityFromError(result.error, qualityScaleFactor);
 			result.relevance = result.quality;
 			FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
-			result.state = CalibrationResult::State::CALIBRATED;
+			result.state = CalibrationResult::State::REFINING;
 			break;
 		case (CalibrationResult::State::REFINING):
-			//TODO: refinement calibration
-			/*result.transform = utility::calibration::Position::refineIdenticalPairSimple(pos1, pos2, currentCalibration.transform, &result.error);
-			result.quality = utility::calibration::qualityFromError(result.error, 1);
-			if (result.error < 0.0005) {
-				FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error));
+			//refinement calibration
+			result.transform = utility::calibration::Position::refineIdenticalPairPosition(pos1, pos2, currentCalibration.transform, &result.error);
+			result.quality = utility::calibration::qualityFromError(result.error, qualityScaleFactor);
+			if (result.quality > quality_threshold) {
+				FUSION_LOG("REFINEMENT FINISHED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
 				result.state = CalibrationResult::State::CALIBRATED;
 			} else {
-				FUSION_LOG(" result.error " + std::to_string(result.error));
+				FUSION_LOG("REFINING: result.error " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
 				result.state = CalibrationResult::State::REFINING;
-			}*/
+			}
 			break;
 		case (CalibrationResult::State::CALIBRATED):
 			//TODO: distinguish noise vs. actual movement
 			//Track new transform and see how much it moves? (expensive)
-			float fault_hysteresis_rate = 1;
-			float fault_threshold = 0.75;
 			float error = utility::calibration::Position::getError(pos1,pos2,currentCalibration.transform);
-			result.relevance = result.relevance * (1-fault_hysteresis_rate) + fault_hysteresis_rate * utility::calibration::qualityFromError(error, 0.05);
+			result.relevance = result.relevance * (1-fault_hysteresis_rate) + fault_hysteresis_rate * utility::calibration::qualityFromError(error, qualityScaleFactor);
 			FUSION_LOG(" Already calibrated - watching for faults - relevance = " + std::to_string(result.relevance) + "vs. quality = " + std::to_string(result.quality));
 			//Relevance is the latest quality value, filtered with exponential filter
 			//If our quality varies from the expected too much, we need to recalibrate
