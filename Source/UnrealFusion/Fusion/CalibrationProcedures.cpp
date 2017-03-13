@@ -29,16 +29,19 @@ namespace fusion {
 		float fault_threshold = 0.75;
 		std::vector<Eigen::Vector3f> pos1(m1.size());
 		std::vector<Eigen::Vector3f> pos2(m2.size());
+		std::vector<Eigen::Matrix3f> variances(m1.size());
 		for (int i = 0; i < m1.size(); i++) {
 			pos1[i] = m1[i]->getData();
 			pos2[i] = m2[i]->getData();
+			//TODO: Not strictly correct
+			variances[i] = m1[i]->getUncertainty() + m2[i]->getUncertainty();
 		}
 		CalibrationResult result = currentCalibration;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
 		//Compute transform and error
 		switch (currentCalibration.state) {
 		case (CalibrationResult::State::UNCALIBRATED):
-			result.transform = utility::calibration::Position::calibrateIdenticalPair(pos1, pos2, &result.error);
+			result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, variances, &result.error);
 			result.quality = utility::calibration::qualityFromError(result.error, qualityScaleFactor);
 			result.relevance = result.quality;
 			FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));

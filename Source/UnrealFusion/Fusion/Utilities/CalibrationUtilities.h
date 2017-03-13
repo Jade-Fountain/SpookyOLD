@@ -18,6 +18,7 @@
 #include<Eigen/Core>
 #include<Eigen/SVD>
 #include<Eigen/Geometry>
+#include<Eigen/unsupported/KroneckerProduct>
 #include "Logging.h"
 #pragma once
 namespace fusion{
@@ -93,7 +94,6 @@ namespace fusion{
 				static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateIdenticalPair(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,
-					//TODO:: const std::vector<float>& weights = std::vector<float>(),
 					float* error = NULL
 				) {
 					if (samplesA.size() != samplesB.size()) {
@@ -108,10 +108,67 @@ namespace fusion{
 						B.col(i) << samplesB[i], 1;
 					}
 
-					//Make sure normalised
 					Eigen::Matrix4f X = B * pInv(A);
+					//Make sure normalised
 					Eigen::Transform<float, 3, Eigen::Affine> TX = matrixToTransform3D(X);
 
+					if (error != NULL) {
+						auto E = TX.matrix() * A - B;
+						*error = errorFunc(E);
+					}
+
+					return TX;
+				}
+				
+				static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateWeightedIdenticalPair(
+					const std::vector<Eigen::Vector3f>& samplesA,
+					const std::vector<Eigen::Vector3f>& samplesB,
+					const std::vector<Eigen::Matrix3f>& variances,
+					float* error = NULL
+				) {
+					if (samplesA.size() != samplesB.size()) {
+						throw std::runtime_error(std::string(__FILE__) + std::to_string(__LINE__) + std::string(" : samplesA and samplesB of different size"));
+					}
+
+					Eigen::MatrixXf A(4, samplesA.size());
+					Eigen::MatrixXf B(4, samplesB.size());
+					Eigen::MatrixXf Sigma = Eigen::MatrixXf::Identity(4*samplesA.size(), 4 * samplesA.size());
+
+					for (int i = 0; i < samplesA.size(); i++) {
+						A.col(i) << samplesA[i], 1;
+						B.col(i) << samplesB[i], 1;
+						//Variance for each vector
+						Sigma.block<3, 3>(4 * i, 4 * i) = variances[i];
+						//Low variance for fourth component
+						Sigma(4 * i + 3, 4 * i + 3) = 0.01;
+					}
+					//Invert sigma
+					Eigen::MatrixXf sigInv = Sigma.inverse();
+
+					//Get vecB, stacked columns
+					Eigen::Map<Eigen::MatrixXf> vecB(B.data(), B.rows()*B.cols(), 1);
+
+					//kronA = kron(A.t,I_m) and m=p=4
+					Eigen::MatrixXf kronA = Eigen::kroneckerProduct(A.transpose(),Eigen::MatrixXf::Identity(4,4));
+
+					//kronA.T * sig
+					Eigen::MatrixXf AsigAInv = (kronA.transpose() * sigInv * kronA).inverse();					
+
+					Eigen::MatrixXf vecX = AsigAInv * kronA.transpose() * sigInv * vecB;
+
+					Eigen::Map<Eigen::MatrixXf> X(vecX.data(), 4, 4);
+					//Make sure normalised
+					Eigen::Transform<float, 3, Eigen::Affine> TX = matrixToTransform3D(X);
+					
+					//DEBUG
+					//std::stringstream ss;
+					//ss << "B = \n" << B << std::endl;
+					//ss << "vecB = \n" << vecB << std::endl;
+					//ss << "Sigma =\n " << Sigma << std::endl;
+					//ss << "vecX = \n" << vecX << std::endl;
+					//ss << "X = \n" << X << std::endl;
+					//FUSION_LOG(ss.str());
+					
 					if (error != NULL) {
 						auto E = TX.matrix() * A - B;
 						*error = errorFunc(E);
@@ -200,11 +257,11 @@ namespace fusion{
 					Eigen::MatrixXf E = B - X.matrix() * A;
 
 					Eigen::Vector3f meanError = E.rowwise().mean();
-					std::stringstream ss;
-					ss << "errorMat = " << E << std::endl;
-					ss << "average error = " << meanError << std::endl;
-					ss << "average error norm = " << meanError.norm() << std::endl;
-					FUSION_LOG(ss.str());
+					//std::stringstream ss;
+					//ss << "errorMat = " << E << std::endl;
+					//ss << "average error = " << meanError << std::endl;
+					//ss << "average error norm = " << meanError.norm() << std::endl;
+					//FUSION_LOG(ss.str());
 
 					Eigen::Transform<float, 3, Eigen::Affine> X_new = X;
 
