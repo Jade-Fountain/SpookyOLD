@@ -22,22 +22,55 @@
 #include "Utilities/DataStructures.h"
 
 namespace fusion {
+
+	struct WorldState {
+		Transform3D pose;
+	};
 	
 
 	//NOTE: templating means each skeleton is of a particular model type
 	//TODO: make folder for model.h files
-	class CartesianModel{
+	class CartesianModel {
 	public:
 		//Data model for the state of the data
-		struct State{
+		struct State {
 			Eigen::Vector3f expectation;
-			Eigen::Matrix<float,3,3> uncertainty;
+			Eigen::Matrix<float, 3, 3> uncertainty;
 		};
-		
-		static void updateState(State* state, const Measurement& measurement){
+
+
+
+		static void updateState(State* state, const Measurement& measurement) {
 			//Use latest measurement
-			state->expectation = measurement.getData().segment(0,3);//start,count
-			state->uncertainty = measurement.getUncertainty().topLeftCorner(3,3);
+			state->expectation = measurement.getData().segment(0, 3);//start,count
+			state->uncertainty = measurement.getUncertainty().topLeftCorner(3, 3);
+		}
+	};
+
+
+
+	//NOTE: templating means each skeleton is of a particular model type
+	//TODO: make folder for model.h files
+	class TwistModel {
+	public:
+		//Data model for the state of the data
+		struct State {
+			Eigen::Vector3f position;
+			Eigen::Vector3f rotation;
+			Eigen::Matrix<float, 6, 6> uncertainty;
+		};
+
+		static WorldState worldStateFunc(const State& child, const WorldState& parent) {
+			//TODO: construct child local state:
+			Transform3D childPose;//=...
+			return WorldState({ parent.pose * childPose });
+		};
+
+		static void updateState(State* state, const Measurement& measurement) {
+			//Use latest measurement
+			state->position = measurement.getData().segment(0, 3);//start,count
+			state->rotation = measurement.getData().segment(3, 3);//start,count
+			state->uncertainty = measurement.getUncertainty().topLeftCorner(3, 3);
 		}
 	};
 
@@ -63,7 +96,6 @@ namespace fusion {
 			//TODO: Compute children of this node from parents
 			//std::vector<NodeDescriptor> children_desc;
 
-
 			////Called by parent node
 			//void update(){
 			//	updateState();
@@ -79,7 +111,8 @@ namespace fusion {
 			//	}
 			//}
 		};
-		typedef Node<CartesianModel> DefaultSensorNode;
+		typedef Node<TwistModel> DefaultSensorNode;
+		typedef Node<CartesianModel> PositionSensorNode;
 
 	/*//////////////////////////////////////////////////////////////////
 	*				Public methods
@@ -96,6 +129,17 @@ namespace fusion {
 
 		//Compute best model for given data and prior
 		void fuse();
+
+
+		WorldState getWorldState(NodeDescriptor node) {
+			//TODO: check for cached state
+			if (nodes.count(node) == 0) {
+				return WorldState();
+			}
+			const auto& n = nodes[node];
+			return TwistModel::worldStateFunc(n.state,getWorldState(n.parent_desc))
+		}
+
 	
 	/*//////////////////////////////////////////////////////////////////
 	*				Private Data
