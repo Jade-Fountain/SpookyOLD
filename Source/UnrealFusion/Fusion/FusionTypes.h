@@ -133,6 +133,8 @@ namespace fusion {
 
 		//Possible nodes which this sensor is attached to
 		std::set<NodeDescriptor> nodes;
+		//TODO: Set of eliminated nodes
+		//std::set<NodeDescriptor> eliminatedNodes;
 		//=================================================
 
 		//Typedef ptr to this class for neater code later

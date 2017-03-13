@@ -133,6 +133,9 @@ namespace fusion {
 		std::vector<Measurement::Ptr>* measurements2,
 		int minMeasurementCount
 	){
+		//TODO:
+		// - incorporate time dialation (this is already accounted for with decent sample sizes)
+		// - account for ambiguity in sensor placements, e.g. hand left/right distinction kinect, etc.
 
 		//Loop through nodes and build up relevant measurements
 		for (auto& node : calibrationSet.nodes) {

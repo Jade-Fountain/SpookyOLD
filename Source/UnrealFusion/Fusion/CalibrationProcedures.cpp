@@ -51,13 +51,14 @@ namespace fusion {
 			//refinement calibration
 			result.transform = utility::calibration::Position::refineIdenticalPairPosition(pos1, pos2, currentCalibration.transform, &result.error);
 			result.quality = utility::calibration::qualityFromError(result.error, qualityScaleFactor);
-			if (result.quality > quality_threshold) {
-				FUSION_LOG("REFINEMENT FINISHED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
-				result.state = CalibrationResult::State::CALIBRATED;
-			} else {
-				FUSION_LOG("REFINING: result.error " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
-				result.state = CalibrationResult::State::REFINING;
-			}
+			//if (result.quality > quality_threshold) {
+			//Go straight to checking for faults
+			FUSION_LOG("REFINEMENT FINISHED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
+			result.state = CalibrationResult::State::CALIBRATED;
+			//} else {
+			//	FUSION_LOG("REFINING: result.error " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
+			//	result.state = CalibrationResult::State::REFINING;
+			//}
 			break;
 		case (CalibrationResult::State::CALIBRATED):
 			//TODO: distinguish noise vs. actual movement
