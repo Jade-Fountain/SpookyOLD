@@ -18,7 +18,7 @@
 #include<Eigen/Core>
 #include<Eigen/SVD>
 #include<Eigen/Geometry>
-//#include "Logging.h"
+#include "Logging.h"
 #pragma once
 namespace fusion{
 	namespace utility{
@@ -69,8 +69,8 @@ namespace fusion{
 
 				//Common functions for position data
 				static inline float errorFunc(const Eigen::MatrixXf E) {
-					return E.rowwise().mean().norm();
-					//return E.norm() / E.cols();
+					//return E.rowwise().mean().norm();
+					return E.norm() / E.cols();
 				}
 				static inline float getError(
 					const std::vector<Eigen::Vector3f>& samplesA,
@@ -200,13 +200,18 @@ namespace fusion{
 					Eigen::MatrixXf E = B - X.matrix() * A;
 
 					Eigen::Vector3f meanError = E.rowwise().mean();
+					std::stringstream ss;
+					ss << "errorMat = " << E << std::endl;
+					ss << "average error = " << meanError << std::endl;
+					ss << "average error norm = " << meanError.norm() << std::endl;
+					FUSION_LOG(ss.str());
 
 					Eigen::Transform<float, 3, Eigen::Affine> X_new = X;
 
-					X_new.translate(meanError);
+					X_new.pretranslate(meanError);
 
 					if (error != NULL) {
-						*error = getError(samplesA, samplesB, X_new) * (learning_rate) + *error;
+						*error = getError(samplesA, samplesB, X_new) * (learning_rate) + *error * (1-learning_rate);
 					}
 
 					return X_new;
