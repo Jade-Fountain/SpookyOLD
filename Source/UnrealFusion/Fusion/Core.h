@@ -65,6 +65,7 @@ namespace fusion {
 		//Returns mapping from s1 to s2
 		CalibrationResult getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2);
 
+		//Called by owner of the Core object to set a measurement sensor pointer
 		void setMeasurementSensorInfo(Measurement::Ptr& m, SystemDescriptor system, SensorID id);
 
 	};

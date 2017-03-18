@@ -45,6 +45,7 @@ namespace fusion {
 		return calibrator.getResultsFor(s1, s2);
 	}
 
+	//Called by owner of the Core object
 	void Core::setMeasurementSensorInfo(Measurement::Ptr & m, SystemDescriptor system, SensorID id)
 	{
 		//If we haven't seen this sensor already, initialise

@@ -19,8 +19,8 @@
 namespace fusion {
 	
 	void FusionGraph::addNode(const NodeDescriptor & node, const NodeDescriptor & parent) {
-		utility::safeAccess(nodes, node).desc = node;
-		utility::safeAccess(nodes, node).parent_desc = parent;
+		utility::safeAccess(nodes, node)->desc = node;
+		utility::safeAccess(nodes, node)->parent_desc = parent;
 	}
 
 

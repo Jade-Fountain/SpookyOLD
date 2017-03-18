@@ -23,6 +23,10 @@ namespace fusion {
 	//									CalibrationDataSet
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	//-------------------------------------------------------------------------------------------------------
+	//									Stream
+	//-------------------------------------------------------------------------------------------------------
+
 	void CalibrationDataSet::Stream::addMeasurement(const Measurement::Ptr& m) {
 		utility::safeAccess(sensors, m->getSensorID()).push_back(m);
 		while (sensors[m->getSensorID()].size() > max_samples) {
@@ -43,6 +47,11 @@ namespace fusion {
 		}
 		return result;
 	}
+
+	//-------------------------------------------------------------------------------------------------------
+	//									CalibrationDataSet Members
+	//-------------------------------------------------------------------------------------------------------
+
 
 	void CalibrationDataSet::addMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node) {
 		SystemNodePair sysNode = SystemNodePair(system, node);
@@ -134,7 +143,7 @@ namespace fusion {
 		int minMeasurementCount
 	){
 		//TODO:
-		// - incorporate time dialation (this is already accounted for with decent sample sizes)
+		// - incorporate time dialation (this is already somewhat accounted for with decent sample sizes)
 		// - account for ambiguity in sensor placements, e.g. hand left/right distinction kinect, etc.
 
 		//Loop through nodes and build up relevant measurements
@@ -210,6 +219,7 @@ namespace fusion {
 		auto measurements = filterLonelyData(measurementQueue);
 
 		//Decide if data is useful
+		//(if at least one stream has changed relative to previous measurements)
 		bool dataNovel = checkChanges(measurements);
 
 		if (dataNovel) {

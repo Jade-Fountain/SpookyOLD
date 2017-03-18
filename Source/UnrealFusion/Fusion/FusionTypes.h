@@ -122,6 +122,7 @@ namespace fusion {
 	};
 
 	//Sensor describes all persistent parameters of a given sensor
+	//WARNING TO DEVS: Measurement::Ptr cannot be stored in here or a memory leak will occur (shared ptr loop)
 	class Sensor {
 	public:
 		//=================================================

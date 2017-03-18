@@ -83,6 +83,9 @@ namespace fusion {
 		struct Node
 		{
 		public:
+			//Define ptr type for neater code
+			typedef std::shared_ptr<Measurement> Ptr;
+
 			//Current best state estimate, typically including some estimate of variance or confidence
 			typename Model::State state;
 			//Queued messages, 
@@ -92,9 +95,10 @@ namespace fusion {
 			//Own name
 			NodeDescriptor desc;
 			//Parent of this node
+			Ptr parent;
 			NodeDescriptor parent_desc;
-			//TODO: Compute children of this node from parents
-			//std::vector<NodeDescriptor> children_desc;
+			//TODO: Compute children of this node from parents and use weak pointers
+			//std::vector<Ptr> children_desc;
 
 			////Called by parent node
 			//void update(){
@@ -146,7 +150,7 @@ namespace fusion {
 	*//////////////////////////////////////////////////////////////////
 	private:
 		//SkeletonData
-		std::map<NodeDescriptor, DefaultSensorNode> nodes;
+		std::map<NodeDescriptor, DefaultSensorNode::Ptr> nodes;
 		
 		//Clears measurements in graph
 		void clearMeasurements();
