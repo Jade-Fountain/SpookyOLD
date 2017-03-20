@@ -29,13 +29,27 @@ namespace fusion {
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
 		//systems[m->system].addMeasurement(m);
+
+		//TODO: do not add ambiguous measurements!!
 		m->addNode(node);
 		skeleton.addMeasurement(node, m);
+	}
+
+	//Adds a new measurement to the system
+	void Core::addMeasurement(const Measurement::Ptr& m, const std::vector<NodeDescriptor>& node) {
+		//systems[m->system].addMeasurement(m);
+		for(auto& n : node){
+			m->addNode(n);
+		}
+		if(!m->ambiguous()){
+			skeleton.addMeasurement(node, m);
+		}
 	}
 
 	//Computes data added since last fuse() call. Should be called repeatedly	
 	void Core::fuse() {
 		//Add new data to calibration, with checking for usefulness
+		//TODO: identify ambiguous sensors!
 		calibrator.addMeasurementGroup(skeleton.getMeasurements());
 		calibrator.calibrate();
 		skeleton.fuse();
