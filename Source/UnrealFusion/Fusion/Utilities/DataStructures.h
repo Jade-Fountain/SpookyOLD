@@ -16,6 +16,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 //WARNING: this file is not complete
 
@@ -37,6 +38,12 @@ namespace fusion {
 		template<class X, class Y>
 		Y& safeAccess(std::map<X, Y>& m, const X& x) {
 			if (m.count(x) == 0) m[x] = Y();
+			return m[x];
+		}
+
+		template<class X, class Y>
+		std::shared_ptr<Y>& safeAccess(std::map<X, std::shared_ptr<Y>>& m, const X& x) {
+			if (m.count(x) == 0) m[x] = std::make_shared<Y>();
 			return m[x];
 		}
 

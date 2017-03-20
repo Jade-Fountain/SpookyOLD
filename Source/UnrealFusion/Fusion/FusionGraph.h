@@ -84,7 +84,7 @@ namespace fusion {
 		{
 		public:
 			//Define ptr type for neater code
-			typedef std::shared_ptr<Measurement> Ptr;
+			typedef std::shared_ptr<Node> Ptr;
 
 			//Current best state estimate, typically including some estimate of variance or confidence
 			typename Model::State state;
@@ -135,14 +135,14 @@ namespace fusion {
 		void fuse();
 
 
-		WorldState getWorldState(NodeDescriptor node) {
-			//TODO: check for cached state
-			if (nodes.count(node) == 0) {
-				return WorldState();
-			}
-			const auto& n = nodes[node];
-			return TwistModel::worldStateFunc(n.state,getWorldState(n.parent_desc))
-		}
+		//WorldState getWorldState(NodeDescriptor node) {
+		//	//TODO: check for cached state
+		//	if (nodes.count(node) == 0) {
+		//		return WorldState();
+		//	}
+		//	const auto& n = nodes[node];
+		//	return TwistModel::worldStateFunc(n.state,getWorldState(n.parent_desc))
+		//}
 
 	
 	/*//////////////////////////////////////////////////////////////////

@@ -123,7 +123,7 @@ namespace fusion{
 				static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateWeightedIdenticalPair(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,
-					const std::vector<Eigen::Matrix3f>& variances,
+					const std::vector<Eigen::Matrix3f>& invVariances,
 					float* error = NULL
 				) {
 					if (samplesA.size() != samplesB.size()) {
@@ -132,18 +132,16 @@ namespace fusion{
 
 					Eigen::MatrixXf A(4, samplesA.size());
 					Eigen::MatrixXf B(4, samplesB.size());
-					Eigen::MatrixXf Sigma = Eigen::MatrixXf::Identity(4*samplesA.size(), 4 * samplesA.size());
+					Eigen::MatrixXf sigInv = Eigen::MatrixXf::Identity(4*samplesA.size(), 4 * samplesA.size());
 
 					for (int i = 0; i < samplesA.size(); i++) {
 						A.col(i) << samplesA[i], 1;
 						B.col(i) << samplesB[i], 1;
 						//Variance for each vector
-						Sigma.block<3, 3>(4 * i, 4 * i) = variances[i];
+						sigInv.block<3, 3>(4 * i, 4 * i) = invVariances[i];
 						//Low variance for fourth component
-						Sigma(4 * i + 3, 4 * i + 3) = 0.01;
+						sigInv(4 * i + 3, 4 * i + 3) = 1.0/0.001;
 					}
-					//Invert sigma
-					Eigen::MatrixXf sigInv = Sigma.inverse();
 
 					//Get vecB, stacked columns
 					Eigen::Map<Eigen::MatrixXf> vecB(B.data(), B.rows()*B.cols(), 1);
