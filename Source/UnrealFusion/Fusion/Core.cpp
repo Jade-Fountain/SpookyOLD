@@ -37,7 +37,7 @@ namespace fusion {
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const std::vector<NodeDescriptor>& nodes) {
 		//systems[m->system].addMeasurement(m);
-		for(auto& n : node){
+		for(auto& n : nodes){
 			m->addNode(n);
 		}
 		if(nodes.size()==1){

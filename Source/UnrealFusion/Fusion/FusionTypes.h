@@ -238,6 +238,9 @@ namespace fusion {
 		void setSensor(Sensor::Ptr& sensor_) {
 			sensor = sensor_;
 		}
+		Sensor::Ptr getSensor() {
+			return sensor;
+		}
 
 		void addNode(const NodeDescriptor& node) {
 			sensor->addNode(node);

@@ -20,6 +20,7 @@
 #include "Eigen/Core"
 #include "FusionTypes.h"
 #include "Calibration.h"
+#include "Correlator.h"
 #include "FusionGraph.h"
 #include "Fusion/Utilities/DataStructures.h"
 namespace fusion {
@@ -30,6 +31,9 @@ namespace fusion {
 	private:
 		//TODO: (IF NEEDED) Raw data ordered by sytem
 		//std::map<SystemDescriptor, SensorSystem> systems;
+
+		//Class responsible for distinguishing ambiguous sensors
+		Correlator correlator;
 
 		//Calibration data per system pair (A,B) = std::pair<SystemDescriptor,SystemDescriptor>
 		//sensorTransforms[(A,B)]: A -> B
@@ -56,8 +60,12 @@ namespace fusion {
 		////////////////////////////////////////////////////
 		//					Runtime
 		////////////////////////////////////////////////////
-		//Adds a new measurement to the system
+		
+		//Adds a new measurement to the system (unambiguous)
 		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
+		
+		//Adds a new measurement to the system (ambiguous)
+		void addMeasurement(const Measurement::Ptr & m, const std::vector<NodeDescriptor>& nodes);
 		
 		//Computes data added since last fuse() call. Should be called repeatedly	
 		void fuse();
