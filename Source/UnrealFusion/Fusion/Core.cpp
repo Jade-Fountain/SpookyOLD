@@ -29,28 +29,32 @@ namespace fusion {
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
 		//systems[m->system].addMeasurement(m);
-
-		//TODO: do not add ambiguous measurements!!
 		m->addNode(node);
 		skeleton.addMeasurement(node, m);
+		correlator.addUnambiguousMeasurementIfNeeded(m);
 	}
 
 	//Adds a new measurement to the system
-	void Core::addMeasurement(const Measurement::Ptr& m, const std::vector<NodeDescriptor>& node) {
+	void Core::addMeasurement(const Measurement::Ptr& m, const std::vector<NodeDescriptor>& nodes) {
 		//systems[m->system].addMeasurement(m);
 		for(auto& n : node){
 			m->addNode(n);
 		}
-		if(!m->ambiguous()){
-			skeleton.addMeasurement(node, m);
+		if(nodes.size()==1){
+			skeleton.addMeasurement(nodes[0], m);
+			correlator.addUnambiguousMeasurementIfNeeded(m);
+		} else {
+			//TODO: needs relevant unambiguous measurements too!
+			correlator.addAmbiguousMeasurement(m);
 		}
 	}
 
 	//Computes data added since last fuse() call. Should be called repeatedly	
 	void Core::fuse() {
 		//Add new data to calibration, with checking for usefulness
-		//TODO: identify ambiguous sensors!
-		calibrator.addMeasurementGroup(skeleton.getMeasurements());
+		auto measurements = skeleton.getMeasurements();
+		correlator.identify();
+		calibrator.addMeasurementGroup(measurements);
 		calibrator.calibrate();
 		skeleton.fuse();
 	}

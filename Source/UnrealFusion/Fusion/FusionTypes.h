@@ -242,6 +242,10 @@ namespace fusion {
 		void addNode(const NodeDescriptor& node) {
 			sensor->addNode(node);
 		}
+
+		bool ambiguous(){
+			return sensor->isAmbiguous();
+		}
 	};
 
 
