@@ -45,11 +45,12 @@ namespace fusion {
 
 	void Correlator::identify()
 	{
-		if(!data.sufficient()) return;
 		//TODO: write code to resolve ambiguities whenever data permits
-		for(auto& pair : ambiguous_measurements.sensors){
+		for(auto& pair : data.ambiguous_measurements.sensors){
 			Sensor::Ptr& sensor = pair.first;
 			std::vector<Measurement::Ptr>& stream = pair.second;
+
+			if(!dataSufficient(sensor)) continue;
 
 			//get sensor node info
 			std::set<NodeDescriptor>& possible_nodes = sensor->getNodes();
@@ -61,7 +62,7 @@ namespace fusion {
 
 			//For each possible node
 			for(auto& node : possible_nodes){
-				Data::Streams& unambiguousStreams = data.getStreams(node);
+				Data::Streams& unambiguousStreams = data.getUnambiguousStreams(node);
 				//TODO: sync streams
 				if(!sensor->nodeEliminated(node)){
 					score[node] = getCorrelationScore(stream, unambiguousStreams);
@@ -69,11 +70,14 @@ namespace fusion {
 					score[node] = 0;
 				}
 
-				//TODO: eliminate or pick best or something
 
 			}
+			//TODO: eliminate or pick best or something
+			//Clear data used
+			data.clear(sensor);
 		}
-		data.clear();
 	}
+	//TODO: clean up unambiguous measurements no longer needed / which have been used
+	data.cleanUp();
 
 }

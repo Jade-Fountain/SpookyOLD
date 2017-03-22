@@ -27,10 +27,13 @@ namespace fusion {
 	class Correlator {
 	private:
 		class Data {
+		public:
 			struct Streams{
 				std::map<Sensor::Ptr, std::vector<Measurement::Ptr>> sensors;
 			}
-		private:
+			
+			//MEMBERS
+
 			//Contains measurements for the ambiguous sensors
 			Streams ambiguous_measurements;
 			//Maps ambiguous sensor to set of unambiguous measurements from sensors 
@@ -40,15 +43,23 @@ namespace fusion {
 			//Nodes for which data is needed
 			std::set<NodeDescriptor> relevant_nodes;
 
-		public:
+			//HELPER FUNCTIONS
+
 			//Adds ambiguous measurement to data list
 			void addAmbiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m);
 			//Adds unambiguous measurement to data list
 			void addUnambiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m);
 			//Check if measurements from sensor s are useful for resolving ambiguities
 			bool unambiguousMeasurementNeeded(const Sensor::Ptr& s);
+			//Returns the unambiguous streams relevant to the specified node
+			Data::Streams getUnambiguousStreams(const NodeDescriptor& node);
+			//Clear ambiguous data associated with sensor s
+			void clear(const Sensor::Ptr& s);
+			//Cleanup - removes irrelevant and used unambiguous data
+			void cleanUp();
 			
 		};
+		//Data structure for organising and filtering measurements
 		Data data;
 
 	public:
@@ -60,6 +71,14 @@ namespace fusion {
 
 		//Performes identification procedure if possible
 		void identify();
+
+		//Returns true if enough data has been collected for identification process for sensor
+		bool dataSufficient(const Sensor::Ptr& sensor);
+
+		//Compares two streams of data to check if they are correlated
+		getCorrelationScore(const std::vector<Measurement::Ptr>& ambiguousStream, const std::vector<Measurement::Ptr>& hypothesisStream);
+		//Returns correlation score between one stream and a collection of streams known to be correlated
+		getCorrelationScore(const std::vector<Measurement::Ptr>& ambiguousStream, const Data::Streams& hypothesisStreams)
 
 
 	};
