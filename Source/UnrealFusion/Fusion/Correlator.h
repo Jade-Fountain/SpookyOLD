@@ -27,29 +27,26 @@ namespace fusion {
 	class Correlator {
 	private:
 		class Data {
+			struct Streams{
+				std::map<Sensor::Ptr, std::vector<Measurement::Ptr>> sensors;
+			}
 		private:
-			std::set<Sensor::Ptr> ambiguous_sensors;
-			std::map<Sensor::Ptr, std::vector<Measurement::Ptr>> ambiguous_measurements;
-			std::map<Sensor::Ptr, std::vector<Measurement::Ptr>> unambiguous_measurements;
+			//Contains measurements for the ambiguous sensors
+			Streams ambiguous_measurements;
+			//Maps ambiguous sensor to set of unambiguous measurements from sensors 
+			// attached to nodes which the ambiguous sensor could be located
+			std::map<NodeDescriptor, Streams> unambiguous_measurements;
+
+			//Nodes for which data is needed
+			std::set<NodeDescriptor> relevant_nodes;
 
 		public:
-			
-			void addAmbiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m) {
-				if (ambiguous_measurements.count(sensor) == 0) {
-					ambiguous_measurements[sensor] = std::vector<Measurement::Ptr>();
-					ambiguous_sensors.insert(sensor);
-				} else {
-					ambiguous_measurements[sensor].push_back(m);
-				}
-			}
-
-			void addUnambiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m) {
-				utility::safeAccess(unambiguous_measurements, sensor).push_back(m);
-			}
-
-			bool unambiguousMeasurementNeeded(const Sensor::Ptr& s) {
-				return ambiguous_sensors.count(s) >= 1;
-			}
+			//Adds ambiguous measurement to data list
+			void addAmbiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m);
+			//Adds unambiguous measurement to data list
+			void addUnambiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m);
+			//Check if measurements from sensor s are useful for resolving ambiguities
+			bool unambiguousMeasurementNeeded(const Sensor::Ptr& s);
 			
 		};
 		Data data;
