@@ -99,11 +99,11 @@ public:
 //===========================
 	//Add vec3 measurement
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void AddPositionMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, float confidence = 1);
+	void AddPositionMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, float confidence = 1);
 	
 	//Add rotation quaternion method
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void AddRotationMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence = 1);
+	void AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence = 1);
 
 	//Align, calibrate and fuse all added data
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
@@ -131,6 +131,8 @@ public:
 	//Sets data common to all types of measurements
 	void SetCommonMeasurementData(fusion::Measurement::Ptr& m, FString system_name, int sensorID, float timestamp_sec, float confidence);
 
+	//Convert names to nodeDescriptors
+	std::vector<fusion::NodeDescriptor> convertToNodeDescriptors(const TArray<FString>& names);
 //===========================
 //DEBUG
 //===========================

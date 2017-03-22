@@ -40,7 +40,7 @@ namespace fusion {
 		for(auto& n : nodes){
 			m->addNode(n);
 		}
-		if(nodes.size()==1){
+		if(!m->getSensor()->isAmbiguous()){
 			skeleton.addMeasurement(nodes[0], m);
 			correlator.addUnambiguousMeasurementIfNeeded(m);
 		} else {
@@ -52,8 +52,8 @@ namespace fusion {
 	//Computes data added since last fuse() call. Should be called repeatedly	
 	void Core::fuse() {
 		//Add new data to calibration, with checking for usefulness
-		auto measurements = skeleton.getMeasurements();
 		correlator.identify();
+		auto measurements = skeleton.getMeasurements();
 		calibrator.addMeasurementGroup(measurements);
 		calibrator.calibrate();
 		skeleton.fuse();

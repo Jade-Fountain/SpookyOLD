@@ -64,7 +64,7 @@ namespace fusion {
 		//Adds a new measurement to the system (unambiguous)
 		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
 		
-		//Adds a new measurement to the system (ambiguous)
+		//Adds a new measurement to the system (ambiguous or unambiguous, less efficient)
 		void addMeasurement(const Measurement::Ptr & m, const std::vector<NodeDescriptor>& nodes);
 		
 		//Computes data added since last fuse() call. Should be called repeatedly	

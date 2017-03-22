@@ -80,17 +80,17 @@ void UFusionPlant::FinaliseSetup() {
 
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::AddPositionMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, float confidence)
+void UFusionPlant::AddPositionMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, float confidence)
 {
 	Measurement::Ptr m = CreatePositionMeasurement(systemName, sensorID, timestamp_sec, measurement, covariance, confidence);
-	plant.addMeasurement(m, fusion::NodeDescriptor(TCHAR_TO_UTF8(*nodeName)));
+	plant.addMeasurement(m, convertToNodeDescriptors(nodeNames));
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::AddRotationMeasurement(FString nodeName, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence)
+void UFusionPlant::AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence)
 {
 	Measurement::Ptr m = CreateRotationMeasurement(systemName,sensorID,timestamp_sec,measurement,covariance,confidence);
-	plant.addMeasurement(m, fusion::NodeDescriptor(TCHAR_TO_UTF8(*nodeName)));
+	plant.addMeasurement(m, convertToNodeDescriptors(nodeNames));
 }
 
 void UFusionPlant::Fuse()
@@ -226,7 +226,13 @@ void UFusionPlant::SetCommonMeasurementData(Measurement::Ptr& m, FString system_
 	}
 }
 
-
+std::vector<fusion::NodeDescriptor> UFusionPlant::convertToNodeDescriptors(const TArray<FString>& names){
+	std::vector<fusion::NodeDescriptor> result;
+	for(auto& name : names){
+		result.push_back(fusion::NodeDescriptor(TCHAR_TO_UTF8(*name)));
+	}
+	return result;
+}
 //===========================
 //DEBUG
 //===========================
@@ -236,8 +242,5 @@ UFUNCTION(BlueprintCallable, Category = "Fusion")
 FVector4 UFusionPlant::GetTestPosition() {
 	FVector4 v = fusedSkeleton->GetBoneTransformByName("hand_l",EBoneSpaces::WorldSpace).GetLocation();
 	//UE_LOG(LogTemp, Warning, TEXT("Left hand Pose = %s"), *v.ToString());
-		
-
-	
 	return v;
 }
