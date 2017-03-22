@@ -91,9 +91,12 @@ namespace fusion {
 					score[node] = 0;
 				}
 
-
+				if(score[node] < elimination_threshold){
+					sensor->eliminateNode(node);
+				}
 			}
 			//TODO: eliminate or pick best or something
+
 			//Clear data used
 			data.clear(sensor);
 		}

@@ -74,6 +74,7 @@ namespace fusion {
 
 		//Config
 		int ambiguous_threshold = 30;
+		float elimination_threshold = 30;
 
 	public:
 		//---------------------------------------------------------------------------------

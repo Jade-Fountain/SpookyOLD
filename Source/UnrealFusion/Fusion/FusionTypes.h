@@ -21,6 +21,7 @@
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 #include "Logging.h"
+#include "Utilities/DataStructures.h"
 #pragma once
 
 
@@ -146,16 +147,21 @@ namespace fusion {
 
 		//Returns a valid node only when there is only one possibility
 		NodeDescriptor getNode() {
-			if (nodes.size() != 1) {
+			std::set<NodeDescriptor> nodesFinal = utility::setDiff(nodes, eliminatedNodes);
+			if (nodesFinal.size() != 1) {
 				FUSION_LOG(__FILE__ + __LINE__ + std::string(" : attempted to get node of ambiguous sensor"));
-				return "__AMBIGUOUS__"; //In this case we basically return an error
+				return "__AMBIGUOUS__"; 
 			}
-			return *nodes.begin();
+			return *nodesFinal.begin();
 		}
 
 		//gets all possible nodes
-		const std::set<NodeDescriptor>& getNodes() {
+		std::set<NodeDescriptor> getNodes() {
 			return nodes;
+		}
+
+		std::set<NodeDescriptor> getRemainingNodes(){
+			return utility::setDiff(nodes,eliminatedNodes);
 		}
 		
 		//Adds a node as a possible sensor location
@@ -164,7 +170,11 @@ namespace fusion {
 		}
 
 		bool nodeEliminated(const NodeDescriptor& node){
-			return eliminatedNodes.count(node) > 0 || nodes.count(node) > 0;
+			return eliminatedNodes.count(node) > 0 || nodes.count(node) < 1;
+		}
+
+		void eliminateNode(const NodeDescriptor& node){
+			eliminatedNodes.insert(node);
 		}
 
 	};

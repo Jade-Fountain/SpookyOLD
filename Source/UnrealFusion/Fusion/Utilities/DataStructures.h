@@ -17,8 +17,9 @@
 
 #include <vector>
 #include <memory>
-
-//WARNING: this file is not complete
+#include <map>
+#include <algorithm>
+#include <iterator>
 
 
 namespace fusion {
@@ -45,6 +46,16 @@ namespace fusion {
 		std::shared_ptr<Y>& safeAccess(std::map<X, std::shared_ptr<Y>>& m, const X& x) {
 			if (m.count(x) == 0) m[x] = std::make_shared<Y>();
 			return m[x];
+		}
+
+		template<class X>
+		std::set<X> setDiff(const std::set<X>& A, const std::set<X>& B){
+		    std::set<X> diff;
+		 
+		    std::set_difference(A.begin(), A.end(), B.begin(), B.end(), 
+		                        std::inserter(diff, diff.begin()));
+
+		    return diff;
 		}
 
 	}

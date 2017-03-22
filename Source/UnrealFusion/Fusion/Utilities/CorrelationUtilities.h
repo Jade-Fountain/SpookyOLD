@@ -30,6 +30,20 @@ namespace fusion{
 			//For correlating data with position only
 			namespace Position {
 
+				static inline float correlateIdenticalPair(
+					const std::vector<Eigen::Vector3f>& samplesA,
+					const std::vector<Eigen::Vector3f>& samplesB
+				) {
+					//Compute velocity diffs
+					float total_error = 0;
+					for(int i = 1; i < samplesA.size() - 1; i++){
+						float velA = (samplesA[i]-samplesA[i-1]).norm();
+						float velB = (samplesB[i]-samplesB[i-1]).norm();
+						total_error += std::fabs(velA - velB);
+					}
+					return qualityFromError(total_error / samplesA.size(), error_scale);
+				}
+				
 				static inline float correlateWeightedIdenticalPair(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,
@@ -38,8 +52,8 @@ namespace fusion{
 					//Compute velocity diffs
 					float total_error = 0;
 					for(int i = 1; i < samplesA.size() - 1; i++){
-						float velA = (samplesA[i]-samplesA[i-1]).norm();
-						float velB = (samplesB[i]-samplesB[i-1]).norm();
+						float velA = (invVariances[i] * (samplesA[i]-samplesA[i-1])).norm();
+						float velB = (invVariances[i] * (samplesB[i]-samplesB[i-1])).norm();
 						total_error += std::fabs(velA - velB);
 					}
 					return qualityFromError(total_error / samplesA.size(), error_scale);
