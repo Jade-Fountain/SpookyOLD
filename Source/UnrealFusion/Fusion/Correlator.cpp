@@ -8,12 +8,12 @@ namespace fusion {
 	//---------------------------------------------------------------------------------
 
 	void Correlator::Data::addAmbiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m) {
-		if (ambiguous_measurements.count(sensor) == 0) {
-			ambiguous_measurements[sensor] = std::vector<Measurement::Ptr>();
-			const std::set<NodeDescriptor>& nodes = sensor.getNodes();
+		if (ambiguous_measurements.sensors.count(sensor) == 0) {
+			ambiguous_measurements.sensors[sensor] = std::vector<Measurement::Ptr>();
+			const std::set<NodeDescriptor>& nodes = sensor->getNodes();
 			relevant_nodes.insert(nodes.begin(), nodes.end());
 		} else {
-			ambiguous_measurements[sensor].push_back(m);
+			ambiguous_measurements.sensors[sensor].push_back(m);
 		}
 	}
 
@@ -26,6 +26,27 @@ namespace fusion {
 
 	bool Correlator::Data::unambiguousMeasurementNeeded(const Sensor::Ptr& s) {
 		return relevant_nodes.count(s->getNode()) > 0;
+	}
+	
+	const Correlator::Data::Streams& Correlator::Data::getUnambiguousStreams(const NodeDescriptor & node)
+	{
+		return utility::safeAccess(unambiguous_measurements,node);
+	}
+	
+	int Correlator::Data::ambiguousCount(const Sensor::Ptr& sensor){
+		return utility::safeAccess(ambiguous_measurements.sensors,sensor).size();
+	}
+
+	void Correlator::Data::clear(const Sensor::Ptr & s)
+	{
+		//Clear ambiguous
+		utility::safeAccess(ambiguous_measurements.sensors, s).clear();
+	}
+	
+	void Correlator::Data::cleanUp()
+	{
+		//TODO: clean up unambiguous measurements no longer needed / which have been used
+		
 	}
 	//---------------------------------------------------------------------------------
 	//										Calibrator
@@ -47,23 +68,23 @@ namespace fusion {
 	{
 		//TODO: write code to resolve ambiguities whenever data permits
 		for(auto& pair : data.ambiguous_measurements.sensors){
-			Sensor::Ptr& sensor = pair.first;
+			Sensor::Ptr sensor = pair.first;
 			std::vector<Measurement::Ptr>& stream = pair.second;
 
 			if(!dataSufficient(sensor)) continue;
 
 			//get sensor node info
-			std::set<NodeDescriptor>& possible_nodes = sensor->getNodes();
+			const std::set<NodeDescriptor>& possible_nodes = sensor->getNodes();
 
 			//Initialise scores:
-			std::map<NodeDescriptor, float>& scores;
+			std::map<NodeDescriptor, float> score;
 			// float max_score = 0;
 			// NodeDescriptor best_option;
 
 			//For each possible node
 			for(auto& node : possible_nodes){
-				Data::Streams& unambiguousStreams = data.getUnambiguousStreams(node);
-				//TODO: sync streams
+				const Data::Streams& unambiguousStreams = data.getUnambiguousStreams(node);
+
 				if(!sensor->nodeEliminated(node)){
 					score[node] = getCorrelationScore(stream, unambiguousStreams);
 				} else {
@@ -76,8 +97,15 @@ namespace fusion {
 			//Clear data used
 			data.clear(sensor);
 		}
+
+		data.cleanUp();
 	}
-	//TODO: clean up unambiguous measurements no longer needed / which have been used
-	data.cleanUp();
+	
+	bool Correlator::dataSufficient(const Sensor::Ptr & sensor)
+	{
+		//TODO:: include unambiguous cound
+		return data.ambiguousCount(sensor) > ambiguous_threshold;
+	}
+
 
 }

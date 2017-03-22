@@ -42,7 +42,7 @@ namespace fusion {
 		switch (currentCalibration.state) {
 		case (CalibrationResult::State::UNCALIBRATED):
 			result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
-			result.quality = utility::calibration::qualityFromError(result.error, qualityScaleFactor);
+			result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
 			result.relevance = result.quality;
 			FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
 			result.state = CalibrationResult::State::REFINING;
@@ -50,7 +50,7 @@ namespace fusion {
 		case (CalibrationResult::State::REFINING):
 			//refinement calibration
 			result.transform = utility::calibration::Position::refineIdenticalPairPosition(pos1, pos2, currentCalibration.transform, &result.error);
-			result.quality = utility::calibration::qualityFromError(result.error, qualityScaleFactor);
+			result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
 			//if (result.quality > quality_threshold) {
 			//Go straight to checking for faults
 			FUSION_LOG("REFINEMENT FINISHED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
@@ -64,7 +64,7 @@ namespace fusion {
 			//TODO: distinguish noise vs. actual movement
 			//Track new transform and see how much it moves? (expensive)
 			float error = utility::calibration::Position::getError(pos1,pos2,currentCalibration.transform);
-			result.relevance = result.relevance * (1-fault_hysteresis_rate) + fault_hysteresis_rate * utility::calibration::qualityFromError(error, qualityScaleFactor);
+			result.relevance = result.relevance * (1-fault_hysteresis_rate) + fault_hysteresis_rate * utility::qualityFromError(error, qualityScaleFactor);
 			FUSION_LOG(" Already calibrated - watching for faults - relevance = " + std::to_string(result.relevance) + "vs. quality = " + std::to_string(result.quality));
 			//Relevance is the latest quality value, filtered with exponential filter
 			//If our quality varies from the expected too much, we need to recalibrate
@@ -102,7 +102,7 @@ namespace fusion {
 		//Compute transform and error
 		result.transform = utility::calibration::Transform::twoSystems(pos1, pos2, &result.error);
 		//TODO: compute quality
-		result.quality = utility::calibration::qualityFromError(result.error, 1);
+		result.quality = utility::qualityFromError(result.error, 1);
 		result.state = CalibrationResult::State::REFINING;
 		return result;
 	}

@@ -191,19 +191,21 @@ namespace fusion {
 
 	CalibrationResult Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib)
 	{
+		MeasurementType t1 = m1.front()->type;
+		MeasurementType t2 = m2.front()->type;
 		//Bulk logic to route calibration procedures at runtime
-		switch (m1.front()->type) {
+		switch (t1) {
 		case MeasurementType::POSITION:
-			if (m2.front()->type == MeasurementType::POSITION) {
+			if (t2 == MeasurementType::POSITION) {
 				return calPos(m1, m2, calib);
 			}
 			break;
 		case MeasurementType::RIGID_BODY:
-			if (m2.front()->type == MeasurementType::RIGID_BODY) {
+			if (t2 == MeasurementType::RIGID_BODY) {
 				return cal6DoF(m1, m2);
 			}
 		}
-		FUSION_LOG("WARNING : no calibration model found for measurement types: " + std::to_string(m1.front()->type) + " and " + std::to_string(m2.front()->type));
+		FUSION_LOG("WARNING : no calibration model found for measurement types: " + std::to_string(t1) + " and " + std::to_string(t2));
 		return CalibrationResult();
 	}
 

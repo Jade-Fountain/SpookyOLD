@@ -30,9 +30,11 @@ namespace fusion {
 		public:
 			struct Streams{
 				std::map<Sensor::Ptr, std::vector<Measurement::Ptr>> sensors;
-			}
+			};
 			
+			//---------------------------------------------------------------------------------
 			//MEMBERS
+			//---------------------------------------------------------------------------------
 
 			//Contains measurements for the ambiguous sensors
 			Streams ambiguous_measurements;
@@ -43,7 +45,9 @@ namespace fusion {
 			//Nodes for which data is needed
 			std::set<NodeDescriptor> relevant_nodes;
 
+			//---------------------------------------------------------------------------------
 			//HELPER FUNCTIONS
+			//---------------------------------------------------------------------------------
 
 			//Adds ambiguous measurement to data list
 			void addAmbiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m);
@@ -52,17 +56,30 @@ namespace fusion {
 			//Check if measurements from sensor s are useful for resolving ambiguities
 			bool unambiguousMeasurementNeeded(const Sensor::Ptr& s);
 			//Returns the unambiguous streams relevant to the specified node
-			Data::Streams getUnambiguousStreams(const NodeDescriptor& node);
+			const Streams& getUnambiguousStreams(const NodeDescriptor& node);
+			//Returns number of ambiguous measurements recorded for sensor
+			int ambiguousCount(const Sensor::Ptr& sensor);
 			//Clear ambiguous data associated with sensor s
 			void clear(const Sensor::Ptr& s);
 			//Cleanup - removes irrelevant and used unambiguous data
 			void cleanUp();
 			
 		};
+		//---------------------------------------------------------------------------------
+		//MEMBERS
+		//---------------------------------------------------------------------------------
+
 		//Data structure for organising and filtering measurements
 		Data data;
 
+		//Config
+		int ambiguous_threshold = 30;
+
 	public:
+		//---------------------------------------------------------------------------------
+		//FUNCTION INTERFACE
+		//---------------------------------------------------------------------------------
+
 		//Adds measurment for a sensor which is attached to an unknown node
 		void addAmbiguousMeasurement(const Measurement::Ptr& m);
 
@@ -72,14 +89,26 @@ namespace fusion {
 		//Performes identification procedure if possible
 		void identify();
 
+	private:
+		//---------------------------------------------------------------------------------
+		//INTERNALS
+		//---------------------------------------------------------------------------------
+
 		//Returns true if enough data has been collected for identification process for sensor
 		bool dataSufficient(const Sensor::Ptr& sensor);
 
-		//Compares two streams of data to check if they are correlated
-		getCorrelationScore(const std::vector<Measurement::Ptr>& ambiguousStream, const std::vector<Measurement::Ptr>& hypothesisStream);
-		//Returns correlation score between one stream and a collection of streams known to be correlated
-		getCorrelationScore(const std::vector<Measurement::Ptr>& ambiguousStream, const Data::Streams& hypothesisStreams)
 
+		//---------------------------------------------------------------------------------
+		//CORRELATION PROCEDURES (defined in CorrelationProcedures.cpp)
+		//---------------------------------------------------------------------------------
+
+		//Compares two streams of data to check if they are correlated
+		float getCorrelationScore(const std::vector<Measurement::Ptr>& s1, const std::vector<Measurement::Ptr>& s2);
+		//Returns correlation score between one stream and a collection of streams known to be correlated
+		float getCorrelationScore(const std::vector<Measurement::Ptr>& ambiguousStream, const Data::Streams& hypothesisStreams);
+
+		//Correlation of two position measurement streams
+		float correlatePos(const std::vector<Measurement::Ptr>& s1, const std::vector<Measurement::Ptr>& s2);
 
 	};
 

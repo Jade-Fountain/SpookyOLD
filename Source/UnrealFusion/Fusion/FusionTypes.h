@@ -135,7 +135,7 @@ namespace fusion {
 		//Possible nodes which this sensor is attached to
 		std::set<NodeDescriptor> nodes;
 		//TODO: Set of eliminated nodes
-		//std::set<NodeDescriptor> eliminatedNodes;
+		std::set<NodeDescriptor> eliminatedNodes;
 		//=================================================
 
 		//Typedef ptr to this class for neater code later
@@ -161,6 +161,10 @@ namespace fusion {
 		//Adds a node as a possible sensor location
 		void addNode(const NodeDescriptor& node) {
 			nodes.insert(node);
+		}
+
+		bool nodeEliminated(const NodeDescriptor& node){
+			return eliminatedNodes.count(node) > 0 || nodes.count(node) > 0;
 		}
 
 	};

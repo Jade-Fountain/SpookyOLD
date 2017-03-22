@@ -19,51 +19,13 @@
 #include<Eigen/SVD>
 #include<Eigen/Geometry>
 #include<Eigen/unsupported/KroneckerProduct>
+#include "CommonMath.h"
+
 #include "Logging.h"
 #pragma once
 namespace fusion{
 	namespace utility{
 		namespace calibration {
-
-			//Source: https://fuyunfei1.gitbooks.io/c-tips/content/pinv_with_eigen.html
-			//Pseudo inverse
-			template<typename _Matrix_Type_>
-			static inline _Matrix_Type_ pInv(const _Matrix_Type_ &a, double epsilon = std::numeric_limits<double>::epsilon())
-			{
-				Eigen::JacobiSVD< _Matrix_Type_ > svd(a, Eigen::ComputeThinU | Eigen::ComputeThinV);
-				double tolerance = epsilon * std::max(a.cols(), a.rows()) *svd.singularValues().array().abs()(0);
-				return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
-			}
-
-			static inline Eigen::Transform<float, 3, Eigen::Affine> matrixToTransform3D(const Eigen::Matrix4f& X) {
-				//Make sure normalised
-				Eigen::Quaternionf q(X.block<3, 3>(0, 0));
-				q.normalize();
-				Eigen::Translation3f t(X.block<3, 1>(0, 3));
-
-				Eigen::Transform<float, 3, Eigen::Affine> TX(t);
-				TX.rotate(q);
-				return TX;
-			}
-
-			static inline Eigen::Transform<float, 3, Eigen::Affine> slerpTransform3D(
-				const Eigen::Transform<float, 3, Eigen::Affine>& T1,
-				const Eigen::Transform<float, 3, Eigen::Affine>& T2, 
-				float t
-			) {
-				Eigen::Quaternionf q1(T1.rotation());
-				Eigen::Quaternionf q2(T2.rotation());
-
-				Eigen::Quaternionf q = q1.slerp(t, q2);
-
-				Eigen::Vector3f v1(T1.translation());
-				Eigen::Vector3f v2(T2.translation());
-				Eigen::Translation3f v(v1 * (1 - t) + v2 * t);
-
-				Eigen::Transform<float, 3, Eigen::Affine> T(v);
-				T.rotate(q);
-				return T;
-			}
 
 			//For calibrating data with position only
 			namespace Position {
@@ -296,11 +258,6 @@ namespace fusion{
 					//TODO
 					return Eigen::Transform<float, 3, Eigen::Affine>();
 				}
-			}
-
-			static inline float qualityFromError(float error, float scale) {
-				float e = error / scale;
-				return 1 / (1 + e*e);
 			}
 
 		}
