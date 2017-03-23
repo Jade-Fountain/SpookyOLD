@@ -16,7 +16,12 @@
 #include "UnrealFusion.h"
 #include "FusionTypes.h"
 
+//#define NDEBUG
+#include <cassert>
+
 namespace fusion {
+	//Define config constants
+	const float Measurement::uncertainty_growth_max = 0.01f; //Fractional growth per second
 
 	Measurement::Ptr Measurement::createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma) {
 		Measurement::Ptr meas = std::make_shared<Measurement>();
@@ -58,6 +63,53 @@ namespace fusion {
 		//TODO: add conditionals for better metrics for rotations etc.
 		return (data - other->data).norm();
 	}
+
+
+	std::vector<Measurement::Ptr> Measurement::synchronise(
+		const std::vector<Measurement::Ptr>& source, 
+		const std::vector<Measurement::Ptr>& target
+	){
+		std::vector<Measurement::Ptr> result;
+
+		auto source_it = source.begin();
+		auto target_it = target.begin();
+		
+		while(target_it != target.end()){
+			//Increase source iterator until the next measurement is after the current target
+			while((*std::next(source_it))->timestamp < (*target_it)->timestamp){
+				source_it++;
+				if(std::next(source_it) == source.end()) break;
+			}
+
+			//TODO:is this correct?:
+			if(std::next(source_it) == source.end()) break;
+
+			//Interpolate between nearest measurements
+			auto lower_source_it = source_it;
+			auto upper_source_it = std::next(source_it);
+
+			float t0 = (*lower_source_it)->timestamp;
+			float t1 = (*upper_source_it)->timestamp;
+			float t = ((*target_it)->timestamp - t0) / (t1-t0);
+			result.push_back(Measurement::interpolate(*lower_source_it,*upper_source_it,t));
+		}
+
+		return result;
+	}
+
+	Measurement::Ptr Measurement::interpolate(const Measurement::Ptr& m0, const Measurement::Ptr& m1, float t){
+		assert(m0->getSensor() == m1->getSensor());
+		Measurement::Ptr result = std::make_shared<Measurement>(*m0);
+		//TODO: support nonlinear data types
+		result->data =  m0->data * (1-t) + m1->data * t;
+		result->timestamp =  m0->timestamp * (1-t) + m1->timestamp * t;
+
+		float uncertainty_growth = 4 * t * (1-t) * uncertainty_growth_max * (m0->timestamp - m1->timestamp) / 2;
+		result->uncertainty = (m0->uncertainty * (1-t) + m1->uncertainty * t) * (1 + uncertainty_growth);
+		result->confidence = m0->confidence * (1-t) + m1->confidence * t;
+		return result;
+	}
+
 
 }
 

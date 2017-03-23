@@ -33,6 +33,7 @@ namespace fusion {
 	typedef Eigen::Transform<float, 3, Eigen::Affine> Transform3D;
 
 
+
 	/** System descriptor - abstraction for a string type to be used as a map key - might be changed later
 	*
 	*/
@@ -181,8 +182,13 @@ namespace fusion {
 
 	//Class describing individual sensor reading taken at a particular time
 	class Measurement {
-	private:		
+	public:
+		typedef std::shared_ptr<Measurement> Ptr;
 
+		//=========================
+		//			Members
+		//=========================
+	private:		
 		//Measurement dimensions
 		int size;
 		//Value of measurement
@@ -194,12 +200,8 @@ namespace fusion {
 		//Sensor information
 		Sensor::Ptr sensor;
 	public:
-		//Accessors
-		const Eigen::MatrixXf& getUncertainty() const { return uncertainty; }
-		const Eigen::VectorXf& getData() const { return data; }
-
 		//Timestamp (sec; from device)
-		double timeStamp = -1;
+		double timestamp = -1;
 
 		//Confidence in T in [0,1]
 		float confidence = 0;
@@ -207,31 +209,45 @@ namespace fusion {
 		//Type of measurement
 		MeasurementType type;
 
+		//=========================
+		//			Methods
+		//=========================
+
 		//Setup Methods
 		bool check_consistent() {
 			return (size == data.size() == uncertainty.rows() == uncertainty.cols());
 		}
 
 		bool setMetaData(float timestamp_sec, float confidence_){
-			timeStamp = timestamp_sec;
+			timestamp = timestamp_sec;
 			confidence = confidence_;
 			return check_consistent();
 		}
 
-		
-		typedef std::shared_ptr<Measurement> Ptr;
-
+		//=========================
 		//Static factory methods:
+		//=========================
 		static Measurement::Ptr createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma);
 		static Measurement::Ptr createQuaternionMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma);
 		static Measurement::Ptr createScaleMeasurement(Eigen::Vector3f scale, Eigen::Matrix<float,3,3> sigma);
 		static Measurement::Ptr createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma);
+
+
+		//=========================
+		//Data helpers
+		//=========================
 		
 		//Method for getting the distance between two measurements
 		float compare(const Measurement::Ptr & other);
 
-		//Data helpers
+		//Synchronises the source stream with the target stream
+		// It is assumed that the two  streams are chronologically sorted
+		static std::vector<Measurement::Ptr> synchronise(const std::vector<Measurement::Ptr>& source, 
+														 const std::vector<Measurement::Ptr>& target);
 
+		//Interpolates between two measurements of the same type
+		static const float uncertainty_growth_max;
+		static Measurement::Ptr interpolate(const Measurement::Ptr& m0, const Measurement::Ptr& m1, float t);
 
 		//----------------------
 		//Accessors
@@ -259,6 +275,10 @@ namespace fusion {
 		void addNode(const NodeDescriptor& node) {
 			sensor->addNode(node);
 		}
+
+		//Accessors
+		const Eigen::MatrixXf& getUncertainty() const { return uncertainty; }
+		const Eigen::VectorXf& getData() const { return data; }
 
 		bool ambiguous(){
 			return sensor->isAmbiguous();
