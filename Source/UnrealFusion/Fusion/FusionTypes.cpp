@@ -67,31 +67,49 @@ namespace fusion {
 
 	std::vector<Measurement::Ptr> Measurement::synchronise(
 		const std::vector<Measurement::Ptr>& source, 
-		const std::vector<Measurement::Ptr>& target
+		const std::vector<Measurement::Ptr>& target,
+		std::vector<Measurement::Ptr>& source_out
 	){
 		std::vector<Measurement::Ptr> result;
 
-		auto source_it = source.begin();
-		auto target_it = target.begin();
+		std::vector<Measurement::Ptr>::const_iterator source_it = source.begin();
+		std::vector<Measurement::Ptr>::const_iterator target_it = target.begin();
 		
 		while(target_it != target.end()){
+			//Iterate to target after current source
+			while(
+				target_it != target.end() && 
+				(*target_it)->timestamp <= (*source_it)->timestamp
+			){
+				target_it++;
+			}
+			
+			//If we ran out of target measurements
+			if(target_it != target.end()) break;
+
 			//Increase source iterator until the next measurement is after the current target
-			while((*std::next(source_it))->timestamp < (*target_it)->timestamp){
+			while(
+				std::next(source_it) != source.end() && 
+				(*std::next(source_it))->timestamp < (*target_it)->timestamp
+			){
 				source_it++;
-				if(std::next(source_it) == source.end()) break;
 			}
 
-			//TODO:is this correct?:
+			//If there are no more source measurements
 			if(std::next(source_it) == source.end()) break;
-
+			
 			//Interpolate between nearest measurements
-			auto lower_source_it = source_it;
-			auto upper_source_it = std::next(source_it);
+			std::vector<Measurement::Ptr>::const_iterator lower_source_it = source_it;
+			std::vector<Measurement::Ptr>::const_iterator upper_source_it = std::next(source_it);
 
 			float t0 = (*lower_source_it)->timestamp;
 			float t1 = (*upper_source_it)->timestamp;
 			float t = ((*target_it)->timestamp - t0) / (t1-t0);
+			source_out.push_back(*target_it);
 			result.push_back(Measurement::interpolate(*lower_source_it,*upper_source_it,t));
+			
+			//Place source_it after/equal to current target_it
+			source_it++;
 		}
 
 		return result;
@@ -107,6 +125,15 @@ namespace fusion {
 		float uncertainty_growth = 4 * t * (1-t) * uncertainty_growth_max * (m0->timestamp - m1->timestamp) / 2;
 		result->uncertainty = (m0->uncertainty * (1-t) + m1->uncertainty * t) * (1 + uncertainty_growth);
 		result->confidence = m0->confidence * (1-t) + m1->confidence * t;
+		return result;
+	}
+
+	Measurement::Ptr Measurement::extrapolate(const Measurement::Ptr& m, float time_sec){
+		Measurement::Ptr result = std::make_shared<Measurement>(*m);
+		//Grow uncertainty linearly based on the time elapsed
+		float uncertainty_growth = time_sec * uncertainty_growth_max;
+		result->uncertainty = (m->uncertainty) * (1 + uncertainty_growth);
+		//Otherwise guess same data, etc.
 		return result;
 	}
 
