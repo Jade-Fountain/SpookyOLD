@@ -191,6 +191,7 @@ namespace fusion {
 
 	CalibrationResult Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib)
 	{
+		//TODO: measurements are not sorted chronologically here
 		MeasurementType t1 = m1.front()->type;
 		MeasurementType t2 = m2.front()->type;
 		//Bulk logic to route calibration procedures at runtime
@@ -226,7 +227,7 @@ namespace fusion {
 
 		if (dataNovel) {
 			//Store the (refs to) the relevant measurements
-			//FUSION_LOG("Adding calibration measurments!!");
+			FUSION_LOG("Adding calibration measurments!!");
 			for (auto& m : measurements) {
 				addMeasurement(m.first, m.second);
 			}

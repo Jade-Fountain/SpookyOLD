@@ -165,7 +165,7 @@ Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, in
 {
 	//Create basic measurement
 	Eigen::Vector3f meas(position[0],position[1],position[2]);
-	Eigen::Matrix<float, 3, 3> un;
+	Eigen::Matrix<float, 3, 3> un = Eigen::Matrix<float,3,3>::Identity();
 	un.diagonal() = Eigen::Vector3f(uncertainty[0], uncertainty[1], uncertainty[2]);
 	Measurement::Ptr result = Measurement::createCartesianMeasurement(meas, un);
 	
@@ -179,7 +179,7 @@ Measurement::Ptr UFusionPlant::CreateRotationMeasurement(FString system_name, in
 {
 	//Create basic measurement
 	Eigen::Vector4f meas(rotation.W, rotation.X, rotation.Y, rotation.Z);
-	Eigen::Matrix<float, 4, 4> un;
+	Eigen::Matrix<float, 4, 4> un = Eigen::Matrix<float, 4, 4>::Identity();
 	un.diagonal() = Eigen::Vector4f(&uncertainty[0]);
 	Measurement::Ptr result = Measurement::createQuaternionMeasurement(meas, un);
 
@@ -193,7 +193,7 @@ Measurement::Ptr UFusionPlant::CreateScaleMeasurement(FString system_name, int s
 {
 	//Create basic measurement
 	Eigen::Vector3f meas(&scale[0]);
-	Eigen::Matrix<float, 3, 3> un;
+	Eigen::Matrix<float, 3, 3> un = Eigen::Matrix<float, 3, 3>::Identity();
 	un.diagonal() = Eigen::Vector3f(&uncertainty[0]);
 	Measurement::Ptr result = Measurement::createScaleMeasurement(meas, un);
 
@@ -207,7 +207,7 @@ Measurement::Ptr UFusionPlant::CreateRigidBodyMeasurement(FString system_name, i
 {
 	//Create basic measurement
 	Eigen::Matrix<float, 7, 1> meas(&state[0]);
-	Eigen::Matrix<float, 7, 7> un;
+	Eigen::Matrix<float, 7, 7> un = Eigen::Matrix<float, 7, 7>::Identity();
 	un.diagonal() = Eigen::Matrix<float, 7, 1>(&uncertainty[0]);
 	Measurement::Ptr result = Measurement::createRigidBodyMeasurement(meas, un);
 	

@@ -201,6 +201,7 @@ namespace fusion {
 		Sensor::Ptr sensor;
 	public:
 		//Timestamp (sec; from device)
+		//TODO: ensure double precision input
 		double timestamp = -1;
 
 		//Confidence in T in [0,1]

@@ -28,7 +28,6 @@ namespace fusion {
 
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
-		//systems[m->system].addMeasurement(m);
 		m->addNode(node);
 		skeleton.addMeasurement(node, m);
 		correlator.addUnambiguousMeasurementIfNeeded(m);
@@ -36,12 +35,12 @@ namespace fusion {
 
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const std::vector<NodeDescriptor>& nodes) {
-		//systems[m->system].addMeasurement(m);
 		for(auto& n : nodes){
 			m->addNode(n);
 		}
 		if(!m->getSensor()->isAmbiguous()){
-			skeleton.addMeasurement(nodes[0], m);
+			//TODO: do I need to pass through the node here?
+			skeleton.addMeasurement(m->getNode(), m);
 			correlator.addUnambiguousMeasurementIfNeeded(m);
 		} else {
 			//TODO: needs relevant unambiguous measurements too!
