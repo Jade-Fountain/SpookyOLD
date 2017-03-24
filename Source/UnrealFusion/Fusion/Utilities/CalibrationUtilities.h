@@ -121,13 +121,13 @@ namespace fusion{
 					Eigen::Transform<float, 3, Eigen::Affine> TX = matrixToTransform3D(X);
 					
 					//DEBUG
-					std::stringstream ss;
-					ss << "B = \n" << B << std::endl;
-					ss << "vecB = \n" << vecB << std::endl;
-					ss << "sigInv =\n " << sigInv << std::endl;
-					ss << "vecX = \n" << vecX << std::endl;
-					ss << "X = \n" << X << std::endl;
-					FUSION_LOG(ss.str());
+					//std::stringstream ss;
+					//ss << "B = \n" << B << std::endl;
+					//ss << "vecB = \n" << vecB << std::endl;
+					//ss << "sigInv =\n " << sigInv << std::endl;
+					//ss << "vecX = \n" << vecX << std::endl;
+					//ss << "X = \n" << X << std::endl;
+					//FUSION_LOG(ss.str());
 					
 					if (error != NULL) {
 						auto E = TX.matrix() * A - B;

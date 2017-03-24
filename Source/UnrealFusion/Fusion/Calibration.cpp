@@ -227,7 +227,7 @@ namespace fusion {
 
 		if (dataNovel) {
 			//Store the (refs to) the relevant measurements
-			FUSION_LOG("Adding calibration measurments!!");
+			//FUSION_LOG("Adding calibration measurments!!");
 			for (auto& m : measurements) {
 				addMeasurement(m.first, m.second);
 			}
