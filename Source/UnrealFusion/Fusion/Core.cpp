@@ -28,16 +28,15 @@ namespace fusion {
 
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
-		m->addNode(node);
-		skeleton.addMeasurement(node, m);
-		correlator.addUnambiguousMeasurementIfNeeded(m);
+		m->getSensor()->addNode(node);
+		measurement_buffer.push_back(m);
 	}
 
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const std::vector<NodeDescriptor>& nodes) {
 		//Add nodes which the measurement might correspond to - actually gets stored in the sensor pointer
 		for(auto& n : nodes){
-			m->sensor->addNode(n);
+			m->getSensor()->addNode(n);
 		}
 		measurement_buffer.push_back(m);
 	}
@@ -48,10 +47,10 @@ namespace fusion {
 
 		correlator.addMeasurementGroup(measurement_buffer);
 		correlator.identify();
-		if(correlator.finished()){
+		if(correlator.isStable()){
 			calibrator.addMeasurementGroup(measurement_buffer);
 			calibrator.calibrate();
-			if(calibrator.finished()){
+			if(calibrator.isStable()){
 				//skeleton.addMeasurementGroup(measurement_buffer);
 				skeleton.fuse();
 			}

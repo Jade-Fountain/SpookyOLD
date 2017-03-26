@@ -38,8 +38,9 @@ namespace fusion {
 
 			//Contains measurements for the ambiguous sensors
 			Streams ambiguous_measurements;
-			//Maps ambiguous sensor to set of unambiguous measurements from sensors 
-			// attached to nodes which the ambiguous sensor could be located
+
+			//Maps each node to set of unambiguous measurements from attached sensors
+			//i.e. unamb measurements sorted by node, handles multiple sensors per node
 			std::map<NodeDescriptor, Streams> unambiguous_measurements;
 
 			//Nodes for which data is needed
@@ -50,11 +51,15 @@ namespace fusion {
 			//---------------------------------------------------------------------------------
 
 			//Adds ambiguous measurement to data list
-			void addAmbiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m);
+			void addAmbiguous(const Measurement::Ptr& m);
 			//Adds unambiguous measurement to data list
-			void addUnambiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m);
+			void addUnambiguous(const Measurement::Ptr& m);
 			//Check if measurements from sensor s are useful for resolving ambiguities
 			bool unambiguousMeasurementNeeded(const Sensor::Ptr& s);
+			//Compare new measurement to last measurement of that sensor to see if useful
+			float compareMeasurement(const Measurement::Ptr& m);
+			//Returns true if no data recorded for the specified sensor
+			bool unseen(const Sensor::Ptr& sensor);
 			//Returns the unambiguous streams relevant to the specified node
 			const Streams& getUnambiguousStreams(const NodeDescriptor& node);
 			//Returns number of ambiguous measurements recorded for sensor
@@ -76,6 +81,8 @@ namespace fusion {
 		int ambiguous_threshold = 30;
 		float elimination_threshold = 30;
 
+		float diff_threshold = 0.5;
+
 
 
 	public:
@@ -90,6 +97,9 @@ namespace fusion {
 		//Performes identification procedure if possible
 		void identify();
 
+		//Returns true if useable data is now available
+		bool isStable();
+
 	private:
 		//---------------------------------------------------------------------------------
 		//INTERNALS
@@ -97,6 +107,11 @@ namespace fusion {
 
 		//Returns true if enough data has been collected for identification process for sensor
 		bool dataSufficient(const Sensor::Ptr& sensor);
+
+		//Removes measurements which do not give info about the current sensors of interest
+		std::vector<Measurement::Ptr> filterLonelyData(const std::vector<Measurement::Ptr>& measurementQueue);
+
+		bool checkChanges(const std::vector<Measurement::Ptr>& measurements);
 
 		//Adds measurment for a sensor which is attached to an unknown node
 		void addAmbiguousMeasurement(const Measurement::Ptr& m);

@@ -136,6 +136,9 @@ namespace fusion {
 		//Calibrate
 		void calibrate();
 
+		//Returns true if useable data is now available
+		bool isStable();
+
 		//Searches for calibration results and returns them for use in fusion
 		CalibrationResult getResultsFor(SystemDescriptor s1, SystemDescriptor s2);
 	};

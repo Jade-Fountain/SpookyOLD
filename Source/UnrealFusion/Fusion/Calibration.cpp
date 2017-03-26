@@ -102,7 +102,7 @@ namespace fusion {
 		//Check change for each measurement
 		bool result = false;
 		for (auto& mes : measurements) {
-			auto& node = mes->getNode();
+			NodeDescriptor node = mes->getNode();
 			float diff = calibrationSet.compareMeasurement(mes, mes->getSystem(), node);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true
@@ -244,6 +244,11 @@ namespace fusion {
 				
 			}
 		}
+	}
+
+	bool Calibrator::isStable()
+	{
+		return true;
 	}
 
 	CalibrationResult Calibrator::getResultsFor(SystemDescriptor s1, SystemDescriptor s2)

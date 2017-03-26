@@ -197,9 +197,9 @@ namespace fusion {
 		//Uncertainty in T
 		Eigen::MatrixXf uncertainty;
 
-	public:
 		//Sensor information
 		Sensor::Ptr sensor;
+	public:
 
 		//Timestamp (sec; from device)
 		//TODO: ensure double precision input
@@ -259,7 +259,7 @@ namespace fusion {
 		NodeDescriptor getNode() {
 			return sensor->getNode();
 		}
-		const std::set<NodeDescriptor>& getNodes() {
+		std::set<NodeDescriptor> getNodes() {
 			return sensor->getNodes();
 		}
 		SystemDescriptor getSystem() {
@@ -280,7 +280,7 @@ namespace fusion {
 		const Eigen::MatrixXf& getUncertainty() const { return uncertainty; }
 		const Eigen::VectorXf& getData() const { return data; }
 
-		bool ambiguous(){
+		bool isAmbiguous(){
 			return sensor->isAmbiguous();
 		}
 	};
