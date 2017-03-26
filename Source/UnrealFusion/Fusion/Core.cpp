@@ -35,27 +35,30 @@ namespace fusion {
 
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const std::vector<NodeDescriptor>& nodes) {
+		//Add nodes which the measurement might correspond to - actually gets stored in the sensor pointer
 		for(auto& n : nodes){
-			m->addNode(n);
+			m->sensor->addNode(n);
 		}
-		if(!m->getSensor()->isAmbiguous()){
-			//TODO: do I need to pass through the node here?
-			skeleton.addMeasurement(m->getNode(), m);
-			correlator.addUnambiguousMeasurementIfNeeded(m);
-		} else {
-			//TODO: needs relevant unambiguous measurements too!
-			correlator.addAmbiguousMeasurement(m);
-		}
+		measurement_buffer.push_back(m);
 	}
 
 	//Computes data added since last fuse() call. Should be called repeatedly	
 	void Core::fuse() {
 		//Add new data to calibration, with checking for usefulness
+
+		correlator.addMeasurementGroup(measurement_buffer);
 		correlator.identify();
-		auto measurements = skeleton.getMeasurements();
-		calibrator.addMeasurementGroup(measurements);
-		calibrator.calibrate();
-		skeleton.fuse();
+		if(correlator.finished()){
+			calibrator.addMeasurementGroup(measurement_buffer);
+			calibrator.calibrate();
+			if(calibrator.finished()){
+				//skeleton.addMeasurementGroup(measurement_buffer);
+				skeleton.fuse();
+			}
+		}
+		
+
+		measurement_buffer.clear();
 	}
 
 	CalibrationResult Core::getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2) {

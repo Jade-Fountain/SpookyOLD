@@ -197,9 +197,10 @@ namespace fusion {
 		//Uncertainty in T
 		Eigen::MatrixXf uncertainty;
 
+	public:
 		//Sensor information
 		Sensor::Ptr sensor;
-	public:
+
 		//Timestamp (sec; from device)
 		//TODO: ensure double precision input
 		double timestamp = -1;
@@ -273,10 +274,6 @@ namespace fusion {
 		}
 		Sensor::Ptr getSensor() {
 			return sensor;
-		}
-
-		void addNode(const NodeDescriptor& node) {
-			sensor->addNode(node);
 		}
 
 		//Accessors

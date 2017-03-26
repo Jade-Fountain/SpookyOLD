@@ -8,16 +8,22 @@ namespace fusion {
 	//---------------------------------------------------------------------------------
 
 	void Correlator::Data::addAmbiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m) {
+		//If sensor stream not initialised
 		if (ambiguous_measurements.sensors.count(sensor) == 0) {
+			//Initialise ambiguous measurements for sensor
 			ambiguous_measurements.sensors[sensor] = std::vector<Measurement::Ptr>();
 			const std::set<NodeDescriptor>& nodes = sensor->getNodes();
+			//Store relevant nodes for later in the add unambiguous measurement function
 			relevant_nodes.insert(nodes.begin(), nodes.end());
 		} else {
+			//Simply add measurement
+			//TODO: make sure some change has happened
 			ambiguous_measurements.sensors[sensor].push_back(m);
 		}
 	}
 
 	void Correlator::Data::addUnambiguous(const Sensor::Ptr& sensor, const Measurement::Ptr& m) {
+		//TODO: make sure some change has happened
 		utility::safeAccess(
 			utility::safeAccess(unambiguous_measurements, m->getNode()).sensors,
 			sensor
@@ -48,19 +54,26 @@ namespace fusion {
 		//TODO: clean up unambiguous measurements no longer needed / which have been used
 		
 	}
-	//---------------------------------------------------------------------------------
-	//										Calibrator
-	//---------------------------------------------------------------------------------
 
-	void Correlator::addAmbiguousMeasurement(const Measurement::Ptr& m)
-	{
-		data.addAmbiguous(m->getSensor(), m);
-	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//									Correlator:Public
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void Correlator::addUnambiguousMeasurementIfNeeded(const Measurement::Ptr& m)
-	{
-		if (data.unambiguousMeasurementNeeded(m->getSensor())) {
-			data.addUnambiguous(m->getSensor(), m);
+	void Calibrator::addMeasurementGroup(const std::vector<Measurement::Ptr>& measurementQueue) {
+		//Check there is data corresponding to more than one system for a given node, otherwise useless
+		auto measurements = filterLonelyData(measurementQueue);
+
+		//Decide if data is useful
+		//(if at least one stream has changed relative to previous measurements)
+		bool dataNovel = checkChanges(measurements);
+
+		if (dataNovel) {
+			//Store the (refs to) the relevant measurements
+			//FUSION_LOG("Adding calibration measurments!!");
+			for (auto& m : measurements) {
+				addMeasurement(m);
+			}
+
 		}
 	}
 
@@ -101,6 +114,22 @@ namespace fusion {
 		data.cleanUp();
 	}
 	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//									Correlator:Private
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	void Correlator::addAmbiguousMeasurement(const Measurement::Ptr& m)
+	{
+		data.addAmbiguous(m->getSensor(), m);
+	}
+
+	void Correlator::addUnambiguousMeasurementIfNeeded(const Measurement::Ptr& m)
+	{
+		if (data.unambiguousMeasurementNeeded(m->getSensor())) {
+			data.addUnambiguous(m->getSensor(), m);
+		}
+	}
+
 	bool Correlator::dataSufficient(const Sensor::Ptr & sensor)
 	{
 		//TODO:: include unambiguous count
@@ -108,4 +137,47 @@ namespace fusion {
 	}
 
 
+	std::vector<Measurement::Ptr>
+	Correlator::filterLonelyData(const std::vector<Measurement::Ptr>& measurementQueue) {
+		//Init result
+		std::vector<Measurement::Ptr> result;
+		//Structure for counting systems per node
+		std::set<NodeDescriptor> nodesWithAmbiguousSensors;
+
+		//Count
+		for (auto& m : measurementQueue) {
+			if(m->isAmbiguous()){
+				for(auto& node : m->getNodes()){
+					nodesWithAmbiguousSensors.insert(node);
+				}	
+			}
+		}
+		//Push back relevant measurments
+		//TODO: throwout ambiguous with no matching unambiguous
+		for (auto& m : measurementQueue) {
+			if (m->isAmbiguous() ||
+			    nodesWithAmbiguousSensors.count(m->getNode()) > 0
+			   ) 
+			{
+				result.push_back(m);
+			}
+		}
+		return result;
+	}
+
+	bool Calibrator::checkChanges(const std::vector<Measurement::Ptr>& measurements) {
+		//Check change for each measurement
+		bool result = false;
+		for (auto& mes : measurements) {
+			auto& node = mes->getNode();
+			//TODO: this line
+			here!!
+			float diff = calibrationSet.compareMeasurement(mes, mes->getSystem(), node);
+			//TODO:Perform next check over each node individually
+			//If any of the measurements are new then return true
+
+			result = result || (diff > diff_threshold);
+		}
+		return result;
+	}
 }

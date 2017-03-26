@@ -29,8 +29,8 @@ namespace fusion {
 	//Centre of a fusion plant
 	class Core{
 	private:
-		//TODO: (IF NEEDED) Raw data ordered by sytem
-		//std::map<SystemDescriptor, SensorSystem> systems;
+		//Measurement buffer for this frame
+		std::vector<Measurement::Ptr> measurement_buffer;
 
 		//Class responsible for distinguishing ambiguous sensors
 		Correlator correlator;

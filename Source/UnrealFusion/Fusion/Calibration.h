@@ -100,10 +100,10 @@ namespace fusion {
 		//----------------
 
 		//Checks there is data corresponding to more than one system for a given node in a measurement group
-		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> filterLonelyData(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue);
+		std::vector<Measurement::Ptr> filterLonelyData(const std::vector<Measurement::Ptr>& measurementQueue);
 
 		//Returns true if sufficient movement has occurred to warrant recording of data
-		bool checkChanges(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurements);
+		bool checkChanges(const std::vector<Measurement::Ptr>& measurements);
 
 		//Calibrate two systems with respect to one another
 		void calibrateSystems(SystemDescriptor system1, SystemDescriptor system2);
@@ -130,8 +130,8 @@ namespace fusion {
 
 	public:
 		//Add data for later calibration
-		void addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node);
-		void addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue);
+		void addMeasurement(const Measurement::Ptr& m);
+		void addMeasurementGroup(const std::vector<Measurement::Ptr>& measurementQueue);
 
 		//Calibrate
 		void calibrate();

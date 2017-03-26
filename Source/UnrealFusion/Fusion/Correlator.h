@@ -76,16 +76,16 @@ namespace fusion {
 		int ambiguous_threshold = 30;
 		float elimination_threshold = 30;
 
+
+
 	public:
 		//---------------------------------------------------------------------------------
 		//FUNCTION INTERFACE
 		//---------------------------------------------------------------------------------
-
-		//Adds measurment for a sensor which is attached to an unknown node
-		void addAmbiguousMeasurement(const Measurement::Ptr& m);
-
-		//Adds measurement for a sensor attached to a known node
-		void addUnambiguousMeasurementIfNeeded(const Measurement::Ptr& m);
+		//TODO: refactor into parent class for calibrator and correlator
+		//Add data for later calibration
+		void addMeasurement(const Measurement::Ptr& m);
+		void addMeasurementGroup(const std::vector<Measurement::Ptr>& measurementQueue);
 
 		//Performes identification procedure if possible
 		void identify();
@@ -97,6 +97,12 @@ namespace fusion {
 
 		//Returns true if enough data has been collected for identification process for sensor
 		bool dataSufficient(const Sensor::Ptr& sensor);
+
+		//Adds measurment for a sensor which is attached to an unknown node
+		void addAmbiguousMeasurement(const Measurement::Ptr& m);
+
+		//Adds measurement for a sensor attached to a known node
+		void addUnambiguousMeasurementIfNeeded(const Measurement::Ptr& m);
 
 
 		//---------------------------------------------------------------------------------

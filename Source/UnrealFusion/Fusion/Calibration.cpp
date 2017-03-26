@@ -79,31 +79,30 @@ namespace fusion {
 	//									Calibrator:Private
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>
-		Calibrator::filterLonelyData(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
+	std::vector<Measurement::Ptr>
+	Calibrator::filterLonelyData(const std::vector<Measurement::Ptr>& measurementQueue) {
 		//Init result
-		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> result;
+		std::vector<Measurement::Ptr> result;
 		//Structure for counting systems per node
 		utility::SafeMap<NodeDescriptor, std::set<SystemDescriptor>> systemsPerNode;
 		//Count
 		for (auto& m : measurementQueue) {
-			systemsPerNode[m.second].insert(m.first->getSystem());
+			systemsPerNode[m->getNode()].insert(m->getSystem());
 		}
 		//Push back relevant measurments
 		for (auto& m : measurementQueue) {
-			if (systemsPerNode[m.second].size() > 1) {
+			if (systemsPerNode[m->getNode()].size() > 1) {
 				result.push_back(m);
 			}
 		}
 		return result;
 	}
 
-	bool Calibrator::checkChanges(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurements) {
+	bool Calibrator::checkChanges(const std::vector<Measurement::Ptr>& measurements) {
 		//Check change for each measurement
 		bool result = false;
-		for (auto& m : measurements) {
-			auto& mes = m.first;
-			auto& node = m.second;
+		for (auto& mes : measurements) {
+			auto& node = mes->getNode();
 			float diff = calibrationSet.compareMeasurement(mes, mes->getSystem(), node);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true
@@ -213,11 +212,11 @@ namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//									Calibrator:Public
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void Calibrator::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
-		calibrationSet.addMeasurement(m, m->getSystem(), node);
+	void Calibrator::addMeasurement(const Measurement::Ptr& m) {
+		calibrationSet.addMeasurement(m, m->getSystem(), m->getNode());
 	}
 
-	void Calibrator::addMeasurementGroup(const std::vector<std::pair<Measurement::Ptr, NodeDescriptor>>& measurementQueue) {
+	void Calibrator::addMeasurementGroup(const std::vector<Measurement::Ptr>& measurementQueue) {
 		//Check there is data corresponding to more than one system for a given node, otherwise useless
 		auto measurements = filterLonelyData(measurementQueue);
 
@@ -229,7 +228,7 @@ namespace fusion {
 			//Store the (refs to) the relevant measurements
 			//FUSION_LOG("Adding calibration measurments!!");
 			for (auto& m : measurements) {
-				addMeasurement(m.first, m.second);
+				addMeasurement(m);
 			}
 
 		}
