@@ -9,6 +9,7 @@ namespace fusion {
 	{
 		//Synchronise 
 		std::vector<Measurement::Ptr> m1;
+		//Sync measurements2 to times of measurements1
 		std::vector<Measurement::Ptr> m2 = Measurement::synchronise(measurements2,measurements1,m1);
 
 		MeasurementType t1 = m1.front()->type;
@@ -37,6 +38,7 @@ namespace fusion {
 			std::vector<Measurement::Ptr> measurements = stream.second;
 			totalScore += getCorrelationScore(ambiguousStream, measurements);
 		}
+		//Average score
 		return totalScore / hypothesisStreams.sensors.size();
 	}
 
@@ -51,7 +53,7 @@ namespace fusion {
 			inverse_variances[i] = (m1[i]->getUncertainty() + m2[i]->getUncertainty()).inverse();
 		}
 		
-		return  utility::correlation::Position::correlateWeightedIdenticalPair(pos1,pos2,inverse_variances);
+		return  utility::correlation::Position::correlationQualityWeighted(pos1,pos2,inverse_variances);
 	}
 
 

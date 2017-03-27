@@ -74,7 +74,12 @@ namespace fusion {
 	void Correlator::Data::cleanUp()
 	{
 		//TODO: clean up unambiguous measurements no longer needed / which have been used
-		
+		//For now, just remove all measurements
+		for(auto& node : unambiguous_measurements){
+			for(auto& sensor : node.second.sensors){
+				sensor.second.clear();
+			}
+		}
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////

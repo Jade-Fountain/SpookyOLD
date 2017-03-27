@@ -104,7 +104,8 @@ namespace fusion {
 		for (auto& mes : measurements) {
 			NodeDescriptor node = mes->getNode();
 			float diff = calibrationSet.compareMeasurement(mes, mes->getSystem(), node);
-			//TODO:Perform next check over each node individually
+			//TODO:Perform next check over each node individually?
+
 			//If any of the measurements are new then return true
 
 			result = result || (diff > diff_threshold);
@@ -142,8 +143,7 @@ namespace fusion {
 		int minMeasurementCount
 	){
 		//TODO:
-		// - incorporate time dialation (this is already somewhat accounted for with decent sample sizes)
-		// - account for ambiguity in sensor placements, e.g. hand left/right distinction kinect, etc.
+		// - incorporate latency 
 
 		//Loop through nodes and build up relevant measurements
 		for (auto& node : calibrationSet.nodes) {
@@ -162,15 +162,20 @@ namespace fusion {
 				std::pair<SensorID, size_t> max2 = calibrationSet.systemNodeTable[sysNode2].maxCount();
 
 				//Streams of different length or not long enough- we cant use this data
-				if (max1.second != max2.second || max1.second < minMeasurementCount || max2.second < minMeasurementCount) {
-					//TODO: do something?
-					continue; //cannot calibrate this pair of sensors yet
-				}
+				// if (max1.second != max2.second || max1.second < minMeasurementCount || max2.second < minMeasurementCount) {
+				// 	//TODO: synchronise?
+				// 	continue; //cannot calibrate this pair of sensors yet
+				// }
 
 				//Get measurements
-				const auto& m1 = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
+				const std::vector<Measurement::Ptr>& m1_ = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
+				const std::vector<Measurement::Ptr>& m2_ = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
+
+				//Synchronise the two streams
+				std::vector<Measurement::Ptr> m1;
+				std::vector<Measurement::Ptr> m2 = Measurement::synchronise(m2_,m1_,m1);
+
 				measurements1->insert(measurements1->end(), m1.begin(), m1.end());
-				const auto& m2 = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
 				measurements2->insert(measurements2->end(), m2.begin(), m2.end());
 
 				//Perform calibration

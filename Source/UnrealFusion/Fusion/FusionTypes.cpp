@@ -68,7 +68,7 @@ namespace fusion {
 	std::vector<Measurement::Ptr> Measurement::synchronise(
 		const std::vector<Measurement::Ptr>& source, 
 		const std::vector<Measurement::Ptr>& target,
-		std::vector<Measurement::Ptr>& source_out
+		std::vector<Measurement::Ptr>& target_out
 	){
 		std::vector<Measurement::Ptr> result;
 
@@ -105,7 +105,7 @@ namespace fusion {
 			float t0 = (*lower_source_it)->timestamp;
 			float t1 = (*upper_source_it)->timestamp;
 			float t = ((*target_it)->timestamp - t0) / (t1-t0);
-			source_out.push_back(*target_it);
+			target_out.push_back(*target_it);
 			result.push_back(Measurement::interpolate(*lower_source_it,*upper_source_it,t));
 			
 			//Place source_it after/equal to current target_it

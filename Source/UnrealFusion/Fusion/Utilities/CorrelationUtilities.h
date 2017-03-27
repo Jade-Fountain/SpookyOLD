@@ -30,7 +30,7 @@ namespace fusion{
 			//For correlating data with position only
 			namespace Position {
 
-				static inline float correlateIdenticalPair(
+				static inline float correlationQuality(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB
 				) {
@@ -44,7 +44,7 @@ namespace fusion{
 					return qualityFromError(total_error / samplesA.size(), error_scale);
 				}
 				
-				static inline float correlateWeightedIdenticalPair(
+				static inline float correlationQualityWeighted(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,
 					const std::vector<Eigen::Matrix3f>& invVariances
