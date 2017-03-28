@@ -64,7 +64,7 @@ namespace fusion {
 		return (data - other->data).norm();
 	}
 
-
+	//TODO: refactor using custom struct with two measurement streams
 	std::vector<Measurement::Ptr> Measurement::synchronise(
 		const std::vector<Measurement::Ptr>& source, 
 		const std::vector<Measurement::Ptr>& target,
@@ -75,6 +75,11 @@ namespace fusion {
 		std::vector<Measurement::Ptr>::const_iterator source_it = source.begin();
 		std::vector<Measurement::Ptr>::const_iterator target_it = target.begin();
 		
+		if ((*source_it)->timestamp == (*target_it)->timestamp) {
+			result.push_back(*source_it);
+			target_out.push_back(*target_it);
+		}
+
 		while(target_it != target.end()){
 			//Iterate to target after current source
 			while(
@@ -85,7 +90,7 @@ namespace fusion {
 			}
 			
 			//If we ran out of target measurements
-			if(target_it != target.end()) break;
+			if(target_it == target.end()) break;
 
 			//Increase source iterator until the next measurement is after the current target
 			while(

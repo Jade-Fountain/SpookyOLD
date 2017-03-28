@@ -162,10 +162,9 @@ namespace fusion {
 				std::pair<SensorID, size_t> max2 = calibrationSet.systemNodeTable[sysNode2].maxCount();
 
 				//Streams of different length or not long enough- we cant use this data
-				// if (max1.second != max2.second || max1.second < minMeasurementCount || max2.second < minMeasurementCount) {
-				// 	//TODO: synchronise?
-				// 	continue; //cannot calibrate this pair of sensors yet
-				// }
+				 if (max1.second < minMeasurementCount || max2.second < minMeasurementCount) {
+				 	continue; //cannot calibrate this pair of sensors yet
+				 }
 
 				//Get measurements
 				const std::vector<Measurement::Ptr>& m1_ = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
