@@ -68,6 +68,9 @@ namespace fusion {
 			void clear(const Sensor::Ptr& s);
 			//Cleanup - removes irrelevant and used unambiguous data
 			void cleanUp();
+
+			//Returns true if all sensors in the ambiguous streams are unambiguous
+			bool isCorrelated();
 			
 		};
 		//---------------------------------------------------------------------------------

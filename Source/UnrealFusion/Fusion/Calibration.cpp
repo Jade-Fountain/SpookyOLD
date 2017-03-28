@@ -253,6 +253,9 @@ namespace fusion {
 
 	bool Calibrator::isStable()
 	{
+		for(auto& cal : calibrationResults){
+			if (!(cal.second.state == CalibrationResult::State::CALIBRATED)) return false;
+		}
 		return true;
 	}
 
@@ -266,9 +269,9 @@ namespace fusion {
 		if(calibrationResults.count(reverse) > 0) {
 			return calibrationResults[reverse].inverse();
 		}
-		calibrationResults[forward] = CalibrationResult();
-		calibrationResults[forward].systems = forward;
-		return calibrationResults[forward];
+		CalibrationResult cr = CalibrationResult();
+		cr.systems = forward;
+		return cr;
 	}
 
 }

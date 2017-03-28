@@ -144,7 +144,8 @@ namespace fusion {
 		typedef std::shared_ptr<Sensor> Ptr;
 
 		//Accessors:
-		bool isAmbiguous() { return utility::setDiff(nodes, eliminatedNodes).size() != 1; }
+		bool isResolved() { return utility::setDiff(nodes, eliminatedNodes).size() == 1; }
+		bool isAmbiguous() { return nodes.size() != 1; }
 
 		//Returns a valid node only when there is only one possibility
 		NodeDescriptor getNode() {
