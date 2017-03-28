@@ -66,13 +66,15 @@ namespace fusion {
 			return WorldState({ parent.pose * childPose });
 		};
 
+		//Measurements are always in world space!
 		static void updateState(State* state, const Measurement& measurement) {
 			//Use latest measurement
 			state->position = measurement.getData().segment(0, 3);//start,count
 			state->rotation = measurement.getData().segment(3, 3);//start,count
-			state->uncertainty = measurement.getUncertainty().topLeftCorner(3, 3);
+			state->uncertainty = measurement.getUncertainty().topLeftCorner(6, 6);
 		}
 	};
+
 
 	class FusionGraph {
 
@@ -125,7 +127,7 @@ namespace fusion {
 		//Adds node to the skeleton
 		void addNode(const NodeDescriptor & node, const NodeDescriptor & parent);
 
-		//Returns a list of pending measurments
+		//Returns a list of pending measurements
 		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> getMeasurements();
 
 		//Adds a measurement to be fused on next fusion call
