@@ -118,7 +118,7 @@ namespace fusion {
 		bool cleanupNeeded = false;
 		//Resolve ambiguities whenever data permits
 		for(auto& pair : data.ambiguous_measurements.sensors){
-			Sensor::Ptr sensor = pair.first;
+			const Sensor::Ptr& sensor = pair.first;
 			std::vector<Measurement::Ptr>& stream = pair.second;
 
 			if(!dataSufficient(sensor)) continue;
@@ -180,8 +180,9 @@ namespace fusion {
 		}
 	}
 
-	bool Correlator::dataSufficient(const Sensor::Ptr & sensor)
+	bool Correlator::dataSufficient(const Sensor::Ptr& sensor)
 	{
+		//THIS IS NOT RUNNING - WHY?!?!
 		return data.ambiguousCount(sensor) > ambiguous_threshold;
 	}
 
