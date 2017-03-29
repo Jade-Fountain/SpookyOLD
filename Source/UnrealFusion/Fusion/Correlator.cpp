@@ -13,13 +13,14 @@ namespace fusion {
 		if (ambiguous_measurements.sensors.count(sensor) == 0) {
 			//Initialise ambiguous measurements for sensor
 			ambiguous_measurements.sensors[sensor] = std::vector<Measurement::Ptr>();
-			const std::set<NodeDescriptor>& nodes = sensor->getNodes();
 			//Store relevant nodes for later in the add unambiguous measurement function
-			relevant_nodes.insert(nodes.begin(), nodes.end());
 		} else {
 			//Simply add measurement
 			ambiguous_measurements.sensors[sensor].push_back(m);
 		}
+		//TODO: optimise so this isnt done every measurement!
+		const std::set<NodeDescriptor>& nodes = sensor->getNodes();
+		relevant_nodes.insert(nodes.begin(), nodes.end());
 	}
 
 	void Correlator::Data::addUnambiguous(const Measurement::Ptr& m) {
@@ -114,6 +115,7 @@ namespace fusion {
 
 	void Correlator::identify()
 	{
+		bool cleanupNeeded = false;
 		//Resolve ambiguities whenever data permits
 		for(auto& pair : data.ambiguous_measurements.sensors){
 			Sensor::Ptr sensor = pair.first;
@@ -144,9 +146,10 @@ namespace fusion {
 
 			//Clear data used
 			data.clear(sensor);
+			cleanupNeeded = true;
 		}
-		//TODO: implement the following method:
-		data.cleanUp();
+		//TODO: improve the cleanup method
+		if(cleanupNeeded) data.cleanUp();
 	}
 
 	bool Correlator::isStable()
@@ -215,7 +218,6 @@ namespace fusion {
 		//Check change for each measurement
 		bool result = false;
 		for (auto& mes : measurements) {
-			auto node = mes->getNode();
 			float diff = data.compareMeasurement(mes);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true

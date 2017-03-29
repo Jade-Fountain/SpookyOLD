@@ -121,6 +121,11 @@ FCalibrationResult UFusionPlant::getCalibrationResult(FString s1, FString s2)
 	return result;
 }
 
+FString UFusionPlant::getCorrelationResult(FString s1, int sensorID)
+{
+	return plant.getCorrelationResult(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)),sensorID).name.c_str();
+}
+
 //===========================
 //Utility
 //===========================
