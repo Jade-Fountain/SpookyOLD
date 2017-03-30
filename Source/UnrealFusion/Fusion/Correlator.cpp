@@ -146,13 +146,15 @@ namespace fusion {
 				totalScore += score[node];
 			}
 
-			float meanScore = totalScore / score.size();
+			int n_scores = score.size();
+			sensor->meanScore = (n_scores > 1) ? (totalScore / n_scores) : (sensor->meanScore);
 			//TODO: this means no reset state
 			for (auto& node : possible_nodes) {
-				if (score[node] / meanScore < elimination_threshold) {
+				if (score[node] / sensor->meanScore < elimination_threshold) {
 					sensor->eliminateNode(node);
 				}
 			}
+			sensor->resetNodesIfEmpty();
 
 			//Clear data used
 			data.clear(sensor);

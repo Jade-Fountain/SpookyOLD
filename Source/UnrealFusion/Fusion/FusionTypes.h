@@ -136,8 +136,10 @@ namespace fusion {
 
 		//Possible nodes which this sensor is attached to
 		std::set<NodeDescriptor> nodes;
-		//TODO: Set of eliminated nodes
+		//Set of eliminated nodes
 		std::set<NodeDescriptor> eliminatedNodes;
+		//Stats for node scores:
+		float meanScore = 1; // computed and set by correlator
 		//=================================================
 
 		//Typedef ptr to this class for neater code later
@@ -151,7 +153,8 @@ namespace fusion {
 		NodeDescriptor getNode() {
 			std::set<NodeDescriptor> nodesFinal = utility::setDiff(nodes, eliminatedNodes);
 			if (nodesFinal.size() != 1) {
-				FUSION_LOG(__FILE__ + __LINE__ + std::string(" : attempted to get node of ambiguous sensor"));
+				//TODO: fix this log with a second getNodes method
+				//FUSION_LOG(__FILE__ + __LINE__ + std::string(" : attempted to get node of ambiguous sensor"));
 				return "__AMBIGUOUS__"; 
 			}
 			return *nodesFinal.begin();
@@ -177,6 +180,12 @@ namespace fusion {
 
 		void eliminateNode(const NodeDescriptor& node){
 			eliminatedNodes.insert(node);
+		}
+
+		void resetNodesIfEmpty() {
+			if (getRemainingNodes().size() == 0) {
+				eliminatedNodes.clear();
+			}
 		}
 
 	};
