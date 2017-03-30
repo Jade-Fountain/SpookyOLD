@@ -121,13 +121,17 @@ namespace fusion {
 			const Sensor::Ptr& sensor = pair.first;
 			std::vector<Measurement::Ptr>& stream = pair.second;
 
-			if(!dataSufficient(sensor)) continue;
+			//bool dataSuff = dataSufficient(sensor);
+			//WHY DOESNT THE ABOVE FUNCTION RUN??
+			bool dataSuff = utility::safeAccess(data.ambiguous_measurements.sensors, sensor).size() > ambiguous_threshold;
+			if(!dataSuff) continue;
 
 			//get sensor node info
 			const std::set<NodeDescriptor>& possible_nodes = sensor->getNodes();
 
 			//Initialise scores:
 			std::map<NodeDescriptor, float> score;
+			float totalScore = 0;
 
 			//For each possible node
 			for(auto& node : possible_nodes){
@@ -138,8 +142,14 @@ namespace fusion {
 				} else {
 					score[node] = 0;
 				}
+				
+				totalScore += score[node];
+			}
 
-				if(score[node] < elimination_threshold){
+			float meanScore = totalScore / score.size();
+			//TODO: this means no reset state
+			for (auto& node : possible_nodes) {
+				if (score[node] / meanScore < elimination_threshold) {
 					sensor->eliminateNode(node);
 				}
 			}
