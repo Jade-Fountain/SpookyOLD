@@ -42,6 +42,8 @@ namespace fusion {
 			void addMeasurement(const Measurement::Ptr& m);
 			//Gets the size of the largest sensor stream and the corresponding sensor ID
 			std::pair<SensorID, size_t> maxCount();
+			//Gets total sensor measurement count for this node and sensor
+			int totalCount();
 		};
 
 

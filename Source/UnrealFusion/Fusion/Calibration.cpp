@@ -48,6 +48,15 @@ namespace fusion {
 		return result;
 	}
 
+	int CalibrationDataSet::Stream::totalCount()
+	{
+		int result = 0;
+		for (auto& sensor : sensors) {
+			result += sensor.second.size();
+		}
+		return result;
+	}
+
 	//-------------------------------------------------------------------------------------------------------
 	//									CalibrationDataSet Members
 	//-------------------------------------------------------------------------------------------------------
@@ -158,35 +167,34 @@ namespace fusion {
 				calibrationSet.systemNodeTable.count(sysNode2) > 0)
 			{
 				//Get maximum length of sensor stream
-				std::pair<SensorID, size_t> max1 = calibrationSet.systemNodeTable[sysNode1].maxCount();
-				std::pair<SensorID, size_t> max2 = calibrationSet.systemNodeTable[sysNode2].maxCount();
+				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount();
+				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount();
 
 				//Streams of different length or not long enough- we cant use this data
-				 if (max1.second < minMeasurementCount || max2.second < minMeasurementCount) {
-				 	continue; //cannot calibrate this pair of sensors yet
-				 }
+				if (count1 < minMeasurementCount || count2 < minMeasurementCount) {
+				continue; //cannot calibrate this pair of sensors yet
+				}
 
-				//Get measurements
-				const std::vector<Measurement::Ptr>& m1_ = calibrationSet.systemNodeTable[sysNode1].sensors[max1.first];
-				const std::vector<Measurement::Ptr>& m2_ = calibrationSet.systemNodeTable[sysNode2].sensors[max2.first];
+				//Calibrate with complete bipartite graph of solutions
+				for (auto& pair1 : calibrationSet.systemNodeTable[sysNode1].sensors) {
+					SensorID id1 = pair1.first;
+					std::vector<Measurement::Ptr>& m1_ = pair1.second;
+					//Get measurements
+					for (auto& pair2 : calibrationSet.systemNodeTable[sysNode2].sensors) {
+						std::vector<Measurement::Ptr>& m2_ = pair2.second;
 
-				//Synchronise the two streams
-				std::vector<Measurement::Ptr> m1;
-				std::vector<Measurement::Ptr> m2 = Measurement::synchronise(m2_,m1_,m1);
+						//Synchronise the two streams
+						std::vector<Measurement::Ptr> m1;
+						std::vector<Measurement::Ptr> m2 = Measurement::synchronise(m2_,m1_,m1);
 
-				measurements1->insert(measurements1->end(), m1.begin(), m1.end());
-				measurements2->insert(measurements2->end(), m2.begin(), m2.end());
+						measurements1->insert(measurements1->end(), m1.begin(), m1.end());
+						measurements2->insert(measurements2->end(), m2.begin(), m2.end());
 
-				//Perform calibration
-				//
-				////Debug
-				//std::stringstream ss;
-				//ss << "Results for X: " << system1.name << " --> " << system2.name << "("<< node.name << ")\n" << results.back().transform.matrix() << "\n";
-				//FUSION_LOG(ss.str());
-
-				//Clear the data used for calibration
-				calibrationSet.systemNodeTable[sysNode1].sensors[max1.first].clear();
-				calibrationSet.systemNodeTable[sysNode2].sensors[max2.first].clear();
+						//Clear the data used for calibration
+						m1_.clear();
+						m2_.clear();
+					}
+				}
 			}
 		}
 	}
