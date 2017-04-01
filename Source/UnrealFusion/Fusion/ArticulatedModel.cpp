@@ -14,17 +14,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "UnrealFusion.h"
-#include "FusionGraph.h"
+#include "ArticulatedModel.h"
 
 namespace fusion {
 	
-	void FusionGraph::addNode(const NodeDescriptor & node, const NodeDescriptor & parent) {
+	void ArticulatedModel::addNode(const NodeDescriptor & node, const NodeDescriptor & parent, const Articulation& model) {
+		//This line initialises the node entry if not already initialised
 		utility::safeAccess(nodes, node)->desc = node;
-		utility::safeAccess(nodes, node)->parent_desc = parent;
+		nodes[node]->parent_desc = parent;
 	}
 
 
-	std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> FusionGraph::getMeasurements() {
+	std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> ArticulatedModel::getMeasurements() {
 		std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> measurements;
 		for (auto& node : nodes) {
 			for (auto& measurement : node.second->measurements) {
@@ -34,17 +35,17 @@ namespace fusion {
 		return measurements;
 	}
 
-	void FusionGraph::addMeasurement(const NodeDescriptor& node, const Measurement::Ptr& m) {
-		utility::safeAccess(nodes,node)->measurements.push_back(m);
+	void ArticulatedModel::addMeasurement(const NodeDescriptor& node, const Measurement::Ptr& m) {
+		nodes[node]->measurements.push_back(m);
 	}
 
-	void FusionGraph::fuse() {
+	void ArticulatedModel::fuse() {
 		//TODO: implement fusion
 		//For now, just empty measurements
 		clearMeasurements();
 	}
 
-	void  FusionGraph::clearMeasurements() {
+	void  ArticulatedModel::clearMeasurements() {
 		for (auto& node : nodes) {
 			node.second->measurements.clear();
 		}

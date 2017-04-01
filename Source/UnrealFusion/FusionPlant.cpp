@@ -63,7 +63,9 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 {
 	fusedSkeleton = poseable_mesh;
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
+	fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(0);
 	for (auto& bone : boneInfo) {
+		
 		plant.addNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))), 
 					  fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[std::max(0,bone.ParentIndex)].Name.GetPlainNameString()))));
 	}
