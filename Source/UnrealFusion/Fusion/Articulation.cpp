@@ -26,26 +26,34 @@ namespace fusion{
 
 
     Transform3D Articulation::getTransform(Eigen::VectorXf theta){
-        return Transform3D();
-     //   switch(type){
-     //     //TODO: actually implement these things / use library
-     //     case(CARTESIAN):
-			  //Sophus
-     //         return translation(v) * exp(theta(0) * skew(w.normalise()));
-     //         break;
-     //     case(TWIST):
-     //         Eigen::Matrix4f zeta = Eigen::Matrix4f::Identity();
-     //         zeta.topLeftCorner(3,3) = skew(w);
-     //         zeta.column(3) = v;
-     //         zeta(3,3) = 0;
-     //         return exp(theta(0) * zeta);
-     //         break;
-     //     case(BONE):
-     //         //v should be along the x-axis for this one
-     //         return translation(v) * exp(skew(theta));
-     //         break;
 
-     //   }     
+		//TODO: make these cases into methods
+		Transform3D T = Transform3D::Identity();
+		Eigen::Matrix3f R = Eigen::Matrix3f::Identity();
+		Sophus::Vector6f vec;
+		Eigen::Matrix3f W = Eigen::Matrix3f::Identity();
+
+		switch(type){
+		case(CARTESIAN):
+			w.normalize();
+			R = Sophus::SO3f::exp(theta(0) * w).matrix(); // = e^(theta * ^w)
+			T.translate(v);
+			T.rotate(R);
+			return T;
+		case(TWIST):
+			vec.block<3, 1>(0, 0) = v;
+			vec.block<3, 1>(3, 0) = w;
+			T.matrix() = Sophus::SE3f::exp(theta(0) * vec).matrix();
+			return T;
+		case(BONE):
+			//v should be along the x-axis for this one
+			R = Sophus::SO3f::exp(theta).matrix(); // = e^(theta * ^theta)
+			T.translate(v);
+			T.rotate(R);
+			return T;
+
+        }
+		return T;
     }
     
     Articulation Articulation::createArticulationFrom(Eigen::VectorXf T, Type type){
