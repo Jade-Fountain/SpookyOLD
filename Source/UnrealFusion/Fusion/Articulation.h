@@ -21,17 +21,20 @@ namespace fusion{
 
 	class Articulation{
 	private:
-		//Axis or axis + angle
-		Eigen::Vector3f w;
-		//Vector: twist offest or displacement 
-		Eigen::Vector3f v;
-
 		//Type of articulation
 		enum Type {
 			CARTESIAN = 0,
 			TWIST = 1,
 			BONE = 2
 		};
+		Type type;
+
+		//Axis or axis + angle
+		Eigen::Vector3f w;
+		//Vector: twist offest or displacement 
+		Eigen::Vector3f v;
+
+
 	public:
 		//Default constructor
 		Articulation();

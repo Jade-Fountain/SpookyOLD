@@ -14,6 +14,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "UnrealFusion.h"
+#include "Articulation.h"
+#include "sophus/se3.hpp"
+#include "sophus/so3.hpp"
+
 namespace fusion{
     
     Articulation::Articulation(){
@@ -23,27 +27,28 @@ namespace fusion{
 
     Transform3D Articulation::getTransform(Eigen::VectorXf theta){
         return Transform3D();
-        //switch(type){
-        //  //TODO: actually implement these things / use library
-        //  case(CARTESIAN):
-        //      return translation(v) * exp(theta(0) * skew(w.normalise()));
-        //      break;
-        //  case(TWIST):
-        //      Eigen::Matrix4f zeta = Eigen::Matrix4f::Identity();
-        //      zeta.topLeftCorner(3,3) = skew(w);
-        //      zeta.column(3) = v;
-        //      zeta(3,3) = 0;
-        //      return exp(theta(0) * zeta);
-        //      break;
-        //  case(BONE):
-        //      //v should be along the x-axis for this one
-        //      return translation(v) * exp(skew(theta));
-        //      break;
+     //   switch(type){
+     //     //TODO: actually implement these things / use library
+     //     case(CARTESIAN):
+			  //Sophus
+     //         return translation(v) * exp(theta(0) * skew(w.normalise()));
+     //         break;
+     //     case(TWIST):
+     //         Eigen::Matrix4f zeta = Eigen::Matrix4f::Identity();
+     //         zeta.topLeftCorner(3,3) = skew(w);
+     //         zeta.column(3) = v;
+     //         zeta(3,3) = 0;
+     //         return exp(theta(0) * zeta);
+     //         break;
+     //     case(BONE):
+     //         //v should be along the x-axis for this one
+     //         return translation(v) * exp(skew(theta));
+     //         break;
 
-        //}     
+     //   }     
     }
     
-    static Articulation Articulation::createArticulationFrom(Eigen::VectorXf T, Type type){
+    Articulation Articulation::createArticulationFrom(Eigen::VectorXf T, Type type){
         Articulation result;
         //TODO: make the articulation
         return result;
