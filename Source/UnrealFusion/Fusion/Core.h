@@ -21,7 +21,7 @@
 #include "FusionTypes.h"
 #include "Calibration.h"
 #include "Correlator.h"
-#include "FusionGraph.h"
+#include "ArticulatedModel.h"
 #include "Fusion/Utilities/DataStructures.h"
 namespace fusion {
 
@@ -40,7 +40,7 @@ namespace fusion {
 		Calibrator calibrator;
 
 		//Fused data
-		FusionGraph skeleton;
+		ArticulatedModel skeleton;
 
 		//Sensor list
 		std::map<SystemDescriptor, std::map<SensorID, Sensor::Ptr>> sensors;

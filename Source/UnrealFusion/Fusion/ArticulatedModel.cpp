@@ -18,10 +18,11 @@
 
 namespace fusion {
 	
-	void ArticulatedModel::addNode(const NodeDescriptor & node, const NodeDescriptor & parent, const Articulation& model) {
+	void ArticulatedModel::addNode(const NodeDescriptor & node, const NodeDescriptor & parent, const std::vector<Articulation>& model) {
 		//This line initialises the node entry if not already initialised
 		utility::safeAccess(nodes, node)->desc = node;
 		nodes[node]->parent_desc = parent;
+		nodes[node]->articulations = model;
 	}
 
 

@@ -19,7 +19,8 @@ namespace fusion {
 
 	void Core::addNode(const NodeDescriptor & node, const NodeDescriptor & parent)
 	{
-		skeleton.addNode(node, parent);
+		std::vector<Articulation> art;
+		skeleton.addNode(node, parent, art);
 	}
 
 	void Core::finaliseSetup()
