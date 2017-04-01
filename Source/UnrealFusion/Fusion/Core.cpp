@@ -64,6 +64,16 @@ namespace fusion {
 		return calibrator.getResultsFor(s1, s2);
 	}
 
+	NodeDescriptor Core::getCorrelationResult(SystemDescriptor system, SensorID id) {
+		if (sensors.count(system) > 0 &&
+			sensors[system].count(id) > 0)
+		{
+			return sensors[system][id]->getNode();
+		}
+		else {
+			return "UNKNOWN";
+		}
+	}
 	//Called by owner of the Core object
 	void Core::setMeasurementSensorInfo(Measurement::Ptr & m, SystemDescriptor system, SensorID id)
 	{

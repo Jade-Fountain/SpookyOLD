@@ -64,7 +64,7 @@ namespace fusion {
 		return (data - other->data).norm();
 	}
 
-
+	//TODO: refactor using custom struct with two measurement streams
 	std::vector<Measurement::Ptr> Measurement::synchronise(
 		const std::vector<Measurement::Ptr>& source, 
 		const std::vector<Measurement::Ptr>& target,
@@ -75,6 +75,11 @@ namespace fusion {
 		std::vector<Measurement::Ptr>::const_iterator source_it = source.begin();
 		std::vector<Measurement::Ptr>::const_iterator target_it = target.begin();
 		
+		if ((*source_it)->timestamp == (*target_it)->timestamp) {
+			result.push_back(*source_it);
+			target_out.push_back(*target_it);
+		}
+
 		while(target_it != target.end()){
 			//Iterate to target after current source
 			while(
@@ -85,7 +90,7 @@ namespace fusion {
 			}
 			
 			//If we ran out of target measurements
-			if(target_it != target.end()) break;
+			if(target_it == target.end()) break;
 
 			//Increase source iterator until the next measurement is after the current target
 			while(
@@ -102,12 +107,21 @@ namespace fusion {
 			std::vector<Measurement::Ptr>::const_iterator lower_source_it = source_it;
 			std::vector<Measurement::Ptr>::const_iterator upper_source_it = std::next(source_it);
 
-			float t0 = (*lower_source_it)->timestamp;
-			float t1 = (*upper_source_it)->timestamp;
-			float t = ((*target_it)->timestamp - t0) / (t1-t0);
-			target_out.push_back(*target_it);
-			result.push_back(Measurement::interpolate(*lower_source_it,*upper_source_it,t));
-			
+			//Avoid interpolating if possible
+			//TODO: add small threshold?
+			if ((*lower_source_it)->timestamp == (*target_it)->timestamp) {
+				result.push_back(*lower_source_it);
+				target_out.push_back(*target_it);
+			} else {
+				//Interpolate to synchronise
+				float t0 = (*lower_source_it)->timestamp;
+				float t1 = (*upper_source_it)->timestamp;
+				float t = ((*target_it)->timestamp - t0) / (t1 - t0);
+				target_out.push_back(*target_it);
+
+				result.push_back(Measurement::interpolate(*lower_source_it, *upper_source_it, t));
+			}
+
 			//Place source_it after/equal to current target_it
 			source_it++;
 		}

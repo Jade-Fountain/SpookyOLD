@@ -81,10 +81,10 @@ namespace fusion {
 		Data data;
 
 		//Config
-		int ambiguous_threshold = 30;
-		float elimination_threshold = 30;
+		int ambiguous_threshold = 10;
+		float elimination_threshold = 1;
 
-		float diff_threshold = 0.5;
+		float diff_threshold = 0.1;
 
 
 

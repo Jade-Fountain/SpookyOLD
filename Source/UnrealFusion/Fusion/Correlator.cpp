@@ -13,13 +13,14 @@ namespace fusion {
 		if (ambiguous_measurements.sensors.count(sensor) == 0) {
 			//Initialise ambiguous measurements for sensor
 			ambiguous_measurements.sensors[sensor] = std::vector<Measurement::Ptr>();
-			const std::set<NodeDescriptor>& nodes = sensor->getNodes();
 			//Store relevant nodes for later in the add unambiguous measurement function
-			relevant_nodes.insert(nodes.begin(), nodes.end());
 		} else {
 			//Simply add measurement
 			ambiguous_measurements.sensors[sensor].push_back(m);
 		}
+		//TODO: optimise so this isnt done every measurement!
+		const std::set<NodeDescriptor>& nodes = sensor->getNodes();
+		relevant_nodes.insert(nodes.begin(), nodes.end());
 	}
 
 	void Correlator::Data::addUnambiguous(const Measurement::Ptr& m) {
@@ -114,18 +115,23 @@ namespace fusion {
 
 	void Correlator::identify()
 	{
+		bool cleanupNeeded = false;
 		//Resolve ambiguities whenever data permits
 		for(auto& pair : data.ambiguous_measurements.sensors){
-			Sensor::Ptr sensor = pair.first;
+			const Sensor::Ptr& sensor = pair.first;
 			std::vector<Measurement::Ptr>& stream = pair.second;
 
-			if(!dataSufficient(sensor)) continue;
+			//bool dataSuff = dataSufficient(sensor);
+			//WHY DOESNT THE ABOVE FUNCTION RUN??
+			bool dataSuff = utility::safeAccess(data.ambiguous_measurements.sensors, sensor).size() > ambiguous_threshold;
+			if(!dataSuff) continue;
 
 			//get sensor node info
 			const std::set<NodeDescriptor>& possible_nodes = sensor->getNodes();
 
 			//Initialise scores:
 			std::map<NodeDescriptor, float> score;
+			float totalScore = 0;
 
 			//For each possible node
 			for(auto& node : possible_nodes){
@@ -136,17 +142,26 @@ namespace fusion {
 				} else {
 					score[node] = 0;
 				}
+				
+				totalScore += score[node];
+			}
 
-				if(score[node] < elimination_threshold){
+			int n_scores = score.size();
+			sensor->meanScore = (n_scores > 1) ? (totalScore / n_scores) : (sensor->meanScore);
+			//TODO: this means no reset state
+			for (auto& node : possible_nodes) {
+				if (score[node] / sensor->meanScore < elimination_threshold) {
 					sensor->eliminateNode(node);
 				}
 			}
+			sensor->resetNodesIfEmpty();
 
 			//Clear data used
 			data.clear(sensor);
+			cleanupNeeded = true;
 		}
-		//TODO: implement the following method:
-		data.cleanUp();
+		//TODO: improve the cleanup method
+		if(cleanupNeeded) data.cleanUp();
 	}
 
 	bool Correlator::isStable()
@@ -177,8 +192,9 @@ namespace fusion {
 		}
 	}
 
-	bool Correlator::dataSufficient(const Sensor::Ptr & sensor)
+	bool Correlator::dataSufficient(const Sensor::Ptr& sensor)
 	{
+		//THIS IS NOT RUNNING - WHY?!?!
 		return data.ambiguousCount(sensor) > ambiguous_threshold;
 	}
 
@@ -215,7 +231,6 @@ namespace fusion {
 		//Check change for each measurement
 		bool result = false;
 		for (auto& mes : measurements) {
-			auto node = mes->getNode();
 			float diff = data.compareMeasurement(mes);
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true

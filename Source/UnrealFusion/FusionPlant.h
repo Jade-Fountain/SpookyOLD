@@ -115,6 +115,10 @@ public:
 	//Gets the calibration result mapping T:s1->s2
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	FCalibrationResult getCalibrationResult(FString s1, FString s2);
+	
+	//Gets the name of the node which the specified sensor is attached to
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	FString getCorrelationResult(FString s1, int sensorID);
 
 //===========================
 //Utility
