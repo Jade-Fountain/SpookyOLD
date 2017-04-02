@@ -17,6 +17,40 @@
 #include "ArticulatedModel.h"
 
 namespace fusion {
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//									Node
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//-------------------------------------------------------------------------------------------------------
+	//									Private
+	//-------------------------------------------------------------------------------------------------------
+
+	Transform3D Node::getPose() {
+		Transform3D pose = (parent != NULL) ? (parent->getPose()) : (Transform3D::Identity());
+		for (int i = 0; i < articulations.size(); i++) {
+			pose = pose * articulations[i].getTransform(local_state.expectation.col(i));
+		}
+		return pose;
+	}
+	
+	//-------------------------------------------------------------------------------------------------------
+	//									Public
+	//-------------------------------------------------------------------------------------------------------
+
+	Transform3D Node::getFinalPose(){
+		Transform3D pose = parent->getPose();
+		for(int i = 0; i < articulations.size(); i++){
+			pose = pose * articulations[i].getTransform(local_state.expectation.col(i));
+		}
+		return pose * homePose;
+	}
+
+	void Node::updateState(const State& new_state){
+		local_state = new_state;
+	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//									ArticulatedModel
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	void ArticulatedModel::addNode(const NodeDescriptor & node, const NodeDescriptor & parent, const std::vector<Articulation>& model) {
 		//This line initialises the node entry if not already initialised

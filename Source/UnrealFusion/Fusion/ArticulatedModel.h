@@ -32,6 +32,15 @@ namespace fusion {
 		//////////////////////////////////////////////////////////////////
 		struct State{
 			//Vectors of articulation states stored in columns
+			//		theta1	phi1 ...
+			//		theta2	phi2
+			//		theta3	phi3
+			//		..
+			//	e.g. quat: 	w
+			//				x
+			//				y
+			//				z
+			//	e.g. twists:(theta1	theta2 theta3)
 			Eigen::MatrixXf expectation;
 			//Covariance associated with vec(expectation)
 			Eigen::MatrixXf uncertainty;
@@ -62,25 +71,12 @@ namespace fusion {
 		NodeDescriptor parent_desc;
 
 	private:
-		Transform3D getPose(){
-			Transform3D pose = (parent != NULL) ? (parent->getPose()) : (Transform3D::Identity());
-			for(int i = 0; i < articulations.size(); i++){
-				pose = pose * articulations[i].getTransform(local_state.expectation.col(i));
-			}
-			return pose;
-		}
+		Transform3D getPose();
 	public:
-		Transform3D getFinalPose(){
-			Transform3D pose = parent->getPose();
-			for(int i = 0; i < articulations.size(); i++){
-				pose = pose * articulations[i].getTransform(local_state.expectation.col(i));
-			}
-			return pose * homePose;
-		}
-
-		void updateState(const State& new_state){
-			local_state = new_state;
-		}
+		//Returns the final pose of this node in global space based on pose of all parents
+		Transform3D getFinalPose();
+		//Updates the state of this node (e.g. angle, quaternion, etc.)
+		void updateState(const State& new_state);
 	
 	};
 

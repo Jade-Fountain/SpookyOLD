@@ -44,7 +44,9 @@ namespace fusion{
 
 		//Constructor functions:
 		static Articulation createFromTransform(const Transform3D& T, const Type& type);
-		static Articulation createBoneFromLength(const float& length);
+		static Articulation createBone(const float & length);
+		static Articulation createTwist(const Eigen::Vector3f & axis, const Eigen::Vector3f & position);
+		static Articulation createCartesian(const Eigen::Vector3f & axis, const Eigen::Vector3f & position);
 
 
 	

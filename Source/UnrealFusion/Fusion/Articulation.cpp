@@ -86,11 +86,26 @@ namespace fusion{
         return result;
     }
 
-	Articulation Articulation::createBoneFromLength(const float & length)
-	{
+	Articulation Articulation::createBone(const float & length){
 		Articulation result;
 		result.type = BONE;
 		result.v(0) = length;
+		return result;
+	}
+
+	Articulation Articulation::createTwist(const Eigen::Vector3f& axis, const Eigen::Vector3f& position) {
+		Articulation result;
+		result.type = TWIST;
+		result.w = axis;
+		result.v = -axis.cross(position);
+		return result;
+	}
+
+	Articulation Articulation::createCartesian(const Eigen::Vector3f& axis, const Eigen::Vector3f& position) {
+		Articulation result;
+		result.type = CARTESIAN;
+		result.w = axis;
+		result.v = position;
 		return result;
 	}
 
