@@ -44,11 +44,17 @@ namespace fusion{
 
 		//Constructor functions:
 		static Articulation createFromTransform(const Transform3D& T, const Type& type);
-		static Articulation createBone(const float & length);
+		static Articulation createBone(const Eigen::Vector3f & vec);
 		static Articulation createTwist(const Eigen::Vector3f & axis, const Eigen::Vector3f & position);
 		static Articulation createCartesian(const Eigen::Vector3f & axis, const Eigen::Vector3f & position);
 
+		//Returns the initial state vector to operate this articulation
+		static Eigen::VectorXf getInitialState(const Articulation::Type & type);
 
+		//Accessors
+		const Type& getType() const{
+			return type;
+		}
 	
 	};
 

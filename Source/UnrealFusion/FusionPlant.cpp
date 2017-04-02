@@ -63,10 +63,15 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 {
 	fusedSkeleton = poseable_mesh;
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
-	fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(0);
-	for (auto& bone : boneInfo) {
+	for (int i = 0; i < boneInfo.Num(); i++) {
+		FMeshBoneInfo& bone = boneInfo[i];
+		UE_LOG(LogTemp, Warning, TEXT("skeleton bone %s"), *(bone.Name.GetPlainNameString()));
+		UE_LOG(LogTemp, Warning, TEXT("ref pose mat = /n%s"),*(fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i).ToString()));
+		FVector b = fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i).GetColumn(3);
+		Eigen::Vector3f boneVec(b[0], b[1], b[2]);
 		plant.addNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))), 
-					  fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[std::max(0,bone.ParentIndex)].Name.GetPlainNameString()))));
+					  fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[std::max(0,bone.ParentIndex)].Name.GetPlainNameString()))),
+					  boneVec);
 	}
 }
 

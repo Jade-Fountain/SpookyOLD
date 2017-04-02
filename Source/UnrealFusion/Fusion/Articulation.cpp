@@ -35,22 +35,28 @@ namespace fusion{
 
 		switch(type){
 		case(CARTESIAN):
-			w.normalize();
-			R = Sophus::SO3f::exp(theta(0) * w).matrix(); // = e^(theta * ^w)
-			T.translate(v);
-			T.rotate(R);
-			break;
-		case(TWIST):
-			vec.block<3, 1>(0, 0) = v;
-			vec.block<3, 1>(3, 0) = w;
-			T.matrix() = Sophus::SE3f::exp(theta(0) * vec).matrix();
-			break;
-		case(BONE):
-			//v should be along the x-axis for this one
-			R = Sophus::SO3f::exp(theta).matrix(); // = e^(theta * ^theta)
-			T.translate(v);
-			T.rotate(R);
-			break;
+            {
+    			w.normalize();
+    			R = Sophus::SO3f::exp(theta(0) * w).matrix(); // = e^(theta * ^w)
+    			T.translate(v);
+    			T.rotate(R);
+    			break;
+            }
+    		case(TWIST):
+            {
+    			vec.block<3, 1>(0, 0) = v;
+    			vec.block<3, 1>(3, 0) = w;
+    			T.matrix() = Sophus::SE3f::exp(theta(0) * vec).matrix();
+    			break;
+            }
+    		case(BONE):
+            {
+                //Theta is a quaternion
+    			Eigen::Quaternionf q(theta(0), theta(1), theta(2), theta(3));
+    			T.translate(v);
+    			T.rotate(q);
+    			break;
+            }
         }
 		return T;
     }
@@ -86,10 +92,10 @@ namespace fusion{
         return result;
     }
 
-	Articulation Articulation::createBone(const float & length){
+	Articulation Articulation::createBone(const Eigen::Vector3f& vec){
 		Articulation result;
 		result.type = BONE;
-		result.v(0) = length;
+		result.v = vec;
 		return result;
 	}
 
@@ -108,5 +114,29 @@ namespace fusion{
 		result.v = position;
 		return result;
 	}
+
+    Eigen::VectorXf Articulation::getInitialState(const Articulation::Type& type){
+        switch (type) {
+            case(CARTESIAN):
+            {
+				//Single angle per articulation
+				return Eigen::VectorXf::Zero(1);
+                break;
+            }
+            case(TWIST):
+            {
+				//Single angle per articulation
+                return Eigen::VectorXf::Zero(1);
+                break;
+            }
+            case(BONE):
+            {
+                //quaternion representation
+                return Eigen::Vector4f(1,0,0,0);
+                break;
+            }
+        }
+		return Eigen::VectorXf::Zero(1);
+    }
 
 }

@@ -43,7 +43,7 @@ namespace fusion {
 			//	e.g. twists:(theta1	theta2 theta3)
 			Eigen::MatrixXf expectation;
 			//Covariance associated with vec(expectation)
-			Eigen::MatrixXf uncertainty;
+			Eigen::MatrixXf variance;
 		};
 	
 		//Current state
@@ -72,11 +72,15 @@ namespace fusion {
 
 	private:
 		Transform3D getPose();
+
+		float initial_covariance = 3.14;
 	public:
 		//Returns the final pose of this node in global space based on pose of all parents
 		Transform3D getFinalPose();
 		//Updates the state of this node (e.g. angle, quaternion, etc.)
 		void updateState(const State& new_state);
+		//Sets the model for the articulations associated with this node
+		void setModel(std::vector<Articulation> art);
 	
 	};
 
@@ -86,7 +90,7 @@ namespace fusion {
 		*//////////////////////////////////////////////////////////////////
 		public:
 			//Adds node to the skeleton
-			void addNode(const NodeDescriptor & node, const NodeDescriptor & parent, const std::vector<Articulation>& model);
+			void addNode(const NodeDescriptor & node, const NodeDescriptor & parent);
 
 			//Returns a list of pending measurements
 			std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> getMeasurements();
@@ -107,7 +111,10 @@ namespace fusion {
 			//	return TwistModel::worldStateFunc(n.state,getWorldState(n.parent_desc))
 			//}
 
-	
+
+			//Sets the structure parameters for the specified articulation as a bone according to the boneVec
+			void setBoneForNode(const NodeDescriptor & node, const Eigen::Vector3f & boneVec);
+
 		/*//////////////////////////////////////////////////////////////////
 		*				Private Data
 		*//////////////////////////////////////////////////////////////////

@@ -52,7 +52,7 @@ namespace fusion {
 		////////////////////////////////////////////////////
 
 		//Adds a node to the fusion graph model
-		void addNode(const NodeDescriptor& node, const NodeDescriptor& parent);
+		void addNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Eigen::Vector3f& boneVec);
 		
 		//Computes necessary metadata after setup
 		void finaliseSetup();

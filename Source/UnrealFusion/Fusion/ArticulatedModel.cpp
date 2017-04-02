@@ -48,15 +48,30 @@ namespace fusion {
 	void Node::updateState(const State& new_state){
 		local_state = new_state;
 	}
+
+	void Node::setModel(std::vector<Articulation> art){
+		articulations = art;
+		std::vector<Eigen::VectorXf> state;
+		int max_n_rows = 1;
+		for(int i = 0; i < articulations.size(); i++){	
+			state.push_back(Articulation::getInitialState(articulations[i].getType()));
+			max_n_rows = (max_n_rows < state.back().rows()) ? state.back().rows() : max_n_rows;
+		}
+		local_state.expectation = Eigen::MatrixXf::Zero(max_n_rows, state.size());
+		local_state.variance = initial_covariance * Eigen::MatrixXf::Identity(max_n_rows*state.size(), max_n_rows*state.size());
+	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//									ArticulatedModel
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void ArticulatedModel::addNode(const NodeDescriptor & node, const NodeDescriptor & parent, const std::vector<Articulation>& model) {
+
+	//-------------------------------------------------------------------------------------------------------
+	//									Public
+	//-------------------------------------------------------------------------------------------------------
+
+	void ArticulatedModel::addNode(const NodeDescriptor & node, const NodeDescriptor & parent) {
 		//This line initialises the node entry if not already initialised
 		utility::safeAccess(nodes, node)->desc = node;
 		nodes[node]->parent_desc = parent;
-		nodes[node]->articulations = model;
 	}
 
 
@@ -79,6 +94,16 @@ namespace fusion {
 		//For now, just empty measurements
 		clearMeasurements();
 	}
+
+	void ArticulatedModel::setBoneForNode(const NodeDescriptor& node, const Eigen::Vector3f& boneVec) {
+		std::vector<Articulation> art;
+		art.push_back(Articulation::createBone(boneVec));
+		nodes[node]->setModel(art);
+	}
+
+	//-------------------------------------------------------------------------------------------------------
+	//									Private
+	//-------------------------------------------------------------------------------------------------------
 
 	void  ArticulatedModel::clearMeasurements() {
 		for (auto& node : nodes) {

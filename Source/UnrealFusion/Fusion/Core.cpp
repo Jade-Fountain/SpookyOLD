@@ -17,10 +17,10 @@
 #include "Core.h"
 namespace fusion {
 
-	void Core::addNode(const NodeDescriptor & node, const NodeDescriptor & parent)
+	void Core::addNode(const NodeDescriptor & node, const NodeDescriptor & parent, const Eigen::Vector3f& boneVec)
 	{
-		std::vector<Articulation> art;
-		skeleton.addNode(node, parent, art);
+		skeleton.addNode(node, parent);
+		skeleton.setBoneForNode(node,boneVec);
 	}
 
 	void Core::finaliseSetup()
