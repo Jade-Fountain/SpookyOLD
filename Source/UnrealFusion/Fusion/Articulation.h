@@ -43,7 +43,9 @@ namespace fusion{
 		Transform3D getTransform(Eigen::VectorXf theta);
 
 		//Constructor functions:
-		static Articulation createArticulationFrom(Eigen::VectorXf T, Type type);
+		static Articulation createFromTransform(const Transform3D& T, const Type& type);
+		static Articulation createBoneFromLength(const float& length);
+
 
 	
 	};

@@ -39,27 +39,59 @@ namespace fusion{
 			R = Sophus::SO3f::exp(theta(0) * w).matrix(); // = e^(theta * ^w)
 			T.translate(v);
 			T.rotate(R);
-			return T;
+			break;
 		case(TWIST):
 			vec.block<3, 1>(0, 0) = v;
 			vec.block<3, 1>(3, 0) = w;
 			T.matrix() = Sophus::SE3f::exp(theta(0) * vec).matrix();
-			return T;
+			break;
 		case(BONE):
 			//v should be along the x-axis for this one
 			R = Sophus::SO3f::exp(theta).matrix(); // = e^(theta * ^theta)
 			T.translate(v);
 			T.rotate(R);
-			return T;
-
+			break;
         }
 		return T;
     }
     
-    Articulation Articulation::createArticulationFrom(Eigen::VectorXf T, Type type){
+    Articulation Articulation::createFromTransform(const Transform3D& T, const Type& type){
         Articulation result;
-        //TODO: make the articulation
+		result.type = type;
+
+		switch (type) {
+			case(CARTESIAN):
+			{
+				result.v = T.matrix().col(3).head(3);
+				result.w = Sophus::SO3f::log(Sophus::SO3f(T.matrix().topLeftCorner(3, 3)));
+				result.w.normalize();
+				break;
+			}
+			case(TWIST):
+			{
+				Sophus::SE3f zeta(T.matrix());
+				Sophus::Vector6f vec = zeta.log();
+				result.v = vec.head(3);
+				result.w = vec.tail(3);
+				result.w.normalized();
+				break;
+			}
+			case(BONE):
+			{
+				result.v = T.matrix().col(3).head(3);
+				result.w = Eigen::Vector3f::Zero();
+				break;
+			}
+		}
         return result;
     }
+
+	Articulation Articulation::createBoneFromLength(const float & length)
+	{
+		Articulation result;
+		result.type = BONE;
+		result.v(0) = length;
+		return result;
+	}
 
 }
