@@ -58,7 +58,7 @@ namespace fusion {
 		void finaliseSetup();
 
 		////////////////////////////////////////////////////
-		//					Runtime
+		//					Input at runtime
 		////////////////////////////////////////////////////
 		
 		//Adds a new measurement to the system (unambiguous)
@@ -69,6 +69,12 @@ namespace fusion {
 		
 		//Computes data added since last fuse() call. Should be called repeatedly	
 		void fuse();
+
+		////////////////////////////////////////////////////
+		//					Results
+		////////////////////////////////////////////////////
+
+		Transform3D getNodePose(const NodeDescriptor& node);
 
 		//Returns mapping from s1 to s2
 		CalibrationResult getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2);

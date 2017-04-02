@@ -120,6 +120,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	FString getCorrelationResult(FString s1, int sensorID);
 
+	//Gets the result of fusion for node 
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	FTransform getNodePose(FString node);
+
 //===========================
 //Utility
 //===========================

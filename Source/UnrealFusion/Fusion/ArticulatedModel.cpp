@@ -64,6 +64,9 @@ namespace fusion {
 			max_n_rows = (max_n_rows < state.back().rows()) ? state.back().rows() : max_n_rows;
 		}
 		local_state.expectation = Eigen::MatrixXf::Zero(max_n_rows, state.size());
+		for (int i = 0; i < articulations.size(); i++) {
+			local_state.expectation.col(i) = state[i];
+		}
 		local_state.variance = initial_covariance * Eigen::MatrixXf::Identity(max_n_rows*state.size(), max_n_rows*state.size());
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +86,7 @@ namespace fusion {
 	void ArticulatedModel::enumerateHeirarchy(){
 		for(auto& node : nodes){
 			NodeDescriptor parent = node.second->parent_desc;
-			if(nodes.count(parent) != 0){
+			if(nodes.count(parent) != 0 && parent != node.second->desc){
 				node.second->parent = nodes[parent];
 			}
 		}
@@ -116,6 +119,13 @@ namespace fusion {
 		nodes[node]->setModel(art);
 	}
 
+	Transform3D ArticulatedModel::getNodePose(const NodeDescriptor& node){
+		if(nodes.count(node) == 0){
+			return Transform3D::Identity();
+		} else {
+			return nodes[node]->getFinalPose();
+		}
+	}
 	//-------------------------------------------------------------------------------------------------------
 	//									Private
 	//-------------------------------------------------------------------------------------------------------

@@ -64,7 +64,7 @@ namespace fusion {
 		NodeDescriptor desc;
 
 		//Parent of this node
-		Ptr parent;
+		Ptr parent = NULL;
 		NodeDescriptor parent_desc;
 
 		//Pending measurements 
@@ -120,6 +120,12 @@ namespace fusion {
 
 			//Sets the structure parameters for the specified articulation as a bone according to the boneVec
 			void setBoneForNode(const NodeDescriptor & node, const Eigen::Vector3f & boneVec);
+
+			////////////////////////////////////////////////////
+			//					Results
+			////////////////////////////////////////////////////
+			//Returns node pose
+			Transform3D getNodePose(const NodeDescriptor& node);
 
 		/*//////////////////////////////////////////////////////////////////
 		*				Private Data

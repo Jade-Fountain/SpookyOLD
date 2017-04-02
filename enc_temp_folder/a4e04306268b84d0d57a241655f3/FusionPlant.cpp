@@ -65,9 +65,6 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
 	for (int i = 0; i < boneInfo.Num(); i++) {
 		FMeshBoneInfo& bone = boneInfo[i];
-		//TODO
-		this doesnt work!
-			//TODO
 		FVector b = fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i).GetColumn(3);
 		Eigen::Vector3f boneVec(b[0], b[1], b[2]);
 		fusion::NodeDescriptor parent_desc = (bone.ParentIndex >= 0) ?
