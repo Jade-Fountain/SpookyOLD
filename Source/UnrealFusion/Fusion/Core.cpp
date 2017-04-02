@@ -25,6 +25,7 @@ namespace fusion {
 
 	void Core::finaliseSetup()
 	{
+		skeleton.enumerateHeirarchy();
 	}
 
 	//Adds a new measurement to the system
@@ -45,7 +46,6 @@ namespace fusion {
 	//Computes data added since last fuse() call. Should be called repeatedly	
 	void Core::fuse() {
 		//Add new data to calibration, with checking for usefulness
-
 		correlator.addMeasurementGroup(measurement_buffer);
 		correlator.identify();
 		if(correlator.isStable()){
@@ -56,8 +56,6 @@ namespace fusion {
 				skeleton.fuse();
 			}
 		}
-		
-
 		measurement_buffer.clear();
 	}
 

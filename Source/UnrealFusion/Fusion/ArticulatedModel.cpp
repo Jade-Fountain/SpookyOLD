@@ -26,11 +26,19 @@ namespace fusion {
 	//-------------------------------------------------------------------------------------------------------
 
 	Transform3D Node::getPose() {
-		Transform3D pose = (parent != NULL) ? (parent->getPose()) : (Transform3D::Identity());
-		for (int i = 0; i < articulations.size(); i++) {
-			pose = pose * articulations[i].getTransform(local_state.expectation.col(i));
+		//Check if cached
+		//If we need to recache, concatenate articulations
+		if(rechacheRequired){
+			//If root node, return identity
+			Transform3D pose = (parent != NULL) ? (parent->getPose()) : (Transform3D::Identity());
+			for (int i = 0; i < articulations.size(); i++) {
+				pose = pose * articulations[i].getTransform(local_state.expectation.col(i));
+			}	
+			//Save cache
+			cachedPose = pose;
+			rechacheRequired = false;
 		}
-		return pose;
+		return cachedPose;
 	}
 	
 	//-------------------------------------------------------------------------------------------------------
@@ -38,14 +46,12 @@ namespace fusion {
 	//-------------------------------------------------------------------------------------------------------
 
 	Transform3D Node::getFinalPose(){
-		Transform3D pose = parent->getPose();
-		for(int i = 0; i < articulations.size(); i++){
-			pose = pose * articulations[i].getTransform(local_state.expectation.col(i));
-		}
+		Transform3D pose = getPose();
 		return pose * homePose;
 	}
 
 	void Node::updateState(const State& new_state){
+		rechacheRequired = true;
 		local_state = new_state;
 	}
 
@@ -72,6 +78,15 @@ namespace fusion {
 		//This line initialises the node entry if not already initialised
 		utility::safeAccess(nodes, node)->desc = node;
 		nodes[node]->parent_desc = parent;
+	}
+	
+	void ArticulatedModel::enumerateHeirarchy(){
+		for(auto& node : nodes){
+			NodeDescriptor parent = node.second->parent_desc;
+			if(nodes.count(parent) != 0){
+				node.second->parent = nodes[parent];
+			}
+		}
 	}
 
 

@@ -55,9 +55,6 @@ namespace fusion {
 		//If the articulations are not twists, then the home pose is the identity
 		Transform3D homePose;
 
-		//Pending measurements 
-		//TODO: ensure ordered by timestamp
-		std::vector<Measurement::Ptr> measurements;
 	
 		//////////////////////////////////////////////////////////////////
 		//External info
@@ -70,10 +67,17 @@ namespace fusion {
 		Ptr parent;
 		NodeDescriptor parent_desc;
 
+		//Pending measurements 
+		//TODO: ensure ordered by timestamp
+		std::vector<Measurement::Ptr> measurements;
 	private:
 		Transform3D getPose();
 
 		float initial_covariance = 3.14;
+
+		//Cached transforms
+		bool rechacheRequired = true;
+		Transform3D cachedPose;
 	public:
 		//Returns the final pose of this node in global space based on pose of all parents
 		Transform3D getFinalPose();
@@ -92,6 +96,9 @@ namespace fusion {
 			//Adds node to the skeleton
 			void addNode(const NodeDescriptor & node, const NodeDescriptor & parent);
 
+			//Assigns parents and children of all nodes
+			void enumerateHeirarchy();
+
 			//Returns a list of pending measurements
 			std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> getMeasurements();
 
@@ -100,7 +107,6 @@ namespace fusion {
 
 			//Compute best model for given data and prior
 			void fuse();
-
 
 			//WorldState getWorldState(NodeDescriptor node) {
 			//	//TODO: check for cached state
@@ -121,6 +127,7 @@ namespace fusion {
 		private:
 			//SkeletonData
 			std::map<NodeDescriptor,Node::Ptr> nodes;
+
 		
 			//Clears measurements in graph
 			void clearMeasurements();
