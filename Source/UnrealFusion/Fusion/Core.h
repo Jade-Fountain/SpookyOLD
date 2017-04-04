@@ -23,6 +23,8 @@
 #include "Correlator.h"
 #include "ArticulatedModel.h"
 #include "Fusion/Utilities/DataStructures.h"
+#include "Utilities/TimeProfiling.h"
+
 namespace fusion {
 
 
@@ -44,6 +46,9 @@ namespace fusion {
 
 		//Sensor list
 		std::map<SystemDescriptor, std::map<SensorID, Sensor::Ptr>> sensors;
+
+		//Profiling
+		utility::Profiler profiler;
 		
 	public:
 

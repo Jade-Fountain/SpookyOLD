@@ -15,6 +15,8 @@
 */
 #include "UnrealFusion.h"
 #include "Core.h"
+#include <chrono>
+
 namespace fusion {
 
 	void Core::addNode(const NodeDescriptor & node, const NodeDescriptor & parent, const Eigen::Vector3f& boneVec)
@@ -45,18 +47,29 @@ namespace fusion {
 
 	//Computes data added since last fuse() call. Should be called repeatedly	
 	void Core::fuse() {
+		//TODO: add ifdefs for profiling
 		//Add new data to calibration, with checking for usefulness
+		profiler.startTimer("Correlator");
 		correlator.addMeasurementGroup(measurement_buffer);
 		correlator.identify();
+		profiler.endTimer("Correlator");
 		if(correlator.isStable()){
+			profiler.startTimer("Calibrator");
 			calibrator.addMeasurementGroup(measurement_buffer);
 			calibrator.calibrate();
+			profiler.endTimer("Calibrator");
 			if(calibrator.isStable()){
+				profiler.startTimer("Fuse");
 				//skeleton.addMeasurementGroup(measurement_buffer);
 				skeleton.fuse();
+				profiler.endTimer("Fuse");
 			}
 		}
+		profiler.startTimer("ClearMeasurements");
 		measurement_buffer.clear();
+		profiler.endTimer("ClearMeasurements");
+		//TODO: do this less often
+		FUSION_LOG(profiler.getReport());
 	}
 
 	CalibrationResult Core::getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2) {
