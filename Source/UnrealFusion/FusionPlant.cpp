@@ -65,10 +65,8 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
 	for (int i = 0; i < boneInfo.Num(); i++) {
 		FMeshBoneInfo& bone = boneInfo[i];
-		//TODO
-		this doesnt work!
-			//TODO
-		FVector b = fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i).GetColumn(3);
+		//TODO: make more efficient
+		FVector b = fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i).TransformPosition(FVector4(0,0,0,1));
 		Eigen::Vector3f boneVec(b[0], b[1], b[2]);
 		fusion::NodeDescriptor parent_desc = (bone.ParentIndex >= 0) ?
 			fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[bone.ParentIndex].Name.GetPlainNameString()))) :
@@ -142,7 +140,7 @@ FTransform UFusionPlant::getNodePose(FString node)
 	fusion::Transform3D result = plant.getNodePose(fusion::NodeDescriptor(TCHAR_TO_UTF8(*node)));
 	FMatrix unrealMatrix;
 	memcpy(&(unrealMatrix.M[0][0]), result.data(), sizeof(float) * 16);
-	UE_LOG(LogTemp, Warning, TEXT("get node matrix : %s"), *(unrealMatrix.ToString()));
+	UE_LOG(LogTemp, Warning, TEXT("getNodePose : %s"), *(unrealMatrix.ToString()));
 	return FTransform(unrealMatrix);
 }
 

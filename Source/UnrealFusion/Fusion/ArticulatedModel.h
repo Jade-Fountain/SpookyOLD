@@ -24,6 +24,8 @@ namespace fusion {
 
 	class Node{
 	public:
+		//Constructor
+		Node();
 		//Define ptr type for neater code
 		typedef std::shared_ptr<Node> Ptr;
 
