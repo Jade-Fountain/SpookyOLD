@@ -63,8 +63,13 @@ namespace fusion {
 		return calibrator.getResultsFor(s1, s2);
 	}
 
-	Transform3D Core::getNodePose(const NodeDescriptor& node){
-		return skeleton.getNodePose(node);
+	Transform3D Core::getNodeGlobalPose(const NodeDescriptor& node){
+		return skeleton.getNodeGlobalPose(node);
+	}
+
+	Transform3D Core::getNodeLocalPose(const NodeDescriptor & node)
+	{
+		return skeleton.getNodeLocalPose(node);
 	}
 
 	NodeDescriptor Core::getCorrelationResult(SystemDescriptor system, SensorID id) {

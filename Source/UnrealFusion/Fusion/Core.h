@@ -74,7 +74,11 @@ namespace fusion {
 		//					Results
 		////////////////////////////////////////////////////
 
-		Transform3D getNodePose(const NodeDescriptor& node);
+		//Returns the global pose of node
+		Transform3D getNodeGlobalPose(const NodeDescriptor& node);
+		
+		//Returns the local orientation of a node
+		Transform3D getNodeLocalPose(const NodeDescriptor& node);
 
 		//Returns mapping from s1 to s2
 		CalibrationResult getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2);

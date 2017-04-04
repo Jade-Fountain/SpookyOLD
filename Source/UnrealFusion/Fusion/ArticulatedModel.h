@@ -72,22 +72,26 @@ namespace fusion {
 		//Pending measurements 
 		//TODO: ensure ordered by timestamp
 		std::vector<Measurement::Ptr> measurements;
+
+	public:
+		//Returns the final pose of this node in global space based on pose of all parents
+		Transform3D getFinalGlobalPose();
+		//Returns final local transform relative to parent transform
+		Transform3D getLocalPose();
+
+		//Updates the state of this node (e.g. angle, quaternion, etc.)
+		void updateState(const State& new_state);
+		//Sets the model for the articulations associated with this node
+		void setModel(std::vector<Articulation> art);
+	
 	private:
-		Transform3D getPose();
+		Transform3D getGlobalPose();
 
 		float initial_covariance = 3.14;
 
 		//Cached transforms
 		bool rechacheRequired = true;
 		Transform3D cachedPose;
-	public:
-		//Returns the final pose of this node in global space based on pose of all parents
-		Transform3D getFinalPose();
-		//Updates the state of this node (e.g. angle, quaternion, etc.)
-		void updateState(const State& new_state);
-		//Sets the model for the articulations associated with this node
-		void setModel(std::vector<Articulation> art);
-	
 	};
 
 	class ArticulatedModel{
@@ -127,7 +131,9 @@ namespace fusion {
 			//					Results
 			////////////////////////////////////////////////////
 			//Returns node pose
-			Transform3D getNodePose(const NodeDescriptor& node);
+			Transform3D getNodeGlobalPose(const NodeDescriptor& node);
+			//Returns local orientation of node
+			Transform3D getNodeLocalPose(const NodeDescriptor& node);
 
 		/*//////////////////////////////////////////////////////////////////
 		*				Private Data

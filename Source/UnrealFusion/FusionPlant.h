@@ -51,6 +51,7 @@ class UNREALFUSION_API UFusionPlant : public UActorComponent
 
 	//Input Skeletons
 	std::vector<UPoseableMeshComponent*> skeletons;
+	std::vector<Eigen::Matrix<float, 7, 1>> skeletonCovariances;
 protected:
 	//Fusion result
 	UPROPERTY(BlueprintReadOnly)
@@ -73,7 +74,7 @@ public:
 
 	//Add complete skeleton to list of fusion objects
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void AddSkeleton(UPoseableMeshComponent* poseable_mesh);
+	void AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var);
 	
 	//Set the output target which will have the complete fused skeleton pose applied
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
@@ -93,22 +94,32 @@ public:
 	//UFUNCTION(BlueprintCallable, Category = "Fusion")
 	//void SetHomeCoordinateSpace(FString systemName);
 
-
 //===========================
 //Update functions
 //===========================
 	//Add vec3 measurement
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void AddPositionMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, float confidence = 1);
+	void AddPositionMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, bool globalSpace = true, float confidence = 1);
 	
 	//Add rotation quaternion method
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence = 1);
+	void AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, bool globalSpace = true, float confidence = 1);
+
+	//Add transform measurement in local space
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void AddPoseMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FTransform measurement, FVector position_var, FVector4 quaternion_var, bool globalSpace = true, float confidence = 1);
+
+	//Adds measurements for whole skeleton
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void addSkeletonMeasurement(UPoseableMeshComponent* skeleton, float timestamp_sec);
 
 	//Align, calibrate and fuse all added data
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void Fuse();
-
+	void Fuse(float timestamp_sec);
+	
+	//Gets the result of fusion for node 
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void UpdateSkeletonOutput();
 //===========================
 //Data retrieval functions
 //===========================
@@ -122,7 +133,9 @@ public:
 
 	//Gets the result of fusion for node 
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	FTransform getNodePose(FString node);
+	FTransform getNodeGlobalPose(FString node);
+
+
 
 //===========================
 //Utility
@@ -134,13 +147,17 @@ public:
 	fusion::Measurement::Ptr CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence = 1);
 	fusion::Measurement::Ptr CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence = 1);
 	fusion::Measurement::Ptr CreateScaleMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector scale, FVector uncertainty, float confidence = 1);
-	fusion::Measurement::Ptr CreateRigidBodyMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector state, FVector uncertainty, float confidence = 1);
+	fusion::Measurement::Ptr CreatePoseMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector v, FQuat q, Eigen::Matrix<float,7,1> uncertainty, float confidence = 1);
 	
 	//Sets data common to all types of measurements
 	void SetCommonMeasurementData(fusion::Measurement::Ptr& m, FString system_name, int sensorID, float timestamp_sec, float confidence);
 
 	//Convert names to nodeDescriptors
 	std::vector<fusion::NodeDescriptor> convertToNodeDescriptors(const TArray<FString>& names);
+
+	//Convert Transform3D to FMatrix
+	FMatrix convert(const fusion::Transform3D& T);
+	fusion::Transform3D convert(const FMatrix& T);
 //===========================
 //DEBUG
 //===========================

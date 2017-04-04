@@ -51,9 +51,17 @@ void UFusionPlant::TickComponent( float DeltaTime, ELevelTick TickType, FActorCo
 	}
 }
 
-UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::AddSkeleton(UPoseableMeshComponent* poseable_mesh)
+UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var)
 {
+	//Add skeleton reference
 	skeletons.push_back(poseable_mesh);
+
+	//Store uncertainties for later
+	Eigen::Vector3f vv(&position_var[0]);
+	Eigen::Vector4f vq(&quaternion_var[0]);
+	Eigen::Matrix<float, 7, 1> uncertainty;
+	uncertainty << vv, vq;
+	skeletonCovariances.push_back(uncertainty);
 	return;
 }
 
@@ -89,26 +97,74 @@ void UFusionPlant::FinaliseSetup() {
 
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::AddPositionMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, float confidence)
+void UFusionPlant::AddPositionMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, bool globalSpace, float confidence)
 {
 	Measurement::Ptr m = CreatePositionMeasurement(systemName, sensorID, timestamp_sec, measurement, covariance, confidence);
+	m->globalSpace = globalSpace;
 	plant.addMeasurement(m, convertToNodeDescriptors(nodeNames));
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, float confidence)
+void UFusionPlant::AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, bool globalSpace, float confidence)
 {
 	Measurement::Ptr m = CreateRotationMeasurement(systemName,sensorID,timestamp_sec,measurement,covariance,confidence);
+	m->globalSpace = globalSpace;
 	plant.addMeasurement(m, convertToNodeDescriptors(nodeNames));
 }
 
-void UFusionPlant::Fuse()
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::AddPoseMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FTransform measurement, FVector position_var, FVector4 quaternion_var, bool globalSpace, float confidence)
 {
-	plant.fuse();
-	//if (skeletons.size() > 0 && fusedSkeleton != NULL) {
-	//	CopyPose(fusedSkeleton, skeletons[0]);
-	//}
+
+	Eigen::Vector3f vv(&position_var[0]);
+	Eigen::Vector4f vq(&quaternion_var[0]);
+	Eigen::Matrix<float, 7, 1> uncertainty;
+	uncertainty << vv, vq;
+	Measurement::Ptr m = CreatePoseMeasurement(systemName, sensorID, timestamp_sec, measurement.GetTranslation(), measurement.GetRotation(), uncertainty, confidence);
+	m->globalSpace = globalSpace;
+	plant.addMeasurement(m, convertToNodeDescriptors(nodeNames));
 }
+
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::addSkeletonMeasurement(UPoseableMeshComponent* skeleton, float timestamp_sec) {
+	//For each bone
+	TArray<FMeshBoneInfo> boneInfo = skeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
+	for (int i = 0; i < boneInfo.Num(); i++) {
+		FMeshBoneInfo& bone = boneInfo[i];
+		fusion::NodeDescriptor bone_name = fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
+		FTransform measurement = skeleton->BoneSpaceTransforms[i];
+		//TODO: support confidences
+		//TODO: doesnt seem like the best way to do this!
+		Measurement::Ptr m = CreatePoseMeasurement(skeleton->GetName(), i, timestamp_sec, measurement.GetTranslation(), measurement.GetRotation(), skeletonCovariances[i], 1);
+		m->globalSpace = false;
+		plant.addMeasurement(m, bone_name);
+	}
+}
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::Fuse(float timestamp_sec)
+{
+	//TODO: add skeleton measurements
+	for (auto& skeleton : skeletons) {
+		addSkeletonMeasurement(skeleton, timestamp_sec);
+	}
+	plant.fuse();
+	UpdateSkeletonOutput();
+}
+
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::UpdateSkeletonOutput() {
+	//For each bone
+	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
+	for (int i = 0; i < boneInfo.Num(); i++) {
+		FMeshBoneInfo& bone = boneInfo[i];
+		fusion::NodeDescriptor bone_name = fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
+
+		fusion::Transform3D T = plant.getNodeLocalPose(bone_name);
+		fusedSkeleton->BoneSpaceTransforms[i] = FTransform(convert(T));
+	}
+}
+
+
 //===========================
 //Data retrieval functions
 //===========================
@@ -135,11 +191,10 @@ FString UFusionPlant::getCorrelationResult(FString s1, int sensorID)
 	return plant.getCorrelationResult(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)),sensorID).name.c_str();
 }
 
-FTransform UFusionPlant::getNodePose(FString node)
+FTransform UFusionPlant::getNodeGlobalPose(FString node)
 {
-	fusion::Transform3D result = plant.getNodePose(fusion::NodeDescriptor(TCHAR_TO_UTF8(*node)));
-	FMatrix unrealMatrix;
-	memcpy(&(unrealMatrix.M[0][0]), result.data(), sizeof(float) * 16);
+	fusion::Transform3D result = plant.getNodeGlobalPose(fusion::NodeDescriptor(TCHAR_TO_UTF8(*node)));
+	FMatrix unrealMatrix = convert(result);
 	UE_LOG(LogTemp, Warning, TEXT("getNodePose : %s"), *(unrealMatrix.ToString()));
 	return FTransform(unrealMatrix);
 }
@@ -183,7 +238,7 @@ void UFusionPlant::CopyPose(UPoseableMeshComponent* target, const UPoseableMeshC
 		target->RefreshBoneTransforms();
 	}
 }
-
+//TODO: optimise with const ref
 Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence)
 {
 	//Create basic measurement
@@ -226,13 +281,17 @@ Measurement::Ptr UFusionPlant::CreateScaleMeasurement(FString system_name, int s
 	return std::move(result);
 }
 
-Measurement::Ptr UFusionPlant::CreateRigidBodyMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector state, FVector uncertainty, float confidence)
+Measurement::Ptr UFusionPlant::CreatePoseMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector v, FQuat q, Eigen::Matrix<float, 7, 1> uncertainty, float confidence)
 {
+	//Convert transform to state vector (v,q)
+	Eigen::Vector3f ev(&v[0]);
+	Eigen::Vector4f eq(&q.Vector()[0]);
 	//Create basic measurement
-	Eigen::Matrix<float, 7, 1> meas(&state[0]);
+	Eigen::Matrix<float, 7, 1> meas;
+	meas << ev, eq;
 	Eigen::Matrix<float, 7, 7> un = Eigen::Matrix<float, 7, 7>::Identity();
-	un.diagonal() = Eigen::Matrix<float, 7, 1>(&uncertainty[0]);
-	Measurement::Ptr result = Measurement::createRigidBodyMeasurement(meas, un);
+	un.diagonal() = uncertainty;
+	Measurement::Ptr result = Measurement::createPoseMeasurement(meas, un);
 	
 	//Add metadata
 	SetCommonMeasurementData(result, system_name, sensorID, timestamp_sec, confidence);
@@ -256,6 +315,19 @@ std::vector<fusion::NodeDescriptor> UFusionPlant::convertToNodeDescriptors(const
 	}
 	return result;
 }
+
+FMatrix UFusionPlant::convert(const fusion::Transform3D& T) {
+	FMatrix unrealMatrix;
+	memcpy(&(unrealMatrix.M[0][0]), T.data(), sizeof(float) * 16);
+	return unrealMatrix;
+}
+
+fusion::Transform3D UFusionPlant::convert(const FMatrix& T) {
+	fusion::Transform3D matrix;
+	memcpy(matrix.data(), &(T.M[0][0]), sizeof(float) * 16);
+	return matrix;
+}
+
 //===========================
 //DEBUG
 //===========================

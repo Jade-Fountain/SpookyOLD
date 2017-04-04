@@ -22,35 +22,23 @@ namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//-------------------------------------------------------------------------------------------------------
-	//									Private
-	//-------------------------------------------------------------------------------------------------------
-
-	Transform3D Node::getPose() {
-		//Check if cached
-		//If we need to recache, concatenate articulations
-		if(rechacheRequired){
-			//If root node, return identity
-			Transform3D pose = (parent != NULL) ? (parent->getPose()) : (Transform3D::Identity());
-			for (int i = 0; i < articulations.size(); i++) {
-				pose = pose * articulations[i].getTransform(local_state.expectation.col(i));
-			}	
-			//Save cache
-			cachedPose = pose;
-			rechacheRequired = false;
-		}
-		return cachedPose;
-	}
-	
-	//-------------------------------------------------------------------------------------------------------
 	//									Public
 	//-------------------------------------------------------------------------------------------------------
 	Node::Node() {
 		homePose = Transform3D::Identity();
 	}
 
-	Transform3D Node::getFinalPose(){
-		Transform3D pose = getPose();
+	Transform3D Node::getFinalGlobalPose(){
+		Transform3D pose = getGlobalPose();
 		return pose * homePose;
+	}
+
+	Transform3D Node::getLocalPose(){
+		Transform3D pose = Transform3D::Identity();
+		for (int i = 0; i < articulations.size(); i++) {
+			pose = pose * articulations[i].getTransform(local_state.expectation.col(i));
+		}	
+		return pose;
 	}
 
 	void Node::updateState(const State& new_state){
@@ -72,6 +60,24 @@ namespace fusion {
 		}
 		local_state.variance = initial_covariance * Eigen::MatrixXf::Identity(max_n_rows*state.size(), max_n_rows*state.size());
 	}
+
+	//-------------------------------------------------------------------------------------------------------
+	//									Private
+	//-------------------------------------------------------------------------------------------------------
+
+	Transform3D Node::getGlobalPose() {
+		//Check if cached
+		//If we need to recache, concatenate articulations
+		if(rechacheRequired){
+			//If root node, return identity
+			Transform3D parent_pose = (parent != NULL) ? (parent->getGlobalPose()) : (Transform3D::Identity());
+			//Save cache
+			cachedPose = parent_pose * getLocalPose();
+			rechacheRequired = false;
+		}
+		return cachedPose;
+	}
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//									ArticulatedModel
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,11 +128,19 @@ namespace fusion {
 		nodes[node]->setModel(art);
 	}
 
-	Transform3D ArticulatedModel::getNodePose(const NodeDescriptor& node){
+	Transform3D ArticulatedModel::getNodeGlobalPose(const NodeDescriptor& node){
 		if(nodes.count(node) == 0){
 			return Transform3D::Identity();
 		} else {
-			return nodes[node]->getFinalPose();
+			return nodes[node]->getFinalGlobalPose();
+		}
+	}
+
+	Transform3D ArticulatedModel::getNodeLocalPose(const NodeDescriptor& node){
+		if(nodes.count(node) == 0){
+			return Transform3D::Identity();
+		} else {
+			return nodes[node]->getLocalPose();
 		}
 	}
 	//-------------------------------------------------------------------------------------------------------

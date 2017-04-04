@@ -221,6 +221,9 @@ namespace fusion {
 		//Type of measurement
 		MeasurementType type;
 
+		//Is measurement in global or parent relative space
+		bool globalSpace = true;
+
 		//=========================
 		//			Methods
 		//=========================
@@ -242,7 +245,7 @@ namespace fusion {
 		static Measurement::Ptr createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma);
 		static Measurement::Ptr createQuaternionMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma);
 		static Measurement::Ptr createScaleMeasurement(Eigen::Vector3f scale, Eigen::Matrix<float,3,3> sigma);
-		static Measurement::Ptr createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma);
+		static Measurement::Ptr createPoseMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma);
 
 
 		//=========================

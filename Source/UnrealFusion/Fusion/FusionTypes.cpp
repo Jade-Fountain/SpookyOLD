@@ -47,7 +47,7 @@ namespace fusion {
 		meas->size = scale.rows();
 		return std::move(meas);
 	}
-	Measurement::Ptr Measurement::createRigidBodyMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma) {
+	Measurement::Ptr Measurement::createPoseMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma) {
 		Measurement::Ptr meas = std::make_shared<Measurement>();
 		meas->type = MeasurementType::RIGID_BODY;
 		meas->data = pos_quat;
