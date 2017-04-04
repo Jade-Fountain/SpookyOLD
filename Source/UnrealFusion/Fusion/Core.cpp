@@ -49,27 +49,29 @@ namespace fusion {
 	void Core::fuse() {
 		//TODO: add ifdefs for profiling
 		//Add new data to calibration, with checking for usefulness
-		profiler.startTimer("Correlator");
+		utility::profiler.startTimer("Correlator");
 		correlator.addMeasurementGroup(measurement_buffer);
 		correlator.identify();
-		profiler.endTimer("Correlator");
+		utility::profiler.endTimer("Correlator");
 		if(correlator.isStable()){
-			profiler.startTimer("Calibrator");
+			utility::profiler.startTimer("Calibrator add");
 			calibrator.addMeasurementGroup(measurement_buffer);
+			utility::profiler.endTimer("Calibrator add");
+			utility::profiler.startTimer("Calibrate");
 			calibrator.calibrate();
-			profiler.endTimer("Calibrator");
+			utility::profiler.endTimer("Calibrate");
 			if(calibrator.isStable()){
-				profiler.startTimer("Fuse");
+				utility::profiler.startTimer("Fuse");
 				//skeleton.addMeasurementGroup(measurement_buffer);
 				skeleton.fuse();
-				profiler.endTimer("Fuse");
+				utility::profiler.endTimer("Fuse");
 			}
 		}
-		profiler.startTimer("ClearMeasurements");
+		utility::profiler.startTimer("ClearMeasurements");
 		measurement_buffer.clear();
-		profiler.endTimer("ClearMeasurements");
+		utility::profiler.endTimer("ClearMeasurements");
 		//TODO: do this less often
-		FUSION_LOG(profiler.getReport());
+		FUSION_LOG(utility::profiler.getReport());
 	}
 
 	CalibrationResult Core::getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2) {

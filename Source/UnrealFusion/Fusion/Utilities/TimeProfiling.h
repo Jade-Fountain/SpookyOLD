@@ -75,6 +75,7 @@ namespace fusion {
 			}
 			std::string getReport(){
 				std::stringstream report;
+				report << "Timing report: " << std::endl;
 				for(auto& timer : timers){
 					report << "Timer[" << timer.first << "] duration = ( " << timer.second.getMaxDuration() << ", "
 																		   << timer.second.getMeanDuration() << ", "
@@ -83,5 +84,8 @@ namespace fusion {
 				return report.str();
 			}
 		};
+
+		//Profiling
+		static Profiler profiler;
 	}
 }

@@ -17,6 +17,7 @@
 #include "Calibration.h"
 #include "Logging.h"
 #include "Fusion/Utilities/Conventions.h"
+#include "Fusion/Utilities/TimeProfiling.h"
 
 namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -229,21 +230,31 @@ namespace fusion {
 	}
 
 	void Calibrator::addMeasurementGroup(const std::vector<Measurement::Ptr>& measurementQueue) {
+		utility::profiler.startTimer("Calibration: 1");
 		//Check there is data corresponding to more than one system for a given node, otherwise useless
+		//TODO: optimise this filterLonelyData - currently takes way too long
 		auto measurements = filterLonelyData(measurementQueue);
+		utility::profiler.endTimer("Calibration: 1");
 
 		//Decide if data is useful
 		//(if at least one stream has changed relative to previous measurements)
+		utility::profiler.startTimer("Calibration: 2");
 		bool dataNovel = checkChanges(measurements);
+		utility::profiler.endTimer("Calibration: 2");
 
 		if (dataNovel) {
 			//Store the (refs to) the relevant measurements
 			//FUSION_LOG("Adding calibration measurments!!");
+			utility::profiler.startTimer("Calibration: 3");
 			for (auto& m : measurements) {
 				addMeasurement(m);
 			}
+			utility::profiler.startTimer("Calibration: 3");
+
 
 		}
+		FUSION_LOG(utility::profiler.getReport());
+
 	}
 
 	void Calibrator::calibrate()

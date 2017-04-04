@@ -46,9 +46,6 @@ namespace fusion {
 
 		//Sensor list
 		std::map<SystemDescriptor, std::map<SensorID, Sensor::Ptr>> sensors;
-
-		//Profiling
-		utility::Profiler profiler;
 		
 	public:
 
