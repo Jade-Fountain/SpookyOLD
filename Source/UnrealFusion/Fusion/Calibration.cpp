@@ -95,16 +95,21 @@ namespace fusion {
 		std::vector<Measurement::Ptr> result;
 		//Structure for counting systems per node
 		utility::SafeMap<NodeDescriptor, std::set<SystemDescriptor>> systemsPerNode;
+		//utility::profiler.startTimer("Calibration: Filter - Count");
+
 		//Count
 		for (auto& m : measurementQueue) {
 			systemsPerNode[m->getNode()].insert(m->getSystem());
 		}
+		//utility::profiler.endTimer("Calibration: Filter - Count");
 		//Push back relevant measurments
+		//utility::profiler.startTimer("Calibration: Filter - Pushback");
 		for (auto& m : measurementQueue) {
 			if (systemsPerNode[m->getNode()].size() > 1) {
 				result.push_back(m);
 			}
 		}
+		//utility::profiler.endTimer("Calibration: Filter - Pushback");
 		return result;
 	}
 
@@ -230,30 +235,30 @@ namespace fusion {
 	}
 
 	void Calibrator::addMeasurementGroup(const std::vector<Measurement::Ptr>& measurementQueue) {
-		utility::profiler.startTimer("Calibration: 1");
+		//utility::profiler.startTimer("Calibration: 1");
 		//Check there is data corresponding to more than one system for a given node, otherwise useless
 		//TODO: optimise this filterLonelyData - currently takes way too long
 		auto measurements = filterLonelyData(measurementQueue);
-		utility::profiler.endTimer("Calibration: 1");
+		//utility::profiler.endTimer("Calibration: 1");
 
 		//Decide if data is useful
 		//(if at least one stream has changed relative to previous measurements)
-		utility::profiler.startTimer("Calibration: 2");
+		//utility::profiler.startTimer("Calibration: 2");
 		bool dataNovel = checkChanges(measurements);
-		utility::profiler.endTimer("Calibration: 2");
+		//utility::profiler.endTimer("Calibration: 2");
 
 		if (dataNovel) {
 			//Store the (refs to) the relevant measurements
 			//FUSION_LOG("Adding calibration measurments!!");
-			utility::profiler.startTimer("Calibration: 3");
+			//utility::profiler.startTimer("Calibration: 3");
 			for (auto& m : measurements) {
 				addMeasurement(m);
 			}
-			utility::profiler.startTimer("Calibration: 3");
+			//utility::profiler.startTimer("Calibration: 3");
 
 
 		}
-		FUSION_LOG(utility::profiler.getReport());
+		//FUSION_LOG(utility::profiler.getReport());
 
 	}
 

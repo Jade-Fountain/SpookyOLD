@@ -16,6 +16,7 @@
 
 #include "UnrealFusion.h"
 #include "FusionPlant.h"
+#include "Fusion/Utilities/TimeProfiling.h"
 #include <iostream>
 
 using fusion::Measurement;
@@ -143,12 +144,21 @@ void UFusionPlant::addSkeletonMeasurement(UPoseableMeshComponent* skeleton, floa
 UFUNCTION(BlueprintCallable, Category = "Fusion")
 void UFusionPlant::Fuse(float timestamp_sec)
 {
-	//TODO: add skeleton measurements
+
+	fusion::utility::profiler.startTimer("TimerBias");
+	fusion::utility::profiler.endTimer("TimerBias");
+	fusion::utility::profiler.startTimer("FusionPlant AddSkeletons");
 	for (auto& skeleton : skeletons) {
 		addSkeletonMeasurement(skeleton, timestamp_sec);
 	}
+	fusion::utility::profiler.endTimer("FusionPlant AddSkeletons");
+	fusion::utility::profiler.startTimer("FusionPlant Fuse");
 	plant.fuse();
+	fusion::utility::profiler.endTimer("FusionPlant Fuse");
+	fusion::utility::profiler.startTimer("FusionPlant UpdateOutput");
 	UpdateSkeletonOutput();
+	fusion::utility::profiler.endTimer("FusionPlant UpdateOutput");
+	//FUSION_LOG(fusion::utility::profiler.getReport());
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")

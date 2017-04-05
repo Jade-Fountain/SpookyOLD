@@ -45,7 +45,7 @@ namespace fusion {
 				int ringbuffer_index = 0;
 
 				void computeDuration(){
-					durations(ringbuffer_index) = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count() / 1000.0;
+					durations(ringbuffer_index) = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count() / 1000000.0;
 					timer_count++;
 					ringbuffer_index = timer_count % max_count;
 				}
