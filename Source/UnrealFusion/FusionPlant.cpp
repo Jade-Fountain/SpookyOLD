@@ -298,7 +298,8 @@ Measurement::Ptr UFusionPlant::CreatePoseMeasurement(FString system_name, int se
 {
 	//Convert transform to state vector (v,q)
 	Eigen::Vector3f ev(&v[0]);
-	Eigen::Quaternionf eq(q.X,q.Y,q.Z,q.W);
+	//BEWARE: dumb format mismatch:
+	Eigen::Quaternionf eq(q.W,q.X,q.Y,q.Z);
 	//Create basic measurement
 	Eigen::Matrix<float, 7, 7> un = Eigen::Matrix<float, 7, 7>::Identity();
 	un.diagonal() = uncertainty;

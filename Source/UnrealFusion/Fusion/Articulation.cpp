@@ -52,7 +52,7 @@ namespace fusion{
     		case(BONE):
             {
                 //Theta is a quaternion
-    			Eigen::Quaternionf q(theta(0), theta(1), theta(2), theta(3));
+    			Eigen::Quaternionf q = Eigen::Quaternionf(Eigen::Vector4f(theta));
     			T.translate(v);
     			T.rotate(q);
     			break;
@@ -132,7 +132,7 @@ namespace fusion{
             case(BONE):
             {
                 //quaternion representation
-                return Eigen::Vector4f(1,0,0,0);
+                return Eigen::Vector4f(0,0,0,1);
                 break;
             }
         }
