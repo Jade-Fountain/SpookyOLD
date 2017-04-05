@@ -146,17 +146,11 @@ UFUNCTION(BlueprintCallable, Category = "Fusion")
 void UFusionPlant::Fuse(float timestamp_sec)
 {
 	fusion::utility::profiler.startTimer("AAA FUSION TIME");
-	fusion::utility::profiler.startTimer("FusionPlant AddSkeletons");
 	for (int i = 0; i < skeletons.size(); i++) {
 		addSkeletonMeasurement(i, timestamp_sec);
 	}
-	fusion::utility::profiler.endTimer("FusionPlant AddSkeletons");
-	fusion::utility::profiler.startTimer("FusionPlant Fuse");
 	plant.fuse();
-	fusion::utility::profiler.endTimer("FusionPlant Fuse");
-	fusion::utility::profiler.startTimer("FusionPlant UpdateOutput");
 	UpdateSkeletonOutput();
-	fusion::utility::profiler.endTimer("FusionPlant UpdateOutput");
 	fusion::utility::profiler.endTimer("AAA FUSION TIME");
 	FUSION_LOG(fusion::utility::profiler.getReport());
 }
