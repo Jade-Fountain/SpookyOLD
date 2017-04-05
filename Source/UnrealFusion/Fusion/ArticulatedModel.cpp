@@ -15,6 +15,7 @@
 */
 #include "UnrealFusion.h"
 #include "ArticulatedModel.h"
+#include "Utilities/Conventions.h"
 
 namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,9 +69,9 @@ namespace fusion {
 				if(m->type == Measurement::Type::ROTATION || m->type == Measurement::Type::RIGID_BODY){
 					//TODO: add measurement specific retrieval functions for uncertainty and expectation
 					Node::State new_state;
-					new_state.expectation = m->getData().tail(4);
+					new_state.expectation = m->getRotation().coeffs();
 					//TODO: make names consitent
-					new_state.variance = m->getUncertainty().bottomRightCorner(4,4);
+					new_state.variance = m->getRotationVar();
 					updateState(new_state);
 				}
 			}

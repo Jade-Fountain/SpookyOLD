@@ -15,6 +15,7 @@
 */
 #include "UnrealFusion.h"
 #include "FusionTypes.h"
+#include "Utilities/Conventions.h"
 
 //#define NDEBUG
 #include <cassert>

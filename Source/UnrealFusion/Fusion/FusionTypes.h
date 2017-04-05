@@ -203,7 +203,9 @@ namespace fusion {
 	private:		
 		//Measurement dimensions
 		int size;
+		
 		//Value of measurement
+		//Quaternions stored in (x,y,z,w) format
 		Eigen::VectorXf data;
 
 		//Uncertainty in T

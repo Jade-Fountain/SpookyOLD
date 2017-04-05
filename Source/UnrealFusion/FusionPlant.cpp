@@ -127,8 +127,9 @@ void UFusionPlant::AddPoseMeasurement(TArray<FString> nodeNames, FString systemN
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::addSkeletonMeasurement(UPoseableMeshComponent* skeleton, float timestamp_sec) {
+void UFusionPlant::addSkeletonMeasurement(int skel_index, float timestamp_sec) {
 	//For each bone
+	auto& skeleton = skeletons[skel_index];
 	TArray<FMeshBoneInfo> boneInfo = skeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
 	for (int i = 0; i < boneInfo.Num(); i++) {
 		FMeshBoneInfo& bone = boneInfo[i];
@@ -136,7 +137,7 @@ void UFusionPlant::addSkeletonMeasurement(UPoseableMeshComponent* skeleton, floa
 		FTransform measurement = skeleton->BoneSpaceTransforms[i];
 		//TODO: support confidences
 		//TODO: doesnt seem like the best way to do this!
-		Measurement::Ptr m = CreatePoseMeasurement(skeleton->GetName(), i, timestamp_sec, measurement.GetTranslation(), measurement.GetRotation(), skeletonCovariances[i], 1);
+		Measurement::Ptr m = CreatePoseMeasurement(skeleton->GetName(), i, timestamp_sec, measurement.GetTranslation(), measurement.GetRotation(), skeletonCovariances[skel_index], 1);
 		m->globalSpace = false;
 		plant.addMeasurement(m, bone_name);
 	}
@@ -147,8 +148,8 @@ void UFusionPlant::Fuse(float timestamp_sec)
 	fusion::utility::profiler.startTimer("TimerBias");
 	fusion::utility::profiler.endTimer("TimerBias");
 	fusion::utility::profiler.startTimer("FusionPlant AddSkeletons");
-	for (auto& skeleton : skeletons) {
-		addSkeletonMeasurement(skeleton, timestamp_sec);
+	for (int i = 0; i < skeletons.size(); i++) {
+		addSkeletonMeasurement(i, timestamp_sec);
 	}
 	fusion::utility::profiler.endTimer("FusionPlant AddSkeletons");
 	fusion::utility::profiler.startTimer("FusionPlant Fuse");
@@ -170,8 +171,8 @@ void UFusionPlant::UpdateSkeletonOutput() {
 
 		fusion::Transform3D T = plant.getNodeLocalPose(bone_name);
 		fusedSkeleton->BoneSpaceTransforms[i] = FTransform(convert(T));
-		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
-		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
+		UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
+		UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
 
 	}
 }
@@ -268,7 +269,7 @@ Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, in
 Measurement::Ptr UFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence)
 {
 	//Create basic measurement
-	Eigen::Quaternionf meas(rotation.W, rotation.X, rotation.Y, rotation.Z);
+	Eigen::Quaternionf meas(rotation.X, rotation.Y, rotation.Z, rotation.W);
 	Eigen::Matrix<float, 4, 4> un = Eigen::Matrix<float, 4, 4>::Identity();
 	un.diagonal() = Eigen::Vector4f(&uncertainty[0]);
 	Measurement::Ptr result = Measurement::createQuaternionMeasurement(meas, un);
@@ -297,7 +298,7 @@ Measurement::Ptr UFusionPlant::CreatePoseMeasurement(FString system_name, int se
 {
 	//Convert transform to state vector (v,q)
 	Eigen::Vector3f ev(&v[0]);
-	Eigen::Quaternionf eq(q.W,q.X,q.Y,q.Z);
+	Eigen::Quaternionf eq(q.X,q.Y,q.Z,q.W);
 	//Create basic measurement
 	Eigen::Matrix<float, 7, 7> un = Eigen::Matrix<float, 7, 7>::Identity();
 	un.diagonal() = uncertainty;

@@ -111,7 +111,7 @@ public:
 
 	//Adds measurements for whole skeleton
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void addSkeletonMeasurement(UPoseableMeshComponent* skeleton, float timestamp_sec);
+	void addSkeletonMeasurement(int skel_index, float timestamp_sec);
 
 	//Align, calibrate and fuse all added data
 	UFUNCTION(BlueprintCallable, Category = "Fusion")

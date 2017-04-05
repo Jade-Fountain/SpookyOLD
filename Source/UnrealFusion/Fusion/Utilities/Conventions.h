@@ -30,6 +30,10 @@ namespace fusion {
 				return T.matrix();
 			}
 
+			static Eigen::Vector4f quatToVec(Eigen::Quaternionf q) {
+				return Eigen::Vector4f(q.w(), q.x(), q.y(), q.z());
+			}
+
 		}
 	}
 }
