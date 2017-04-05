@@ -12,17 +12,17 @@ namespace fusion {
 		//Sync measurements2 to times of measurements1
 		std::vector<Measurement::Ptr> m2 = Measurement::synchronise(measurements2,measurements1,m1);
 
-		MeasurementType t1 = m1.front()->type;
-		MeasurementType t2 = m2.front()->type;
+		Measurement::Type t1 = m1.front()->type;
+		Measurement::Type t2 = m2.front()->type;
 		//Bulk logic to route calibration procedures at runtime
 		switch (t1) {
-		case MeasurementType::POSITION:
-			if (t2 == MeasurementType::POSITION) {
+		case Measurement::Type::POSITION:
+			if (t2 == Measurement::Type::POSITION) {
 				return correlatePos(m1,m2);
 			}
 			break;
-		case MeasurementType::RIGID_BODY:
-			if (t2 == MeasurementType::RIGID_BODY) {
+		case Measurement::Type::RIGID_BODY:
+			if (t2 == Measurement::Type::RIGID_BODY) {
 				return 0;
 			}
 		}

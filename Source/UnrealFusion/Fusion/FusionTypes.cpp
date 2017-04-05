@@ -23,38 +23,116 @@ namespace fusion {
 	//Define config constants
 	const float Measurement::uncertainty_growth_max = 0.01f; //Fractional growth per second
 
+	//=========================
+	//Static factory methods:
+	//=========================
 	Measurement::Ptr Measurement::createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma) {
 		Measurement::Ptr meas = std::make_shared<Measurement>();
-		meas->type = MeasurementType::POSITION;
+		meas->type = Type::POSITION;
 		meas->data = position;
 		meas->uncertainty = sigma;
 		meas->size = position.rows();
 		return std::move(meas);
 	}
-	Measurement::Ptr Measurement::createQuaternionMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma) {
+	Measurement::Ptr Measurement::createQuaternionMeasurement(Eigen::Quaternionf quaternion, Eigen::Matrix<float,4,4> sigma) {
 		Measurement::Ptr meas = std::make_shared<Measurement>();
-		meas->type = MeasurementType::ROTATION;
-		meas->data = quaternion;
+		meas->type = Type::ROTATION;
+		meas->data = quaternion.coeffs();
 		meas->uncertainty = sigma;
-		meas->size = quaternion.rows();
+		meas->size = 4;
 		return std::move(meas);
 	}
 	Measurement::Ptr Measurement::createScaleMeasurement(Eigen::Vector3f scale, Eigen::Matrix<float,3,3> sigma) {
 		Measurement::Ptr meas = std::make_shared<Measurement>();
-		meas->type = MeasurementType::SCALE;
+		meas->type = Type::SCALE;
 		meas->data = scale;
 		meas->uncertainty = sigma;
 		meas->size = scale.rows();
 		return std::move(meas);
 	}
-	Measurement::Ptr Measurement::createPoseMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma) {
+	Measurement::Ptr Measurement::createPoseMeasurement(Eigen::Vector3f position, Eigen::Quaternionf quaternion, Eigen::Matrix<float,7,7> sigma) {
 		Measurement::Ptr meas = std::make_shared<Measurement>();
-		meas->type = MeasurementType::RIGID_BODY;
-		meas->data = pos_quat;
+		meas->type = Type::RIGID_BODY;
+		meas->data = Eigen::Matrix<float, 7, 1>();
+		meas->data << position, quaternion.coeffs();
 		meas->uncertainty = sigma;
-		meas->size = pos_quat.rows();
+		meas->size = 7;
 		return std::move(meas);
 	}
+
+	//=========================
+	//Data Out Interface
+	//=========================
+
+	Eigen::Vector3f Measurement::getPosition(){
+		if(type == Type::POSITION || type == Type::RIGID_BODY){
+			return data.head(3);
+		} else {
+			return Eigen::Vector3f::Zero();
+		}
+	}
+
+	Eigen::Matrix3f Measurement::getPositionVar(){
+		if(type == Type::POSITION || type == Type::RIGID_BODY){
+			return uncertainty.topLeftCorner(3,3);
+		} else {
+			return max_var * Eigen::Matrix3f::Identity();
+		}
+	}
+
+	Eigen::Quaternionf Measurement::getRotation(){
+		if(type == Type::ROTATION || type == Type::RIGID_BODY){
+			return Eigen::Quaternionf(Eigen::Vector4f(data.tail(4)));
+		} else {
+			return Eigen::Quaternionf::Identity();
+		}
+	}
+
+	Eigen::Matrix4f Measurement::getRotationVar(){
+		if(type == Type::ROTATION || type == Type::RIGID_BODY){
+			return uncertainty.bottomRightCorner(4,4);
+		} else {
+			return max_var * Eigen::Matrix4f::Identity();
+		}
+	}
+
+	Eigen::Matrix<float,7,1>  Measurement::getPosQuat(){
+		auto pos = getPosition();
+		auto quat = getRotation();
+		Eigen::Matrix<float,7,1> result;
+		result << pos, quat.coeffs();
+		return result;
+	}
+
+	Eigen::Matrix<float,7,7> Measurement::getPosQuatVar(){
+		if(type == RIGID_BODY){
+			return uncertainty;
+		} else {
+			Eigen::Matrix3f pVar = getPositionVar();
+			Eigen::Matrix4f qVar = getRotationVar();
+			Eigen::Matrix<float,7,7> result = Eigen::Matrix<float,7,7>::Identity();
+			result.topLeftCorner(3,3) = pVar; 
+			result.bottomRightCorner(4,4) = qVar;
+			return result; 
+		}
+	}
+
+	Transform3D Measurement::getTransform(){
+		Transform3D T = Transform3D::Identity();
+		bool rigid = type == Type::RIGID_BODY;
+		bool pos = type == Type::POSITION || rigid;
+		bool rot = type == Type::ROTATION || rigid;
+		if(pos){
+			T.translate(Eigen::Vector3f(data.head(3)));
+		}
+		if(rot){
+			//Quat defined by tail 4 always
+			Eigen::Quaternionf q(Eigen::Vector4f(data.tail(4)));
+			T.rotate(q);
+		}
+		return T;
+	}
+	
 
 	float Measurement::compare(const Measurement::Ptr& other) {
 		if (type != other->type) {

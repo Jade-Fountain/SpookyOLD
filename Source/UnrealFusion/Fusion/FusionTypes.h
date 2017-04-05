@@ -115,13 +115,7 @@ namespace fusion {
 	/** Structs describing measurements
 	*
 	*/
-	enum MeasurementType {
-		GENERIC = 0,
-		POSITION = 1,
-		ROTATION = 2,
-		RIGID_BODY = 3,
-		SCALE = 4
-	};
+
 
 	//Sensor describes all persistent parameters of a given sensor
 	//WARNING TO DEVS: Measurement::Ptr cannot be stored in here or a memory leak will occur (shared ptr loop)
@@ -193,7 +187,15 @@ namespace fusion {
 	//Class describing individual sensor reading taken at a particular time
 	class Measurement {
 	public:
-		typedef std::shared_ptr<Measurement> Ptr;
+		typedef std::shared_ptr<Measurement> Ptr;	
+
+		enum Type {
+			GENERIC = 0,
+			POSITION = 1,
+			ROTATION = 2,
+			RIGID_BODY = 3,
+			SCALE = 4
+		};
 
 		//=========================
 		//			Members
@@ -219,7 +221,7 @@ namespace fusion {
 		float confidence = 0;
 
 		//Type of measurement
-		MeasurementType type;
+		Type type;
 
 		//Is measurement in global or parent relative space
 		bool globalSpace = true;
@@ -243,10 +245,27 @@ namespace fusion {
 		//Static factory methods:
 		//=========================
 		static Measurement::Ptr createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma);
-		static Measurement::Ptr createQuaternionMeasurement(Eigen::Vector4f quaternion, Eigen::Matrix<float,4,4> sigma);
+		static Measurement::Ptr createQuaternionMeasurement(Eigen::Quaternionf quaternion, Eigen::Matrix<float,4,4> sigma);
 		static Measurement::Ptr createScaleMeasurement(Eigen::Vector3f scale, Eigen::Matrix<float,3,3> sigma);
-		static Measurement::Ptr createPoseMeasurement(Eigen::Matrix<float,7,1> pos_quat, Eigen::Matrix<float,7,7> sigma);
+		static Measurement::Ptr createPoseMeasurement(Eigen::Vector3f position, Eigen::Quaternionf quaternion, Eigen::Matrix<float,7,7> sigma);
 
+		//=========================
+		//Data Out Interface
+		//=========================
+		//Config:
+		static constexpr float max_var = std::numeric_limits<float>::max();
+		
+		//Methods:
+		Eigen::Vector3f getPosition();
+		Eigen::Matrix3f getPositionVar();
+
+		Eigen::Quaternionf getRotation();
+		Eigen::Matrix4f getRotationVar();
+
+		Eigen::Matrix<float,7,1>  getPosQuat();
+		Eigen::Matrix<float,7,7> getPosQuatVar();
+
+		Transform3D getTransform();
 
 		//=========================
 		//Data helpers

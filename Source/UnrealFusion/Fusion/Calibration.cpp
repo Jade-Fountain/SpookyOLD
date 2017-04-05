@@ -209,17 +209,17 @@ namespace fusion {
 	CalibrationResult Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib)
 	{
 		//TODO: measurements are not sorted chronologically here
-		MeasurementType t1 = m1.front()->type;
-		MeasurementType t2 = m2.front()->type;
+		Measurement::Type t1 = m1.front()->type;
+		Measurement::Type t2 = m2.front()->type;
 		//Bulk logic to route calibration procedures at runtime
 		switch (t1) {
-		case MeasurementType::POSITION:
-			if (t2 == MeasurementType::POSITION) {
+		case Measurement::Type::POSITION:
+			if (t2 == Measurement::Type::POSITION) {
 				return calPos(m1, m2, calib);
 			}
 			break;
-		case MeasurementType::RIGID_BODY:
-			if (t2 == MeasurementType::RIGID_BODY) {
+		case Measurement::Type::RIGID_BODY:
+			if (t2 == Measurement::Type::RIGID_BODY) {
 				return cal6DoF(m1, m2);
 			}
 		}

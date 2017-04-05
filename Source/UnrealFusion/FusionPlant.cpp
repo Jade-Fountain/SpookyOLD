@@ -157,7 +157,7 @@ void UFusionPlant::Fuse(float timestamp_sec)
 	fusion::utility::profiler.startTimer("FusionPlant UpdateOutput");
 	UpdateSkeletonOutput();
 	fusion::utility::profiler.endTimer("FusionPlant UpdateOutput");
-	//FUSION_LOG(fusion::utility::profiler.getReport());
+	FUSION_LOG(fusion::utility::profiler.getReport());
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
@@ -170,8 +170,8 @@ void UFusionPlant::UpdateSkeletonOutput() {
 
 		fusion::Transform3D T = plant.getNodeLocalPose(bone_name);
 		fusedSkeleton->BoneSpaceTransforms[i] = FTransform(convert(T));
-		UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
-		UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
+		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
+		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
 
 	}
 }
@@ -268,7 +268,7 @@ Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, in
 Measurement::Ptr UFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence)
 {
 	//Create basic measurement
-	Eigen::Vector4f meas(rotation.W, rotation.X, rotation.Y, rotation.Z);
+	Eigen::Quaternionf meas(rotation.W, rotation.X, rotation.Y, rotation.Z);
 	Eigen::Matrix<float, 4, 4> un = Eigen::Matrix<float, 4, 4>::Identity();
 	un.diagonal() = Eigen::Vector4f(&uncertainty[0]);
 	Measurement::Ptr result = Measurement::createQuaternionMeasurement(meas, un);
@@ -297,13 +297,11 @@ Measurement::Ptr UFusionPlant::CreatePoseMeasurement(FString system_name, int se
 {
 	//Convert transform to state vector (v,q)
 	Eigen::Vector3f ev(&v[0]);
-	Eigen::Vector4f eq(q.W,q.X,q.Y,q.Z);
+	Eigen::Quaternionf eq(q.W,q.X,q.Y,q.Z);
 	//Create basic measurement
-	Eigen::Matrix<float, 7, 1> meas;
-	meas << ev, eq;
 	Eigen::Matrix<float, 7, 7> un = Eigen::Matrix<float, 7, 7>::Identity();
 	un.diagonal() = uncertainty;
-	Measurement::Ptr result = Measurement::createPoseMeasurement(meas, un);
+	Measurement::Ptr result = Measurement::createPoseMeasurement(ev, eq, un);
 	
 	//Add metadata
 	SetCommonMeasurementData(result, system_name, sensorID, timestamp_sec, confidence);

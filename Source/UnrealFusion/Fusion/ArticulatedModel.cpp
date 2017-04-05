@@ -65,7 +65,7 @@ namespace fusion {
 		//TODO: do this outside of node? probably
 		if(articulations[0].getType() == Articulation::Type::BONE){
 			for(auto& m : measurements){
-				if(m->type == MeasurementType::ROTATION || m->type == MeasurementType::RIGID_BODY){
+				if(m->type == Measurement::Type::ROTATION || m->type == Measurement::Type::RIGID_BODY){
 					//TODO: add measurement specific retrieval functions for uncertainty and expectation
 					Node::State new_state;
 					new_state.expectation = m->getData().tail(4);
