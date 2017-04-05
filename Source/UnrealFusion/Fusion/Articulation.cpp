@@ -57,6 +57,15 @@ namespace fusion{
     			T.rotate(q);
     			break;
             }
+			case(POSE):
+			{
+				//Theta is a quaternion
+				Eigen::Quaternionf q = Eigen::Quaternionf(Eigen::Vector4f(theta.tail(4)));
+				Eigen::Vector3f pos = theta.head(3);
+				T.translate(pos);
+				T.rotate(q);
+				break;
+			}
         }
 		return T;
     }
@@ -84,7 +93,15 @@ namespace fusion{
 			}
 			case(BONE):
 			{
+				//Bones have a fixed displacement
 				result.v = T.matrix().col(3).head(3);
+				result.w = Eigen::Vector3f::Zero();
+				break;
+			}			
+			case(POSE):
+			{
+				//Poses have no internal structure
+				result.v = Eigen::Vector3f::Zero();
 				result.w = Eigen::Vector3f::Zero();
 				break;
 			}
@@ -113,6 +130,14 @@ namespace fusion{
 		result.w = axis;
 		result.v = position;
 		return result;
+	}	
+	
+	Articulation Articulation::createPose() {
+		Articulation result;
+		result.type = POSE;
+		result.w = Eigen::Vector3f::Identity();
+		result.v = Eigen::Vector3f::Identity();
+		return result;
 	}
 
     Eigen::VectorXf Articulation::getInitialState(const Articulation::Type& type){
@@ -135,6 +160,14 @@ namespace fusion{
                 return Eigen::Vector4f(0,0,0,1);
                 break;
             }
+			case(POSE):
+			{
+				//pos_quat representation
+				Eigen::VectorXf vec;
+				vec << 0, 0, 0, 0, 0, 0, 1;
+				return vec;
+				break;
+			}
         }
 		return Eigen::VectorXf::Zero(1);
     }
