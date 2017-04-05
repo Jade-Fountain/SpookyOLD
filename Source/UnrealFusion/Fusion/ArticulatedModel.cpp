@@ -69,7 +69,10 @@ namespace fusion {
 				if(m->type == Measurement::Type::ROTATION || m->type == Measurement::Type::RIGID_BODY){
 					//TODO: add measurement specific retrieval functions for uncertainty and expectation
 					Node::State new_state;
-					new_state.expectation = m->getRotation().coeffs();
+					//Try exp filter
+					float alpha = 0.5;
+					new_state.expectation = m->getRotation().coeffs() * alpha + local_state.expectation * (1-alpha);
+					new_state.expectation.normalize();
 					//TODO: make names consitent
 					new_state.variance = m->getRotationVar();
 					updateState(new_state);
