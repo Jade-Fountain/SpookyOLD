@@ -83,6 +83,8 @@ namespace fusion {
 		void updateState(const State& new_state);
 		//Sets the model for the articulations associated with this node
 		void setModel(std::vector<Articulation> art);
+		//Local fusion of buffered measurements
+		void fuse();
 	
 	private:
 		Transform3D getGlobalPose();
@@ -109,7 +111,10 @@ namespace fusion {
 			std::vector<std::pair<Measurement::Ptr, NodeDescriptor>> getMeasurements();
 
 			//Adds a measurement to be fused on next fusion call
-			void addMeasurement(const NodeDescriptor& node, const Measurement::Ptr& m);
+			void addMeasurement(const Measurement::Ptr& m);
+
+			//Add group of measurements
+			void addMeasurementGroup(const std::vector<Measurement::Ptr>& m);
 
 			//Compute best model for given data and prior
 			void fuse();

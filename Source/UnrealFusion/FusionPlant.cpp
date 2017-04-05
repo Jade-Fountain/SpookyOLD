@@ -144,7 +144,6 @@ void UFusionPlant::addSkeletonMeasurement(UPoseableMeshComponent* skeleton, floa
 UFUNCTION(BlueprintCallable, Category = "Fusion")
 void UFusionPlant::Fuse(float timestamp_sec)
 {
-
 	fusion::utility::profiler.startTimer("TimerBias");
 	fusion::utility::profiler.endTimer("TimerBias");
 	fusion::utility::profiler.startTimer("FusionPlant AddSkeletons");
@@ -171,6 +170,9 @@ void UFusionPlant::UpdateSkeletonOutput() {
 
 		fusion::Transform3D T = plant.getNodeLocalPose(bone_name);
 		fusedSkeleton->BoneSpaceTransforms[i] = FTransform(convert(T));
+		UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
+		UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
+
 	}
 }
 
@@ -295,7 +297,7 @@ Measurement::Ptr UFusionPlant::CreatePoseMeasurement(FString system_name, int se
 {
 	//Convert transform to state vector (v,q)
 	Eigen::Vector3f ev(&v[0]);
-	Eigen::Vector4f eq(&q.Vector()[0]);
+	Eigen::Vector4f eq(q.W,q.X,q.Y,q.Z);
 	//Create basic measurement
 	Eigen::Matrix<float, 7, 1> meas;
 	meas << ev, eq;

@@ -61,6 +61,22 @@ namespace fusion {
 		local_state.variance = initial_covariance * Eigen::MatrixXf::Identity(max_n_rows*state.size(), max_n_rows*state.size());
 	}
 
+	void Node::fuse(){
+		//TODO: do this outside of node? probably
+		if(articulations[0].getType() == Articulation::Type::BONE){
+			for(auto& m : measurements){
+				if(m->type == MeasurementType::ROTATION || m->type == MeasurementType::RIGID_BODY){
+					//TODO: add measurement specific retrieval functions for uncertainty and expectation
+					Node::State new_state;
+					new_state.expectation = m->getData().tail(4);
+					//TODO: make names consitent
+					new_state.variance = m->getUncertainty().bottomRightCorner(4,4);
+					updateState(new_state);
+				}
+			}
+		}
+	}
+
 	//-------------------------------------------------------------------------------------------------------
 	//									Private
 	//-------------------------------------------------------------------------------------------------------
@@ -112,12 +128,24 @@ namespace fusion {
 		return measurements;
 	}
 
-	void ArticulatedModel::addMeasurement(const NodeDescriptor& node, const Measurement::Ptr& m) {
-		nodes[node]->measurements.push_back(m);
+	void ArticulatedModel::addMeasurement(const Measurement::Ptr& m) {
+		if(m->isResolved()){
+			nodes[m->getNode()]->measurements.push_back(m);
+		}
+	}
+
+	void ArticulatedModel::addMeasurementGroup(const std::vector<Measurement::Ptr>& measurements) {
+		for(auto& m : measurements){
+			addMeasurement(m);
+		}
 	}
 
 	void ArticulatedModel::fuse() {
 		//TODO: implement fusion
+		for(auto& node : nodes){
+			//TODO: support other fusion methods
+			node.second->fuse();
+		}
 		//For now, just empty measurements
 		clearMeasurements();
 	}

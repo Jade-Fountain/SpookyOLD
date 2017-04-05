@@ -20,13 +20,15 @@
 namespace fusion{
 
 	class Articulation{
-	private:
+	public:
 		//Type of articulation
 		enum Type {
 			CARTESIAN = 0,
 			TWIST = 1,
 			BONE = 2
 		};
+	private:
+
 		Type type;
 
 		//Axis or axis + angle

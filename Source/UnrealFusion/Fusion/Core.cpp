@@ -62,11 +62,11 @@ namespace fusion {
 			//utility::profiler.endTimer("Calibrate");
 			if(calibrator.isStable()){
 				//utility::profiler.startTimer("Fuse");
-				//skeleton.addMeasurementGroup(measurement_buffer);
+				skeleton.addMeasurementGroup(measurement_buffer);
 				skeleton.fuse();
 				//utility::profiler.endTimer("Fuse");
 			}
-		}
+		}	
 		//utility::profiler.startTimer("ClearMeasurements");
 		measurement_buffer.clear();
 		//utility::profiler.endTimer("ClearMeasurements");

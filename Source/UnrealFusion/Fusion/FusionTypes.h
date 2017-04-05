@@ -293,8 +293,11 @@ namespace fusion {
 		const Eigen::MatrixXf& getUncertainty() const { return uncertainty; }
 		const Eigen::VectorXf& getData() const { return data; }
 
-		bool isAmbiguous(){
+		bool isAmbiguous() {
 			return sensor->isAmbiguous();
+		}
+		bool isResolved() {
+			return sensor->isResolved();
 		}
 	};
 
