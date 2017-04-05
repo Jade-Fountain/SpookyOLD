@@ -145,8 +145,7 @@ void UFusionPlant::addSkeletonMeasurement(int skel_index, float timestamp_sec) {
 UFUNCTION(BlueprintCallable, Category = "Fusion")
 void UFusionPlant::Fuse(float timestamp_sec)
 {
-	fusion::utility::profiler.startTimer("TimerBias");
-	fusion::utility::profiler.endTimer("TimerBias");
+	fusion::utility::profiler.startTimer("AAA FUSION TIME");
 	fusion::utility::profiler.startTimer("FusionPlant AddSkeletons");
 	for (int i = 0; i < skeletons.size(); i++) {
 		addSkeletonMeasurement(i, timestamp_sec);
@@ -158,6 +157,7 @@ void UFusionPlant::Fuse(float timestamp_sec)
 	fusion::utility::profiler.startTimer("FusionPlant UpdateOutput");
 	UpdateSkeletonOutput();
 	fusion::utility::profiler.endTimer("FusionPlant UpdateOutput");
+	fusion::utility::profiler.endTimer("AAA FUSION TIME");
 	FUSION_LOG(fusion::utility::profiler.getReport());
 }
 
@@ -171,8 +171,8 @@ void UFusionPlant::UpdateSkeletonOutput() {
 
 		fusion::Transform3D T = plant.getNodeLocalPose(bone_name);
 		fusedSkeleton->BoneSpaceTransforms[i] = FTransform(convert(T));
-		UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
-		UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
+		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
+		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
 
 	}
 }
