@@ -77,7 +77,7 @@ namespace fusion {
 				std::stringstream report;
 				report << "Timing report: " << std::endl;
 				for(auto& timer : timers){
-					report << "Timer[" << timer.first << "] duration = ( " << timer.second.getMaxDuration() << ", "
+					report << "Timer[" << timer.first << "] duration (ms) = ( " << timer.second.getMaxDuration() << ", "
 																		   << timer.second.getMeanDuration() << ", "
 																		   << timer.second.getMinDuration() << " )" << std::endl;
 				}
