@@ -152,7 +152,7 @@ void UFusionPlant::Fuse(float timestamp_sec)
 	plant.fuse();
 	UpdateSkeletonOutput();
 	fusion::utility::profiler.endTimer("AAA FUSION TIME");
-	FUSION_LOG(fusion::utility::profiler.getReport());
+	//FUSION_LOG(fusion::utility::profiler.getReport());
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")

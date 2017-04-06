@@ -63,21 +63,31 @@ namespace fusion {
 	}
 
 	void Node::fuse(){
-		//TODO: do this outside of node? probably
+		Transform3D parent_pose = Transform3D::Identity();
+		if (parent != NULL) {
+			parent->fuse();
+			parent_pose = parent->getGlobalPose();
+		}
 		if(articulations[0].getType() == Articulation::Type::BONE){
 			for(auto& m : measurements){
 				if(m->type == Measurement::Type::ROTATION || m->type == Measurement::Type::RIGID_BODY){
 					//TODO: add measurement specific retrieval functions for uncertainty and expectation
 					Node::State new_state;
-					//Try exp filter
-					float alpha = 0.5;
-					new_state.expectation = m->getRotation().coeffs() * alpha + local_state.expectation * (1-alpha);
+					//Simple update based on parent pose
+					new_state.expectation = Eigen::Quaternionf(parent_pose.rotation().inverse() * m->getRotation()).coeffs();
 					new_state.expectation.normalize();
 					//TODO: make names consitent
 					new_state.variance = m->getRotationVar();
 					updateState(new_state);
+					std::stringstream ss;
+					//ss << "Node[" << desc.name << "].fuse() : new state expectation = " << std::endl << new_state.expectation << std::endl
+					//	<< " m rotation = " << std::endl << m->getRotation().coeffs() << std::endl
+					//	<< " parent pose = " << std::endl << Eigen::Quaternionf(parent_pose.rotation()).coeffs() << std::endl;
+					//FUSION_LOG(ss.str());
 				}
 			}
+			//Dont use data twice
+			measurements.clear();
 		}
 	}
 

@@ -53,14 +53,14 @@ namespace fusion {
 		correlator.addMeasurementGroup(measurement_buffer);
 		correlator.identify();
 		//utility::profiler.endTimer("Correlator");
-		if(correlator.isStable()){
+		if(correlator.isStable() || true){
 			//utility::profiler.startTimer("Calibrator add");
 			calibrator.addMeasurementGroup(measurement_buffer);
 			//utility::profiler.endTimer("Calibrator add");
 			//utility::profiler.startTimer("Calibrate");
 			calibrator.calibrate();
 			//utility::profiler.endTimer("Calibrate");
-			if(calibrator.isStable()){
+			if(calibrator.isStable() || true){
 				//utility::profiler.startTimer("Fuse");
 				skeleton.addMeasurementGroup(measurement_buffer);
 				skeleton.fuse();
