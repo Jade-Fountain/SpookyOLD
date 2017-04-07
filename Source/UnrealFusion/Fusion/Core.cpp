@@ -19,10 +19,16 @@
 
 namespace fusion {
 
-	void Core::addNode(const NodeDescriptor & node, const NodeDescriptor & parent, const Transform3D& boneTransform)
+	void Core::addBoneNode(const NodeDescriptor & node, const NodeDescriptor & parent, const Transform3D& boneTransform)
 	{
 		skeleton.addNode(node, parent);
 		skeleton.setBoneForNode(node, boneTransform);
+	}
+
+	void Core::addPoseNode(const NodeDescriptor & node, const NodeDescriptor & parent, const Transform3D& poseInitial)
+	{
+		skeleton.addNode(node, parent);
+		skeleton.setPoseNode(node, poseInitial);
 	}
 
 	void Core::finaliseSetup()

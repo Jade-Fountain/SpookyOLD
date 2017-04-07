@@ -163,7 +163,7 @@ namespace fusion{
 			case(POSE):
 			{
 				//pos_quat representation
-				Eigen::VectorXf vec;
+				Eigen::VectorXf vec = Eigen::Matrix<float,7,1>::Zero();
 				vec << 0, 0, 0, 0, 0, 0, 1;
 				return vec;
 				break;

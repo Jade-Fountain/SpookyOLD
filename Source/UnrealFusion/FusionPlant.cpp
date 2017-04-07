@@ -81,9 +81,18 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 			fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[bone.ParentIndex].Name.GetPlainNameString()))) :
 			fusion::NodeDescriptor();
 
-		plant.addNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))), 
-					  parent_desc,
-					  bonePoseLocal);
+		//TODO: find better way to do this
+		if (bone.Name.GetPlainNameString() == "pelvis") {
+			plant.addPoseNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))),
+				parent_desc,
+				bonePoseLocal);
+		}
+		else {
+			plant.addBoneNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))),
+				parent_desc,
+				bonePoseLocal);
+		}
+		
 	}
 }
 

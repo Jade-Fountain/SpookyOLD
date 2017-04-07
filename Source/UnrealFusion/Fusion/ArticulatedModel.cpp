@@ -68,28 +68,27 @@ namespace fusion {
 			parent->fuse();
 			parent_pose = parent->getGlobalPose();
 		}
-		if(articulations[0].getType() == Articulation::Type::BONE){
+		if(articulations[0].getType() == Articulation::Type::BONE || articulations[0].getType() == Articulation::Type::POSE){
 			for(auto& m : measurements){
+				if (m->confidence < 0.75) {
+					continue;
+				}
+
 				if(m->type == Measurement::Type::ROTATION || m->type == Measurement::Type::RIGID_BODY){
-					//TODO: add measurement specific retrieval functions for uncertainty and expectation
 					Node::State new_state;
 					//Simple update based on parent pose
 					new_state.expectation = Eigen::Quaternionf(parent_pose.rotation().inverse() * m->getRotation()).coeffs();
 					new_state.expectation.normalize();
 					//TODO: make names consitent
 					new_state.variance = m->getRotationVar();
-					if (m->confidence > 0.75) {
-						updateState(new_state);
+					if (articulations[0].getType() == Articulation::Type::POSE) {
+						Eigen::Vector4f q = new_state.expectation;
+						new_state.expectation = Eigen::Matrix<float, 7, 1>::Zero();
+						new_state.expectation << m->getPosition(), q;
+						new_state.variance = m->getPosQuatVar();
 					}
-					//else {
-					//	FUSION_LOG("not updating state, confidence = " + std::to_string(m->confidence));
-					//}
-					//std::stringstream ss;
-					//ss << "Node[" << desc.name << "].fuse() : new state expectation = " << std::endl << new_state.expectation << std::endl
-					//	<< " m rotation = " << std::endl << m->getRotation().coeffs() << std::endl
-					//	<< " parent pose = " << std::endl << Eigen::Quaternionf(parent_pose.rotation()).coeffs() << std::endl;
-					//FUSION_LOG(ss.str());
-				}
+					updateState(new_state);
+				} 
 			}
 			//Dont use data twice
 			measurements.clear();
@@ -174,6 +173,13 @@ namespace fusion {
 		art.push_back(Articulation::createBone(boneTransform.translation()));
 		nodes[node]->setModel(art);
 		nodes[node]->local_state.expectation = Eigen::Quaternionf(boneTransform.rotation()).coeffs();
+	}
+
+
+	void ArticulatedModel::setPoseNode(const NodeDescriptor& node, const Transform3D& poseTransform) {
+		std::vector<Articulation> art;
+		art.push_back(Articulation::createPose());
+		nodes[node]->setModel(art);
 	}
 
 	Transform3D ArticulatedModel::getNodeGlobalPose(const NodeDescriptor& node){

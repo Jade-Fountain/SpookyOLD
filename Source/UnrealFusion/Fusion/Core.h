@@ -54,7 +54,8 @@ namespace fusion {
 		////////////////////////////////////////////////////
 
 		//Adds a node to the fusion graph model
-		void addNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Transform3D& boneTransform);
+		void addBoneNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Transform3D& boneTransform);
+		void addPoseNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Transform3D& poseInitial);
 		
 		//Computes necessary metadata after setup
 		void finaliseSetup();
