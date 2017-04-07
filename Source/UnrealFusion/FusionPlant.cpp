@@ -75,15 +75,15 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 	for (int i = 0; i < boneInfo.Num(); i++) {
 		FMeshBoneInfo& bone = boneInfo[i];
 		//TODO: make more efficient
-		FVector b = fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i).TransformPosition(FVector4(0,0,0,1));
-		Eigen::Vector3f boneVec(b[0], b[1], b[2]);
+		FMatrix b = fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i);
+		fusion::Transform3D bonePoseLocal = convert(b);
 		fusion::NodeDescriptor parent_desc = (bone.ParentIndex >= 0) ?
 			fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[bone.ParentIndex].Name.GetPlainNameString()))) :
 			fusion::NodeDescriptor();
 
 		plant.addNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))), 
 					  parent_desc,
-					  boneVec);
+					  bonePoseLocal);
 	}
 }
 
@@ -137,6 +137,7 @@ void UFusionPlant::addSkeletonMeasurement(int skel_index, float timestamp_sec) {
 		FTransform measurement = skeleton->BoneSpaceTransforms[i];
 		//TODO: support confidences
 		//TODO: doesnt seem like the best way to do this!
+		//TODO: support skeleton group measurement input properly: need skeleton->getUncertianty(i), get confidence, time stamp, etc
 		Measurement::Ptr m = CreatePoseMeasurement(skeleton->GetName(), i, timestamp_sec, measurement.GetTranslation(), measurement.GetRotation(), skeletonCovariances[skel_index], 1);
 		m->globalSpace = false;
 		plant.addMeasurement(m, bone_name);
@@ -159,6 +160,7 @@ UFUNCTION(BlueprintCallable, Category = "Fusion")
 void UFusionPlant::UpdateSkeletonOutput() {
 	//For each bone
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
+	//FUSION_LOG("\n\n\n\n Skeleton Poses = \n\n\n\n");
 	for (int i = 0; i < boneInfo.Num(); i++) {
 		FMeshBoneInfo& bone = boneInfo[i];
 		fusion::NodeDescriptor bone_name = fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
@@ -202,7 +204,7 @@ FTransform UFusionPlant::getNodeGlobalPose(FString node)
 {
 	fusion::Transform3D result = plant.getNodeGlobalPose(fusion::NodeDescriptor(TCHAR_TO_UTF8(*node)));
 	FMatrix unrealMatrix = convert(result);
-	UE_LOG(LogTemp, Warning, TEXT("getNodePose : %s"), *(unrealMatrix.ToString()));
+	//UE_LOG(LogTemp, Warning, TEXT("getNodePose : %s"), *(unrealMatrix.ToString()));
 	return FTransform(unrealMatrix);
 }
 

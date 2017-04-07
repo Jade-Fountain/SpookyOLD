@@ -78,7 +78,9 @@ namespace fusion {
 					new_state.expectation.normalize();
 					//TODO: make names consitent
 					new_state.variance = m->getRotationVar();
-					updateState(new_state);
+					if (m->confidence > 0.75) {
+						updateState(new_state);
+					}
 					std::stringstream ss;
 					//ss << "Node[" << desc.name << "].fuse() : new state expectation = " << std::endl << new_state.expectation << std::endl
 					//	<< " m rotation = " << std::endl << m->getRotation().coeffs() << std::endl
@@ -164,10 +166,11 @@ namespace fusion {
 		clearMeasurements();
 	}
 
-	void ArticulatedModel::setBoneForNode(const NodeDescriptor& node, const Eigen::Vector3f& boneVec) {
+	void ArticulatedModel::setBoneForNode(const NodeDescriptor& node, const Transform3D& boneTransform) {
 		std::vector<Articulation> art;
-		art.push_back(Articulation::createBone(boneVec));
+		art.push_back(Articulation::createBone(boneTransform.translation()));
 		nodes[node]->setModel(art);
+		nodes[node]->local_state.expectation = Eigen::Quaternionf(boneTransform.rotation()).coeffs();
 	}
 
 	Transform3D ArticulatedModel::getNodeGlobalPose(const NodeDescriptor& node){
