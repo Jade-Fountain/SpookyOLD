@@ -214,13 +214,18 @@ namespace fusion {
 		//Bulk logic to route calibration procedures at runtime
 		switch (t1) {
 		case Measurement::Type::POSITION:
-			if (t2 == Measurement::Type::POSITION) {
+			if (t2 == Measurement::Type::POSITION || t2 == Measurement::Type::RIGID_BODY) {
 				return calPos(m1, m2, calib);
 			}
 			break;
 		case Measurement::Type::RIGID_BODY:
 			if (t2 == Measurement::Type::RIGID_BODY) {
-				return cal6DoF(m1, m2);
+				return calPos(m1, m2, calib);
+				//TODO: implement this:
+				//return cal6DoF(m1, m2);
+			}
+			else if (t2 == Measurement::Type::POSITION) {
+				return calPos(m1, m2, calib);
 			}
 		}
 		FUSION_LOG("WARNING : no calibration model found for measurement types: " + std::to_string(t1) + " and " + std::to_string(t2));

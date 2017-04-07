@@ -31,10 +31,10 @@ namespace fusion {
 		std::vector<Eigen::Vector3f> pos2(m2.size());
 		std::vector<Eigen::Matrix3f> inverse_variances(m1.size());
 		for (int i = 0; i < m1.size(); i++) {
-			pos1[i] = m1[i]->getData();
-			pos2[i] = m2[i]->getData();
+			pos1[i] = m1[i]->getPosition();
+			pos2[i] = m2[i]->getPosition();
 			//TODO: Not strictly correct
-			inverse_variances[i] = (m1[i]->getUncertainty() + m2[i]->getUncertainty()).inverse();
+			inverse_variances[i] = (m1[i]->getPositionVar() + m2[i]->getPositionVar()).inverse();
 		}
 		CalibrationResult result = currentCalibration;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
