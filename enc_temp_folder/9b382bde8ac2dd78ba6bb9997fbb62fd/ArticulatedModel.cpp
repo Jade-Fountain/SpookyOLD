@@ -81,9 +81,9 @@ namespace fusion {
 					if (m->confidence > 0.75) {
 						updateState(new_state);
 					}
-					//else {
-					//	FUSION_LOG("not updating state, confidence = " + std::to_string(m->confidence));
-					//}
+					else {
+						FUSION_LOG("not updating state, confidence = " + std::to_string(m->confidence));
+					}
 					//std::stringstream ss;
 					//ss << "Node[" << desc.name << "].fuse() : new state expectation = " << std::endl << new_state.expectation << std::endl
 					//	<< " m rotation = " << std::endl << m->getRotation().coeffs() << std::endl
