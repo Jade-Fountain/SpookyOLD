@@ -78,7 +78,7 @@ public:
 	
 	//Set the output target which will have the complete fused skeleton pose applied
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void SetOutputTarget(UPoseableMeshComponent* poseable_mesh);
+	void SetOutputTarget(UPoseableMeshComponent* poseable_mesh, float inputUnitsInMeters = 0.01);
 	
 	//Perform some setup postprocessing
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
@@ -117,9 +117,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void Fuse(float timestamp_sec);
 	
-	//Gets the result of fusion for node 
+	//Copies the results of fusion to the target skeleton
+	// Default output units is centimeters as that is what Unreal Engine uses
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void UpdateSkeletonOutput();
+	void UpdateSkeletonOutput(float outputUnitsInMeters = 0.01);
 //===========================
 //Data retrieval functions
 //===========================

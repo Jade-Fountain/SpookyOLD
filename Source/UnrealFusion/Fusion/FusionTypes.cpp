@@ -238,6 +238,12 @@ namespace fusion {
 		return result;
 	}
 
+	Eigen::Matrix<float, 7, 1> Measurement::getPosQuatFromTransform(const Transform3D& T) {
+		Eigen::Matrix<float, 7, 1> result;
+		result << T.translation(), Eigen::Quaternionf(T.rotation()).coeffs();
+		return result;
+	}
+
 
 }
 

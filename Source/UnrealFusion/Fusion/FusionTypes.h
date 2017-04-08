@@ -286,7 +286,9 @@ namespace fusion {
 		static const float uncertainty_growth_max;
 		static Measurement::Ptr interpolate(const Measurement::Ptr& m0, const Measurement::Ptr& m1, float t);
 		static Measurement::Ptr extrapolate(const Measurement::Ptr& m, float time_sec);
-
+		
+		//returns the vector corresponding to the transform T
+		static Eigen::Matrix<float, 7, 1> getPosQuatFromTransform(const Transform3D& T);
 		//----------------------
 		//Accessors
 		//----------------------

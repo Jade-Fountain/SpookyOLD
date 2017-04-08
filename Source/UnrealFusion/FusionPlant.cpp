@@ -68,15 +68,16 @@ UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::AddSkeleton
 
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
+void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh, float inputUnitsInMeters)
 {
 	fusedSkeleton = poseable_mesh;
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
 	for (int i = 0; i < boneInfo.Num(); i++) {
 		FMeshBoneInfo& bone = boneInfo[i];
 		//TODO: make more efficient
-		FMatrix b = fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i);
-		fusion::Transform3D bonePoseLocal = convert(b);
+		FTransform b = FTransform(fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i));
+		b.SetTranslation(b.GetTranslation() * inputUnitsInMeters);
+		fusion::Transform3D bonePoseLocal = convert(b.ToMatrixNoScale());
 		fusion::NodeDescriptor parent_desc = (bone.ParentIndex >= 0) ?
 			fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[bone.ParentIndex].Name.GetPlainNameString()))) :
 			fusion::NodeDescriptor();
@@ -88,7 +89,8 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 				bonePoseLocal);
 		}
 		else {
-			plant.addBoneNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))),
+			//TEST everything is a pose node now!
+			plant.addPoseNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))),
 				parent_desc,
 				bonePoseLocal);
 		}
@@ -160,13 +162,12 @@ void UFusionPlant::Fuse(float timestamp_sec)
 		addSkeletonMeasurement(i, timestamp_sec);
 	}
 	plant.fuse();
-	UpdateSkeletonOutput();
 	fusion::utility::profiler.endTimer("AAA FUSION TIME");
 	//FUSION_LOG(fusion::utility::profiler.getReport());
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::UpdateSkeletonOutput() {
+void UFusionPlant::UpdateSkeletonOutput(float outputUnitsInMeters) {
 	//For each bone
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
 	//FUSION_LOG("\n\n\n\n Skeleton Poses = \n\n\n\n");
@@ -176,6 +177,7 @@ void UFusionPlant::UpdateSkeletonOutput() {
 
 		fusion::Transform3D T = plant.getNodeLocalPose(bone_name);
 		fusedSkeleton->BoneSpaceTransforms[i] = FTransform(convert(T));
+		fusedSkeleton->BoneSpaceTransforms[i].SetTranslation(fusedSkeleton->BoneSpaceTransforms[i].GetTranslation() / outputUnitsInMeters);
 		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
 		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
 

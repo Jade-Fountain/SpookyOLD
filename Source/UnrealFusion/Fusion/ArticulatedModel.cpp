@@ -74,21 +74,28 @@ namespace fusion {
 					continue;
 				}
 
-				if(m->type == Measurement::Type::ROTATION || m->type == Measurement::Type::RIGID_BODY){
+				if(m->type == Measurement::Type::ROTATION ||
+				(articulations[0].getType() == Articulation::Type::BONE && m->type == Measurement::Type::RIGID_BODY) )
+				{
 					Node::State new_state;
 					//Simple update based on parent pose
 					new_state.expectation = Eigen::Quaternionf(parent_pose.rotation().inverse() * m->getRotation()).coeffs();
 					new_state.expectation.normalize();
 					//TODO: make names consitent
 					new_state.variance = m->getRotationVar();
-					if (articulations[0].getType() == Articulation::Type::POSE) {
-						Eigen::Vector4f q = new_state.expectation;
-						new_state.expectation = Eigen::Matrix<float, 7, 1>::Zero();
-						new_state.expectation << m->getPosition(), q;
-						new_state.variance = m->getPosQuatVar();
-					}
 					updateState(new_state);
 				} 
+				else if (m->type == Measurement::Type::RIGID_BODY && articulations[0].getType() == Articulation::Type::POSE)
+				{
+					Node::State new_state;
+					new_state.variance = m->getPosQuatVar();
+					//Simple update based on parent pose
+					Eigen::Quaternionf qLocal= Eigen::Quaternionf(parent_pose.rotation().inverse() * m->getRotation());
+					Eigen::Vector3f posLocal = parent_pose.inverse() * m->getPosition();
+					new_state.expectation = Eigen::Matrix<float, 7, 1>::Zero();
+					new_state.expectation << posLocal, qLocal.coeffs();
+					updateState(new_state);
+				}
 			}
 			//Dont use data twice
 			measurements.clear();
@@ -180,6 +187,7 @@ namespace fusion {
 		std::vector<Articulation> art;
 		art.push_back(Articulation::createPose());
 		nodes[node]->setModel(art);
+		nodes[node]->local_state.expectation = Measurement::getPosQuatFromTransform(poseTransform);
 	}
 
 	Transform3D ArticulatedModel::getNodeGlobalPose(const NodeDescriptor& node){
