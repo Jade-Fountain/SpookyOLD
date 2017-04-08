@@ -41,7 +41,8 @@ namespace fusion {
 		//Compute transform and error
 		switch (currentCalibration.state) {
 		case (CalibrationResult::State::UNCALIBRATED):
-			result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
+			//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
+			result.transform = utility::calibration::Position::calibrateIdenticalPair(pos1, pos2, &result.error);
 			result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
 			result.relevance = result.quality;
 			FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
@@ -62,6 +63,7 @@ namespace fusion {
 			break;
 		case (CalibrationResult::State::CALIBRATED):
 			//TODO: distinguish noise vs. actual movement
+			//TODO: implement that fault decay detection thing
 			//Track new transform and see how much it moves? (expensive)
 			float error = utility::calibration::Position::getError(pos1,pos2,currentCalibration.transform);
 			result.relevance = result.relevance * (1-fault_hysteresis_rate) + fault_hysteresis_rate * utility::qualityFromError(error, qualityScaleFactor);
@@ -69,9 +71,10 @@ namespace fusion {
 			//Relevance is the latest quality value, filtered with exponential filter
 			//If our quality varies from the expected too much, we need to recalibrate
 			if(result.relevance/result.quality < fault_threshold){
-				result.state = CalibrationResult::State::UNCALIBRATED;
+				result.state = CalibrationResult::State::CALIBRATED;
+				//For debug, no recovery result.state = CalibrationResult::State::UNCALIBRATED;
 			} else {
-				CalibrationResult::State::CALIBRATED;
+				result.state = CalibrationResult::State::CALIBRATED;
 			}
 			return result;
 			break;
