@@ -139,8 +139,16 @@ namespace fusion {
 		if (type != other->type) {
 			throw std::runtime_error(__FILE__ + __LINE__ + std::string(" : Cannot compare two measurements of differing type"));
 		}
-		//TODO: add conditionals for better metrics for rotations etc.
-		return (data - other->data).norm();
+		//TODO: deal with noisy measurements, esp rotation
+		if (type == Type::POSITION || type == Type::RIGID_BODY) {
+			return (getPosition() - other->getPosition()).norm();
+		}
+		else if (type == Type::ROTATION) {
+			return Eigen::AngleAxisf(getRotation().inverse() * other->getRotation()).angle();
+		}
+		else {
+			return (data - other->data).norm();
+		}
 	}
 
 	//TODO: refactor using custom struct with two measurement streams
