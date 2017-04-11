@@ -27,6 +27,38 @@ namespace fusion{
 	namespace utility{
 		namespace calibration {
 
+			namespace Time {
+				static inline float estimateLatency(
+					const Eigen::VectorXf& x,
+					const Eigen::VectorXf& tx,
+					const Eigen::VectorXf& y,
+					const Eigen::VectorXf& ty
+				) {
+					if (x.cols() != tx.cols() || y.cols() != ty.cols()) {
+						throw std::runtime_error(__LINE__ + "data and timestamps differ in count");
+					}
+
+					std::vector<float> latencies;
+					for (int i = 0; i < y.size(); i++) {
+						for (int j = 0; j < x.size() - 1; j++) {
+							float det = (x(j) - y(i))*(x(j + 1) - y(i));
+							if (det < 0) {
+								//Interpolate fraction alpha between x(j+1) and x(j)
+								float alpha = (y(i) - x(j)) / (x(j + 1) - x(j));
+								//Get t based on interpolation between two successive measurements
+								float t = tx(j + 1) * alpha + tx(j) * (1 - alpha);
+								//Latency corresponding to this timestamp
+								float latency = t - ty(j);
+								//TODO: throwout some latencies bigger or smaller than maximum possible
+								latencies.push_back(latency);
+							}
+						}
+					}
+
+					return getHistogramPeak(latencies);
+				}
+			}
+
 			//For calibrating data with position only
 			namespace Position {
 

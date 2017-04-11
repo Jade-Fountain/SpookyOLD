@@ -141,7 +141,9 @@ namespace fusion {
 
 		//Calibrate
 		if (measurements1.size() > 0) {
-			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2, getResultsFor(system1,system2));
+			CalibrationResult latestResult = getResultsFor(system1,system2);
+			latestResult.latency = estimateLatency(measurements1, measurements2);
+			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2,latestResult);
 
 			//Debug
 			//std::stringstream ss;

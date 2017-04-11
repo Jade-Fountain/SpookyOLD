@@ -91,12 +91,14 @@ namespace fusion {
 		State state = UNCALIBRATED;
 		//Maps systems.first to systems.second
 		Transform3D transform;
+		//Latency in ms of systems.second compared to systems.first
+		float latency = 0;
+
 		//Error is the mean re-projection error
 		float error = 0;
 		//Quality is a qualitative measure in [0,1] of the estimated accuracy of the result
 		float quality = 0;
-
-		//Relevance - parameter used to detect when a system config has changed
+		//Relevance - parameter used to detect faults in the system
 		float relevance = 1;
 
 		//Returns the inverse of the calibration result
@@ -274,7 +276,9 @@ namespace fusion {
 		//=========================
 		
 		//Method for getting the distance between two measurements
+		Eigen::VectorXf difference(const Measurement::Ptr & other);
 		float compare(const Measurement::Ptr & other);
+
 
 		//Synchronises the source stream with the target stream
 		// It is assumed that the two  streams are chronologically sorted
@@ -322,6 +326,12 @@ namespace fusion {
 		bool isResolved() {
 			return sensor->isResolved();
 		}
+
+		double getTimestamp() {
+			return timestamp;
+		}
+
+
 	};
 
 

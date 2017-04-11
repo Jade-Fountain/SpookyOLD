@@ -135,22 +135,25 @@ namespace fusion {
 	}
 	
 
-	float Measurement::compare(const Measurement::Ptr& other) {
+	Eigen::VectorXf Measurement::difference(const Measurement::Ptr& other) {
 		if (type != other->type) {
 			throw std::runtime_error(__FILE__ + __LINE__ + std::string(" : Cannot compare two measurements of differing type"));
 		}
 		//TODO: deal with noisy measurements, esp rotation
 		if (type == Type::POSITION || type == Type::RIGID_BODY) {
-			return (getPosition() - other->getPosition()).norm();
+			return getPosition() - other->getPosition();
 		}
 		else if (type == Type::ROTATION) {
-			return Eigen::AngleAxisf(getRotation().inverse() * other->getRotation()).angle();
+			return Eigen::Matrix<float, 1,1>(Eigen::AngleAxisf(other->getRotation().inverse() * getRotation()).angle());
 		}
 		else {
-			return (data - other->data).norm();
+			return data - other->data;
 		}
 	}
 
+	float Measurement::compare(const Measurement::Ptr& other) {
+		return difference(other).norm();
+	}
 	//TODO: refactor using custom struct with two measurement streams
 	std::vector<Measurement::Ptr> Measurement::synchronise(
 		const std::vector<Measurement::Ptr>& source, 

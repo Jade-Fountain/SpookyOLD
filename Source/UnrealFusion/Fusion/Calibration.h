@@ -130,6 +130,10 @@ namespace fusion {
 		//Calibrate two rigidly linked 6DoF sensors
 		CalibrationResult cal6DoF(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2) const;
 
+		//Returns the estimated latency l between two streams: m2[t] <-> m1[t+l]
+		//Aka, m2 lags begind by l
+		float estimateLatency(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2);
+
 	public:
 		//Add data for later calibration
 		void addMeasurement(const Measurement::Ptr& m);

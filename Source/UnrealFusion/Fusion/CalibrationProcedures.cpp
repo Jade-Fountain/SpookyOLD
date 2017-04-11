@@ -109,4 +109,28 @@ namespace fusion {
 		result.state = CalibrationResult::State::REFINING;
 		return result;
 	}
+
+	float Calibrator::estimateLatency(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2) {
+		Eigen::VectorXf data1(m1.size());
+		Eigen::VectorXf times1(m1.size());
+		for (int i = 0; i < m1.size()-1; i++) {
+			//Velocity data
+			data1[i] = m1[i]->compare(m1[i+1]) / (m1[i+1]->getTimestamp() - m1[i]->getTimestamp());
+			//timestamps
+			times1[i] = m1[i]->getTimestamp();
+		}
+
+		Eigen::VectorXf data2(m2.size());
+		Eigen::VectorXf times2(m2.size());
+		for (int i = 0; i < m2.size() - 1; i++) {
+			//Velocity data
+			data2[i] = m2[i]->compare(m2[i + 1]) / (m2[i+1]->getTimestamp() - m2[i]->getTimestamp());
+			//timestamps
+			times2[i] = m2[i]->getTimestamp();
+		}
+		//return latency of m2 relative to m1
+		return utility::calibration::Time::estimateLatency(data1,times1,data2,times2);
+
+	}
+
 }

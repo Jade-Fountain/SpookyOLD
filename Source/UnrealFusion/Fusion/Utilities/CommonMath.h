@@ -70,6 +70,44 @@ namespace fusion{
 			return 1 / (1 + e*e);
 		}
 
+		//Takes on the order of 3N, where N = X.size()
+		static inline float getHistogramPeak(std::vector<float> X){
+			float min = std::numeric_limits<float>::max();
+			float max = std::numeric_limits<float>::min();
+			//Compute range of data
+			for(auto& x : X){
+				if(x < min) {
+					min = x;
+				}
+				if(x > max) {
+					max = x;
+				}
+			}
+			float range = max - min;
+			float delta = range / X.size();
+
+			//Create histogram
+			std::vector<int> histogram(X.size(),0);
+			for(auto& x : X){
+				//Numeric limits excludes the case where x == max, which would give histogram[histogram.size()] which is invalid
+				histogram[std::floor((x - min) * (1-std::numeric_limits<float>::min()) / delta)]++; 
+			}
+
+			//Find peak of histogram
+			int max_index = 0;
+			int max_count = 0;
+			for(int i = 0; i < histogram.size(); i++){
+				if(histogram[i] > max_count){
+					max_count = histogram[i];
+					max_index = i;
+				}
+			}
+
+			//Return centred max bin
+			return (max_index + 0.5) * delta + min;
+
+		}
+
 	
 	}
 }
