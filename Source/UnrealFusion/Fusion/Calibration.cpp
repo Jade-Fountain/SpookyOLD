@@ -137,13 +137,18 @@ namespace fusion {
 		std::vector<Measurement::Ptr> measurements1;
 		std::vector<Measurement::Ptr> measurements2;
 
-		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, count_threshold[getResultsFor(system1,system2).state]);
+		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, count_threshold[getResultsFor(system1,system2).state], false);
 
 		//Calibrate
 		if (measurements1.size() > 0) {
 			CalibrationResult latestResult = getResultsFor(system1,system2);
 			latestResult.latency = estimateLatency(measurements1, measurements2);
-			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2,latestResult);
+			Measurement::setLatencies(measurements2, latestResult.latency);
+			FUSION_LOG("Estimated latency = " + std::to_string(latestResult.latency));
+
+			//Resynchronise measurements after latency estimation
+			getRelevantMeasurements(system1, system2, &measurements1, &measurements2, count_threshold[getResultsFor(system1, system2).state], true);
+			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2, latestResult);
 
 			//Debug
 			//std::stringstream ss;
@@ -157,7 +162,8 @@ namespace fusion {
 		SystemDescriptor system2,
 		std::vector<Measurement::Ptr>* measurements1,
 		std::vector<Measurement::Ptr>* measurements2,
-		int minMeasurementCount
+		int minMeasurementCount,
+		bool clearMeasurementsWhenDone
 	){
 		//TODO:
 		// - incorporate latency 
@@ -180,10 +186,10 @@ namespace fusion {
 
 				//Streams of different length or not long enough- we cant use this data
 				if (count1 < minMeasurementCount || count2 < minMeasurementCount) {
-				continue; //cannot calibrate this pair of sensors yet
+					continue; //cannot calibrate this pair of sensors yet
 				}
 
-				//Calibrate with complete bipartite graph of solutions
+				//Calibrate with complete bipartite graph of relationships
 				for (auto& pair1 : calibrationSet.systemNodeTable[sysNode1].sensors) {
 					SensorID id1 = pair1.first;
 					std::vector<Measurement::Ptr>& m1_ = pair1.second;
@@ -199,8 +205,10 @@ namespace fusion {
 						measurements2->insert(measurements2->end(), m2.begin(), m2.end());
 
 						//Clear the data used for calibration
-						m1_.clear();
-						m2_.clear();
+						if (clearMeasurementsWhenDone) {
+							m1_.clear();
+							m2_.clear();
+						}
 					}
 				}
 			}

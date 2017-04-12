@@ -137,7 +137,9 @@ namespace fusion {
 		//Stats for node scores:
 		float meanScore = 1; // computed and set by correlator
 		//=================================================
-
+		//Latency of this sensor relative to the main system (sec)
+		float latency = 0;
+		//=================================================
 		//Typedef ptr to this class for neater code later
 		typedef std::shared_ptr<Sensor> Ptr;
 
@@ -184,6 +186,14 @@ namespace fusion {
 			}
 		}
 
+		float getLatency() {
+			return latency;
+		}
+
+		void setLatency(const float& l) {
+			latency = l;
+		}
+
 	};
 
 	//Class describing individual sensor reading taken at a particular time
@@ -215,11 +225,11 @@ namespace fusion {
 
 		//Sensor information
 		Sensor::Ptr sensor;
-	public:
 
 		//Timestamp (sec; from device)
 		//TODO: ensure double precision input
 		double timestamp = -1;
+	public:
 
 		//Confidence in T in [0,1]
 		float confidence = 0;
@@ -282,14 +292,17 @@ namespace fusion {
 
 		//Synchronises the source stream with the target stream
 		// It is assumed that the two  streams are chronologically sorted
-		static std::vector<Measurement::Ptr> synchronise(const std::vector<Measurement::Ptr>& source, 
-														 const std::vector<Measurement::Ptr>& target,
-														 std::vector<Measurement::Ptr>& source_out);
+		static std::vector<Measurement::Ptr> synchronise(const std::vector<Measurement::Ptr>& source,
+														const std::vector<Measurement::Ptr>& target,
+														std::vector<Measurement::Ptr>& source_out);
 
 		//Interpolates between two measurements of the same type
 		static const float uncertainty_growth_max;
 		static Measurement::Ptr interpolate(const Measurement::Ptr& m0, const Measurement::Ptr& m1, float t);
 		static Measurement::Ptr extrapolate(const Measurement::Ptr& m, float time_sec);
+		
+		//Calls set latency for each listed measurement's sensor
+		static void setLatencies(std::vector<Measurement::Ptr>& m, float latency);
 		
 		//returns the vector corresponding to the transform T
 		static Eigen::Matrix<float, 7, 1> getPosQuatFromTransform(const Transform3D& T);
@@ -327,10 +340,19 @@ namespace fusion {
 			return sensor->isResolved();
 		}
 
+		//Returns the global timestamp corresponding to this measurement, compensating for latency
 		double getTimestamp() {
-			return timestamp;
+			return timestamp - sensor->getLatency();
 		}
 
+		//Sets the local timestamp from a global timestamp
+		void setTimestamp(double global_t) {
+			timestamp = global_t + sensor->getLatency();
+		}
+
+		void setLatency(const float& l) {
+			sensor->setLatency(l);
+		}
 
 	};
 

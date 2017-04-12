@@ -54,6 +54,11 @@ namespace fusion{
 							}
 						}
 					}
+					//Debug:
+					std::stringstream ss;
+					ss << "Data: x = " << std::endl << x << std::endl << "tx" << std::endl << tx << std::endl;
+					ss << "Data: y = " << std::endl << y << std::endl << "ty" << std::endl << ty;
+					FUSION_LOG(ss.str());
 
 					return getHistogramPeak(latencies);
 				}

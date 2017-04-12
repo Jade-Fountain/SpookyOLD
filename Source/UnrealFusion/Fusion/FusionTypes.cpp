@@ -165,7 +165,7 @@ namespace fusion {
 		std::vector<Measurement::Ptr>::const_iterator source_it = source.begin();
 		std::vector<Measurement::Ptr>::const_iterator target_it = target.begin();
 		
-		if ((*source_it)->timestamp == (*target_it)->timestamp) {
+		if ((*source_it)->getTimestamp() == (*target_it)->getTimestamp()) {
 			result.push_back(*source_it);
 			target_out.push_back(*target_it);
 		}
@@ -174,7 +174,7 @@ namespace fusion {
 			//Iterate to target after current source
 			while(
 				target_it != target.end() && 
-				(*target_it)->timestamp <= (*source_it)->timestamp
+				(*target_it)->getTimestamp() <= (*source_it)->getTimestamp()
 			){
 				target_it++;
 			}
@@ -185,7 +185,7 @@ namespace fusion {
 			//Increase source iterator until the next measurement is after the current target
 			while(
 				std::next(source_it) != source.end() && 
-				(*std::next(source_it))->timestamp < (*target_it)->timestamp
+				(*std::next(source_it))->getTimestamp() < (*target_it)->getTimestamp()
 			){
 				source_it++;
 			}
@@ -199,14 +199,14 @@ namespace fusion {
 
 			//Avoid interpolating if possible
 			//TODO: add small threshold?
-			if ((*lower_source_it)->timestamp == (*target_it)->timestamp) {
+			if ((*lower_source_it)->getTimestamp() == (*target_it)->getTimestamp()) {
 				result.push_back(*lower_source_it);
 				target_out.push_back(*target_it);
 			} else {
 				//Interpolate to synchronise
-				float t0 = (*lower_source_it)->timestamp;
-				float t1 = (*upper_source_it)->timestamp;
-				float t = ((*target_it)->timestamp - t0) / (t1 - t0);
+				float t0 = (*lower_source_it)->getTimestamp();
+				float t1 = (*upper_source_it)->getTimestamp();
+				float t = ((*target_it)->getTimestamp() - t0) / (t1 - t0);
 				target_out.push_back(*target_it);
 
 				result.push_back(Measurement::interpolate(*lower_source_it, *upper_source_it, t));
@@ -224,9 +224,9 @@ namespace fusion {
 		Measurement::Ptr result = std::make_shared<Measurement>(*m0);
 		//TODO: support nonlinear data types
 		result->data =  m0->data * (1-t) + m1->data * t;
-		result->timestamp =  m0->timestamp * (1-t) + m1->timestamp * t;
+		result->setTimestamp(m0->getTimestamp() * (1-t) + m1->getTimestamp() * t);
 
-		float uncertainty_growth = 4 * t * (1-t) * uncertainty_growth_max * (m0->timestamp - m1->timestamp) / 2;
+		float uncertainty_growth = 4 * t * (1-t) * uncertainty_growth_max * (m0->getTimestamp() - m1->getTimestamp()) / 2;
 		result->uncertainty = (m0->uncertainty * (1-t) + m1->uncertainty * t) * (1 + uncertainty_growth);
 		result->confidence = m0->confidence * (1-t) + m1->confidence * t;
 		return result;
@@ -239,6 +239,13 @@ namespace fusion {
 		result->uncertainty = (m->uncertainty) * (1 + uncertainty_growth);
 		//Otherwise guess same data, etc.
 		return result;
+	}
+
+	void Measurement::setLatencies(std::vector<Measurement::Ptr>& m, float latency)
+	{
+		for (auto& meas : m) {
+			meas->setLatency(latency);
+		}
 	}
 
 	Eigen::Matrix<float, 7, 1> Measurement::getPosQuatFromTransform(const Transform3D& T) {

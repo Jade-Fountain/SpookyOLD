@@ -112,10 +112,15 @@ namespace fusion {
 
 		//Gets the measurements relevant to calibration of system1 and system2
 		//Returns an empty list if calibration not ready yet
-		void getRelevantMeasurements(SystemDescriptor system1, SystemDescriptor system2, std::vector<Measurement::Ptr>* measurements1, std::vector<Measurement::Ptr>* measurements2, int minMeasurementCount);
+		void getRelevantMeasurements(SystemDescriptor system1, 
+									 SystemDescriptor system2, 
+									 std::vector<Measurement::Ptr>* measurements1, 
+									 std::vector<Measurement::Ptr>* measurements2, 
+									 int minMeasurementCount,
+									 bool clearMeasurementsWhenDone = true);
 
 		//Calibrate two particular data streams
-		CalibrationResult calibrateStreams(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2, const CalibrationResult& calib);
+		CalibrationResult calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib);
 		
 		//----------------
 		//CALIBRATION METHODS
