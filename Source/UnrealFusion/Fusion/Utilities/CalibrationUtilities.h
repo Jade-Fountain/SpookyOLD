@@ -28,6 +28,7 @@ namespace fusion{
 		namespace calibration {
 
 			namespace Time {
+				//Returns the time that that x leads y
 				static inline float estimateLatency(
 					const Eigen::VectorXf& x,
 					const Eigen::VectorXf& tx,

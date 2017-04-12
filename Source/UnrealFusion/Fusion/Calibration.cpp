@@ -142,8 +142,9 @@ namespace fusion {
 		//Calibrate
 		if (measurements1.size() > 0) {
 			CalibrationResult latestResult = getResultsFor(system1,system2);
-			latestResult.latency = estimateLatency(measurements1, measurements2);
-			Measurement::setLatencies(measurements2, latestResult.latency);
+			//latestResult.latency = estimateLatency(measurements1, measurements2);
+			latestResult.latency = estimateLatency(measurements2, measurements1);
+			Measurement::setLatencies(measurements1, latestResult.latency);
 			FUSION_LOG("Estimated latency = " + std::to_string(latestResult.latency));
 
 			//Resynchronise measurements after latency estimation

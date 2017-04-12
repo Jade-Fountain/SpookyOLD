@@ -353,7 +353,11 @@ namespace fusion {
 		void setLatency(const float& l) {
 			sensor->setLatency(l);
 		}
-
+		
+		//Returns the global global latency
+		float getLatency() {
+			return sensor->getLatency();
+		}
 	};
 
 

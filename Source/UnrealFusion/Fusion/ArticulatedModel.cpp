@@ -42,9 +42,24 @@ namespace fusion {
 		return pose;
 	}
 
-	void Node::updateState(const State& new_state){
+	//TODO: put timestamp in new_state
+	void Node::updateState(const State& new_state, const float& timestamp, const float& latency) {
 		rechacheRequired = true;
-		local_state = new_state;
+		if (timestamp == local_state.last_update_time) {
+			local_state = new_state;
+		}
+		else {
+			Eigen::VectorXf velocity = (new_state.expectation - local_state.expectation) / (timestamp - local_state.last_update_time);
+			local_state.expectation = new_state.expectation + velocity * latency;
+			assert(!std::isnan(local_state.expectation));
+
+			std::stringstream ss;
+			ss << "Prediction amount[" << desc.name << "] = " << velocity * latency << std::endl;
+			FUSION_LOG(ss.str());
+			//TODO: scale variance with extrapolation
+			local_state.variance = new_state.variance;
+		}
+		local_state.last_update_time = timestamp;
 	}
 
 	void Node::setModel(std::vector<Articulation> art){
@@ -83,7 +98,7 @@ namespace fusion {
 					new_state.expectation.normalize();
 					//TODO: make names consitent
 					new_state.variance = m->getRotationVar();
-					updateState(new_state);
+					updateState(new_state, m->getTimestamp(), m->getLatency());
 				} 
 				else if (m->type == Measurement::Type::RIGID_BODY && articulations[0].getType() == Articulation::Type::POSE)
 				{
@@ -94,7 +109,7 @@ namespace fusion {
 					Eigen::Vector3f posLocal = parent_pose.inverse() * m->getPosition();
 					new_state.expectation = Eigen::Matrix<float, 7, 1>::Zero();
 					new_state.expectation << posLocal, qLocal.coeffs();
-					updateState(new_state);
+					updateState(new_state, m->getTimestamp(), m->getLatency());
 				}
 			}
 			//Dont use data twice

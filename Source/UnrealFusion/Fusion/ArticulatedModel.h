@@ -46,6 +46,8 @@ namespace fusion {
 			Eigen::MatrixXf expectation;
 			//Covariance associated with vec(expectation)
 			Eigen::MatrixXf variance;
+			//Last update time
+			float last_update_time = 0;
 		};
 	
 		//Current state
@@ -80,7 +82,7 @@ namespace fusion {
 		Transform3D getLocalPose();
 
 		//Updates the state of this node (e.g. angle, quaternion, etc.)
-		void updateState(const State& new_state);
+		void Node::updateState(const State& new_state, const float& timestamp, const float& latency);
 		//Sets the model for the articulations associated with this node
 		void setModel(std::vector<Articulation> art);
 		//Local fusion of buffered measurements
