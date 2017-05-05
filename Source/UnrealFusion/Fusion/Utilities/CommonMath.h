@@ -21,6 +21,9 @@
 #include<Eigen/unsupported/KroneckerProduct>
 #include "Logging.h"
 #pragma once
+
+#define M_PI 3.141592654
+
 namespace fusion{
 	namespace utility{
 
@@ -34,27 +37,61 @@ namespace fusion{
 			return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
 		}
 
+		static inline Eigen::Matrix3f orthogonaliseBasic(const Eigen::Matrix3f& M) {
+			Eigen::Vector3f x = M.col(0);
+			x.normalize();
+			Eigen::Vector3f y = M.col(1);
+			y.normalize();
+			Eigen::Vector3f z = M.col(2);
+			z.normalize();
+			
+			float error = x.dot(y);
+			float theta = std::acos(error);
+			float x_angle = theta / 2 - M_PI / 4;
+
+			Eigen::Vector3f n = x.cross(y);
+			n.normalize();
+
+			Eigen::Matrix3f Rx_angle = Eigen::AngleAxisf(x_angle, n).matrix();
+			Eigen::Matrix3f Ry_angle = Rx_angle.transpose();
+
+			Eigen::Vector3f x_temp = Rx_angle * x;
+			Eigen::Vector3f y_temp = Ry_angle * y;
+
+			Eigen::Vector3f xy = (x + y);
+			xy.normalize();
+			float phi = std::atan2(z.dot(xy), z.dot(n));
+
+			Eigen::Vector3f r = z.cross(xy);
+			
+			Eigen::Matrix3f Rxy = Eigen::AngleAxisf(phi / 2, r).matrix();
+			Eigen::Matrix3f Rz = Rxy.transpose();
+
+			Eigen::Vector3f x_new = Rxy * x_temp;
+			Eigen::Vector3f y_new = Rxy * y_temp;
+			Eigen::Vector3f z_new = Rz * z;
+
+			Eigen::Matrix3f result;
+			result.col(0) = x_new;
+			result.col(1) = y_new;
+			result.col(2) = z_new;
+
+			return result;
+
+		}
+
 		static inline Eigen::Transform<float, 3, Eigen::Affine> matrixToTransform3D(const Eigen::Matrix4f& X) {
 			//Make sure normalised
-			Eigen::Quaternionf q(X.block<3, 3>(0, 0));
-			q.normalize();
+			//Eigen::Quaternionf q(X.block<3, 3>(0, 0));
+			//q.normalize();
 			Eigen::Translation3f t(X.block<3, 1>(0, 3));
 
 			Eigen::Transform<float, 3, Eigen::Affine> TX(t);
-			TX.rotate(q);
+			//TX.rotate(q);
+			TX.rotate(orthogonaliseBasic(X.topLeftCorner(3, 3)));
 			return TX;
 		}
 
-		/*static inline Eigen::Matrix3f orthogonaliseBasic(const Eigen::Matrix3f& M) {
-			Eigen::Vector3f x = M.col(0);
-			Eigen::Vector3f y = M.col(1);
-			Eigen::Vector3f z = M.col(2);
-			
-			Eigen::Vector3f x_ort = x - ;
-
-
-		}
-*/
 		static inline Eigen::Transform<float, 3, Eigen::Affine> slerpTransform3D(
 			const Eigen::Transform<float, 3, Eigen::Affine>& T1,
 			const Eigen::Transform<float, 3, Eigen::Affine>& T2, 
