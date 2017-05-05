@@ -38,12 +38,13 @@ namespace fusion{
 					if (x.cols() != tx.cols() || y.cols() != ty.cols()) {
 						throw std::runtime_error(__LINE__ + "data and timestamps differ in count");
 					}
-
+					
 					std::vector<float> latencies;
 					for (int i = 0; i < y.size(); i++) {
 						for (int j = 0; j < x.size() - 1; j++) {
 							float det = (x(j) - y(i))*(x(j + 1) - y(i));
-							if (det < 0) {
+							//If the value of y intersects x graph in this interval
+							if (det <= 0) {
 								//Interpolate fraction alpha between x(j+1) and x(j)
 								float alpha = (y(i) - x(j)) / (x(j + 1) - x(j));
 								//Get t based on interpolation between two successive measurements
@@ -91,7 +92,7 @@ namespace fusion{
 				//For calibrating a pair of systems with two sensors measuring the same point from two different reference frames
 				// Xa = b
 				// or XA = B
-				static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateIdenticalPair(
+				static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateIdenticalPairTransform(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,
 					float* error = NULL
@@ -119,7 +120,7 @@ namespace fusion{
 
 					return TX;
 				}
-				
+
 				static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateWeightedIdenticalPair(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,
@@ -174,56 +175,61 @@ namespace fusion{
 
 					return TX;
 				}
-				
-				//TODO:FIX THIS METHOD:
-				static inline Eigen::Transform<float, 3, Eigen::Affine> refineIdenticalPair(
+
+				//For calibrating rotation between a pair of systems with two sensors measuring the same point from two different reference frames
+				// Xa = b
+				// or XA = B
+				static inline Eigen::Transform<float, 3, Eigen::Affine> refineIdenticalPairRotation(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,
 					const Eigen::Transform<float, 3, Eigen::Affine>& X,
 					float* error = NULL
 				) {
-					Eigen::MatrixXf A(4, samplesA.size());
-					Eigen::MatrixXf B(4, samplesB.size());
+					if (samplesA.size() != samplesB.size()) {
+						throw std::runtime_error(std::string(__FILE__) + std::to_string(__LINE__) + std::string(" : samplesA and samplesB of different size"));
+					}
+
+					Eigen::MatrixXf A(3, samplesA.size());
+					Eigen::MatrixXf B(3, samplesB.size());
+					Eigen::Vector3f p = X.translation();
 
 					for (int i = 0; i < samplesA.size(); i++) {
-						A.col(i) << samplesA[i], 1;
-						B.col(i) << samplesB[i], 1;
+						A.col(i) << samplesA[i];
+						B.col(i) << samplesB[i] - p;
 					}
 
-					Eigen::MatrixXf E = B - X.matrix() * A;
+					Eigen::Matrix3f R = B * pInv(A);
+					Eigen::Matrix4f T = Eigen::Matrix4f::Identity();
+					T.topLeftCorner(3, 3) = R;
+					T.topRightCorner(3, 1) = X.translation();
 
-					Eigen::Matrix4f dX;
-
-					for (int i = 0; i < 4; i++) {
-						for (int j = 0; j < 4; j++) {
-							dX(i, j) = 0;
-							float max_n = A.cols() / 4;
-							for (int n = 0; n < max_n; n++) {
-								dX(i, j) = A(i, j + 4 * n) / (max_n - 1);
-							}
-						}
-					}
-
-					dX = 0.1 * dX / dX.norm();
-
-					Eigen::Transform<float, 3, Eigen::Affine> TX = matrixToTransform3D(X.matrix() + dX);
+					//Make sure normalised
+					Eigen::Transform<float, 3, Eigen::Affine> TX = matrixToTransform3D(T);
 
 					if (error != NULL) {
-						*error = errorFunc(TX.matrix() * A - B);
+						auto E = TX.matrix().topLeftCorner(3,3) * A - B;
+						*error = errorFunc(E);
 					}
+
+
+					//DEBUG
+					std::stringstream ss;
+					ss << "Rotation matrix raw = \n" << T << std::endl;
+					ss << "Rotation matrix reorth = \n" << TX.matrix() << std::endl;
+					FUSION_LOG(ss.str());
 
 					return TX;
 				}
 
 				//Simple refinement
-				static inline Eigen::Transform<float, 3, Eigen::Affine> refineIdenticalPairSimple(
+				static inline Eigen::Transform<float, 3, Eigen::Affine> refineIdenticalPairTransform(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,
 					const Eigen::Transform<float, 3, Eigen::Affine>& X,
 					float* error = NULL
 				) {
 					float learning_rate = 0.1;
-					Eigen::Transform<float, 3, Eigen::Affine> X_new = calibrateIdenticalPair(samplesA, samplesB);
+					Eigen::Transform<float, 3, Eigen::Affine> X_new = calibrateIdenticalPairTransform(samplesA, samplesB);
 
 					Eigen::Transform<float, 3, Eigen::Affine> TX = slerpTransform3D(X, X_new, learning_rate);
 

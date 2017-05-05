@@ -45,7 +45,7 @@ namespace fusion {
 	//TODO: put timestamp in new_state
 	void Node::updateState(const State& new_state, const float& timestamp, const float& latency) {
 		rechacheRequired = true;
-		if (timestamp == local_state.last_update_time) {
+		if (true || timestamp == local_state.last_update_time) {
 			local_state = new_state;
 		}
 		else {

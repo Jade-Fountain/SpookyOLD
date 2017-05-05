@@ -75,7 +75,7 @@ namespace fusion {
 		//----------------
 
 		//Difference threshold: store new measurement if difference to last measurement is larger than this
-		float diff_threshold = 0.1f;
+		float diff_threshold = 0.5f;
 		//TODO: change diff threshold for different calibration stages
 		//{
 		//	{ CalibrationResult::State::UNCALIBRATED, 0.1 },
@@ -134,6 +134,9 @@ namespace fusion {
 
 		//Calibrate two rigidly linked 6DoF sensors
 		CalibrationResult cal6DoF(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2) const;
+
+		//Estimate latencies of multiple concatenated streams of measurements
+		float estimateLatencies(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2);
 
 		//Returns the estimated latency l between two streams: m2[t] <-> m1[t+l]
 		//Aka, m2 lags begind by l

@@ -41,8 +41,14 @@ namespace fusion {
 		//Compute transform and error
 		switch (currentCalibration.state) {
 		case (CalibrationResult::State::UNCALIBRATED):
+			//Clear previous
+			result.transform.setIdentity();
 			//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
-			result.transform = utility::calibration::Position::calibrateIdenticalPair(pos1, pos2, &result.error);
+			result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
+			for (int i = 0; i < 10; i++) {
+				result.transform = utility::calibration::Position::refineIdenticalPairPosition(pos1, pos2, result.transform, &result.error);
+				result.transform = utility::calibration::Position::refineIdenticalPairRotation(pos1, pos2, result.transform, &result.error);
+			}
 			result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
 			result.relevance = result.quality;
 			FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
@@ -110,12 +116,35 @@ namespace fusion {
 		return result;
 	}
 
+	float Calibrator::estimateLatencies(const std::vector<Measurement::Ptr>& meas1, const std::vector<Measurement::Ptr>& meas2) {
+		float last_timestamp = meas1.front()->getTimestamp();
+		int i = 0;
+		int first = i;
+		float result_sum = 0;
+		int count_streams = 0;
+		while (i < meas1.size()) {
+			//Should be synchronised at this point
+			if(i != first && meas1[i]->getTimestamp() < last_timestamp) {
+				std::vector<Measurement::Ptr> m1(meas1.begin() + first, meas1.begin() + i);//Excludes last
+				std::vector<Measurement::Ptr> m2(meas2.begin() + first, meas2.begin() + i);
+				result_sum += estimateLatency(m1, m2);
+				first = i;
+				count_streams++;
+			}
+			last_timestamp = meas1[i]->getTimestamp();
+			i++;
+		}
+		return result_sum / count_streams;
+
+	}
+
 	float Calibrator::estimateLatency(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2) {
 		Eigen::VectorXf data1(m1.size());
 		Eigen::VectorXf times1(m1.size());
-		for (int i = 0; i < m1.size()-1; i++) {
+		for (int i = 0; i < m1.size() - 1; i++) {
 			//Velocity data
-			data1[i] = m1[i]->compare(m1[i+1]) / (m1[i+1]->getTimestamp() - m1[i]->getTimestamp());
+			data1[i] = m1[i]->compare(m1[0]);
+			//data1[i] = m1[i+1]->compare(m1[i]) / (m1[i + 1]->getTimestamp() - m1[i]->getTimestamp());
 			//timestamps
 			times1[i] = m1[i]->getTimestamp();
 		}
@@ -124,12 +153,13 @@ namespace fusion {
 		Eigen::VectorXf times2(m2.size());
 		for (int i = 0; i < m2.size() - 1; i++) {
 			//Velocity data
-			data2[i] = m2[i]->compare(m2[i + 1]) / (m2[i+1]->getTimestamp() - m2[i]->getTimestamp());
+			data2[i] = m2[i]->compare(m2[0]);
+			//data2[i] = m2[i+1]->compare(m2[i]) / (m2[i + 1]->getTimestamp() - m2[i]->getTimestamp());
 			//timestamps
 			times2[i] = m2[i]->getTimestamp();
 		}
 		//return latency of m2 relative to m1
-		return utility::calibration::Time::estimateLatency(data1,times1,data2,times2);
+		return utility::calibration::Time::estimateLatency(data1, times1, data2, times2);
 
 	}
 

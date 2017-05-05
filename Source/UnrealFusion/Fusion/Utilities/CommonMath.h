@@ -45,6 +45,16 @@ namespace fusion{
 			return TX;
 		}
 
+		/*static inline Eigen::Matrix3f orthogonaliseBasic(const Eigen::Matrix3f& M) {
+			Eigen::Vector3f x = M.col(0);
+			Eigen::Vector3f y = M.col(1);
+			Eigen::Vector3f z = M.col(2);
+			
+			Eigen::Vector3f x_ort = x - ;
+
+
+		}
+*/
 		static inline Eigen::Transform<float, 3, Eigen::Affine> slerpTransform3D(
 			const Eigen::Transform<float, 3, Eigen::Affine>& T1,
 			const Eigen::Transform<float, 3, Eigen::Affine>& T2, 
