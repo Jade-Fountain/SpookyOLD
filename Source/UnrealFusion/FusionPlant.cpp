@@ -89,8 +89,7 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh, float
 				bonePoseLocal);
 		}
 		else {
-			//TEST everything is a pose node now!
-			plant.addPoseNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))),
+			plant.addBoneNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))),
 				parent_desc,
 				bonePoseLocal);
 		}
@@ -117,9 +116,9 @@ void UFusionPlant::AddPositionMeasurement(TArray<FString> nodeNames, FString sys
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FQuat measurement, FVector covariance, bool globalSpace, float confidence)
+void UFusionPlant::AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FRotator measurement, FVector4 covariance, bool globalSpace, float confidence)
 {
-	Measurement::Ptr m = CreateRotationMeasurement(systemName,sensorID,timestamp_sec,measurement,covariance,confidence);
+	Measurement::Ptr m = CreateRotationMeasurement(systemName,sensorID,timestamp_sec, measurement.Quaternion(),covariance,confidence);
 	m->globalSpace = globalSpace;
 	plant.addMeasurement(m, convertToNodeDescriptors(nodeNames));
 }
@@ -273,7 +272,7 @@ Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, in
 	return std::move(result);
 }
 
-Measurement::Ptr UFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector uncertainty, float confidence)
+Measurement::Ptr UFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector4 uncertainty, float confidence)
 {
 	//Create basic measurement
 	Eigen::Quaternionf meas(rotation.X, rotation.Y, rotation.Z, rotation.W);
