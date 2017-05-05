@@ -213,10 +213,10 @@ namespace fusion{
 
 
 					//DEBUG
-					std::stringstream ss;
-					ss << "Rotation matrix raw = \n" << T << std::endl;
-					ss << "Rotation matrix reorth = \n" << TX.matrix() << std::endl;
-					FUSION_LOG(ss.str());
+					//std::stringstream ss;
+					//ss << "Rotation matrix raw = \n" << T << std::endl;
+					//ss << "Rotation matrix reorth = \n" << TX.matrix() << std::endl;
+					//FUSION_LOG(ss.str());
 
 					return TX;
 				}
