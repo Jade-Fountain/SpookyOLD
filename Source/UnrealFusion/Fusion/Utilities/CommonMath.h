@@ -27,6 +27,7 @@
 namespace fusion{
 	namespace utility{
 
+
 		//Source: https://fuyunfei1.gitbooks.io/c-tips/content/pinv_with_eigen.html
 		//Pseudo inverse
 		template<typename _Matrix_Type_>
@@ -155,6 +156,92 @@ namespace fusion{
 			return (max_index + 0.5) * delta + min;
 
 		}
+
+
+		//TODO: put this somewhere nicer
+		struct Sphere {
+			float r = 0;
+			Eigen::VectorXf center;
+		};
+
+		class Line {
+		public:
+
+			Eigen::VectorXf origin;
+			Eigen::VectorXf direction;
+
+			Eigen::VectorXf getPoint(const float& t) const {
+				return origin + t * direction;
+			}
+
+			Eigen::VectorXf intersect(const Line& other, bool* success) {
+				//X * [t1,t2]^T = y
+				Eigen::MatrixXf X(origin.rows(), 2);
+				Eigen::MatrixXf y = origin - other.origin;
+				
+				X.col(0) = direction;
+				X.col(1) = -other.direction;
+
+				Eigen::MatrixXf Xinv = pInv(X);
+				Eigen::Vector2f tVals = Xinv * y;
+
+				Eigen::VectorXf thisPoint = getPoint(tVals(0));
+				Eigen::VectorXf thatPoint = other.getPoint(tVals(1));
+
+				if((thisPoint - thatPoint).norm() < 0.01){
+					*success = true;
+				} else {
+					*success = false;
+				}
+				return (thisPoint + thatPoint) / 2;
+			}
+		};
+
+		template <class Model>
+		static inline Model RANSAC(){
+
+		}
+
+		static inline Line getCircleNormal(const Eigen::Vector3f& A,const Eigen::Vector3f& B, const Eigen::Vector3f& C){
+			Eigen::Vector3f AB = A-B;
+			Eigen::Vector3f BC = B-C;
+			Eigen::Vector3f CA = C-A;
+			
+			Line result;
+			Eigen::Vector3f normal = AB.cross(BC);
+			normal.normalize();
+			result.direction = normal; 
+
+			Line lineAB;
+			lineAB.origin = B + AB / 2;
+			lineAB.direction = AB.cross(normal);
+
+			Line lineBC;
+			lineBC.origin = C + BC / 2;
+			lineBC.direction = BC.cross(normal);
+
+			bool success = false;
+			result.origin = lineBC.intersect(lineAB, &success);
+			
+			return result;
+		}
+
+		static inline Sphere fitSphere(const Eigen::MatrixXf& points){
+			Sphere result;
+			Eigen::VectorXf mean = points.rowwise().mean();
+			result.center = mean;
+
+			//Check dimension
+			if (mean.rows() == 3) {
+				Line ray1 = getCircleNormal(points.col(0), points.col(1), points.col(2));
+				Line ray2 = getCircleNormal(points.col(3),points.col(1),points.col(2));
+				bool success = false;
+				result.center = ray1.intersect(ray2, &success);
+			}
+
+			return result;
+		}
+
 
 	
 	}
