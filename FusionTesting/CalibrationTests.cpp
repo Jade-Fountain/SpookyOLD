@@ -2,6 +2,7 @@
 #include "CppUnitTest.h"
 #include <vector>
 #include "../Source/UnrealFusion/Fusion/Utilities/CalibrationUtilities.h"
+#include "../Source/UnrealFusion/Fusion/Utilities/CommonMath.h"
 #include <Windows.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -46,7 +47,7 @@ namespace FusionTesting
 			}
 
 			float error = 0;
-			Eigen::Transform<float, 3, Eigen::Affine> X_ = fusion::utility::calibration::Position::calibrateIdenticalPair(samplesA, samplesB, &error);
+			Eigen::Transform<float, 3, Eigen::Affine> X_ = fusion::utility::calibration::Position::calibrateIdenticalPairTransform(samplesA, samplesB, &error);
 
 			std::stringstream ss;
 			ss << "Correct X = \n" << X.matrix() << std::endl;
@@ -57,6 +58,35 @@ namespace FusionTesting
 			bool close_enough = X.isApprox(X_,noise);
 			Assert::AreEqual(close_enough, true, widestr.c_str());
 		}
+
+		TEST_METHOD(GetCircleNormal) 
+		{
+			Eigen::Vector3f A(1,0,0);
+			Eigen::Vector3f B(0,1,0);
+			Eigen::Vector3f C(0,0,1);
+
+			fusion::utility::Line n = fusion::utility::getCircleNormal(A,B,C);
+
+			Eigen::Vector3f dir = n.direction;
+			bool success = dir.cross(Eigen::Vector3f(1,1,1)).isApprox(Eigen::Vector3f(0,0,0),0.0001);
+			success = success && n.origin.isApprox(Eigen::Vector3f(1,1,1) * 1/3,0.0001);
+
+			Assert::AreEqual(success, true);
+		}
+
+		TEST_METHOD(GetSphere) {
+			Eigen::Vector3f A(1, 1, 0);
+			Eigen::Vector3f B(0, 1, 1);
+			Eigen::Vector3f C(1, 0, 1);
+			Eigen::Vector3f D(2, 1, 1);
+
+			fusion::utility::Sphere s = fusion::utility::getSphereFrom4Points(A,B,C,D);
+
+			bool success = s.center.isApprox(Eigen::Vector3f(1,1,1)) && std::fabs(s.r-1) < 0.0001;
+			Assert::AreEqual(success, true);
+
+		}
+
 
 	};
 }

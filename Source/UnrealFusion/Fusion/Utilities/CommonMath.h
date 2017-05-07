@@ -19,7 +19,7 @@
 #include<Eigen/SVD>
 #include<Eigen/Geometry>
 #include<Eigen/unsupported/KroneckerProduct>
-#include "Logging.h"
+//#include "Logging.h"
 #pragma once
 
 #define M_PI 3.141592654
@@ -177,7 +177,7 @@ namespace fusion{
 			Eigen::VectorXf intersect(const Line& other, bool* success) {
 				//X * [t1,t2]^T = y
 				Eigen::MatrixXf X(origin.rows(), 2);
-				Eigen::MatrixXf y = origin - other.origin;
+				Eigen::MatrixXf y = other.origin - origin;
 				
 				X.col(0) = direction;
 				X.col(1) = -other.direction;
@@ -226,6 +226,16 @@ namespace fusion{
 			return result;
 		}
 
+		static inline Sphere getSphereFrom4Points(const Eigen::Vector3f& A, const Eigen::Vector3f& B, const Eigen::Vector3f& C, const Eigen::Vector3f& D) {
+			Sphere result;
+			Line ray1 = getCircleNormal(A, B, C);
+			Line ray2 = getCircleNormal(B, C, D);
+			bool success = false;
+			result.center = ray1.intersect(ray2, &success);
+			result.r = (result.center - A).norm();
+			return result;
+		}
+
 		static inline Sphere fitSphere(const Eigen::MatrixXf& points){
 			Sphere result;
 			Eigen::VectorXf mean = points.rowwise().mean();
@@ -233,10 +243,7 @@ namespace fusion{
 
 			//Check dimension
 			if (mean.rows() == 3) {
-				Line ray1 = getCircleNormal(points.col(0), points.col(1), points.col(2));
-				Line ray2 = getCircleNormal(points.col(3),points.col(1),points.col(2));
-				bool success = false;
-				result.center = ray1.intersect(ray2, &success);
+				result = getSphereFrom4Points(points.col(0), points.col(1), points.col(2), points.col(3));
 			}
 
 			return result;

@@ -13,15 +13,15 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include<iostream>
-#include<string>
-#include<Eigen/Core>
-#include<Eigen/SVD>
-#include<Eigen/Geometry>
-#include<Eigen/unsupported/KroneckerProduct>
+#include <iostream>
+#include <string>
+#include <Eigen/Core>
+#include <Eigen/SVD>
+#include <Eigen/Geometry>
+#include <Eigen/unsupported/KroneckerProduct>
 #include "CommonMath.h"
 
-#include "Logging.h"
+//#include "Logging.h"
 #pragma once
 namespace fusion{
 	namespace utility{
@@ -57,10 +57,10 @@ namespace fusion{
 						}
 					}
 					//Debug:
-					std::stringstream ss;
-					ss << "Data: x = " << std::endl << x << std::endl << "tx" << std::endl << tx << std::endl;
-					ss << "Data: y = " << std::endl << y << std::endl << "ty" << std::endl << ty;
-					FUSION_LOG(ss.str());
+					//std::stringstream ss;
+					//ss << "Data: x = " << std::endl << x << std::endl << "tx" << std::endl << tx << std::endl;
+					//ss << "Data: y = " << std::endl << y << std::endl << "ty" << std::endl << ty;
+					//FUSION_LOG(ss.str());
 
 					return getHistogramPeak(latencies);
 				}
