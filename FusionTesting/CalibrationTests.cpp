@@ -75,6 +75,7 @@ namespace FusionTesting
 		}
 
 		TEST_METHOD(GetSphere) {
+			//Basic sphere
 			Eigen::Vector3f A(1, 1, 0);
 			Eigen::Vector3f B(0, 1, 1);
 			Eigen::Vector3f C(1, 0, 1);
@@ -84,6 +85,29 @@ namespace FusionTesting
 
 			bool success = s.center.isApprox(Eigen::Vector3f(1,1,1)) && std::fabs(s.r-1) < 0.0001;
 			Assert::AreEqual(success, true);
+
+			//Random spheres
+			for(int j = 0; j < 100 ; j++){
+				std::vector<Eigen::Vector3f> points(4);
+				for (int i = 0; i < 4; i++) {
+					points[i] = Eigen::Vector3f::Random();
+				}
+				fusion::utility::Sphere s = fusion::utility::getSphereFrom4Points(points[0], points[1], points[2], points[3]);
+				Eigen::Vector4f errors(4);
+				for (int i = 0; i < 4; i++) {
+					errors(i) = (points[i] - s.center).norm() - s.r;
+				}
+				success = errors.norm() < 0.0001;
+
+
+				std::stringstream ss;
+				ss << "Points = \n" << points[0] << "," << points[1] << "," << points[2] << "," << points[3] << std::endl;
+				ss << "Sphere = \n" << s.center << "," << s.r << std::endl;
+				ss << "Errors = " << errors << std::endl;
+				std::wstring widestr = utf8_decode(ss.str());
+
+				Assert::AreEqual(success,true, widestr.c_str());
+			}
 
 		}
 
