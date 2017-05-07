@@ -159,9 +159,20 @@ namespace fusion{
 
 
 		//TODO: put this somewhere nicer
-		struct Sphere {
+		class Sphere {
+		public:
 			float r = 0;
 			Eigen::VectorXf center;
+
+			float getError(const Eigen::MatrixXf& points){
+				int num_points = points.cols();
+				float totalError = 0;
+				for(int i = 0; i < num_points; i++){
+					totalError += std::fabs((points.col(i) - center).norm() - r);
+				}
+				return totalError;
+			}
+
 		};
 
 		class Line {
@@ -197,10 +208,6 @@ namespace fusion{
 			}
 		};
 
-		template <class Model>
-		static inline Model RANSAC(){
-
-		}
 
 		static inline Line getCircleNormal(const Eigen::Vector3f& A,const Eigen::Vector3f& B, const Eigen::Vector3f& C){
 			Eigen::Vector3f AB = A-B;
@@ -236,6 +243,22 @@ namespace fusion{
 			return result;
 		}
 
+		static inline Sphere sphereRANSAC(const Eigen::MatrixXf& points){
+			int num_points = points.cols();
+			std::vector<Sphere> models;
+			float best_error = 100000000;
+			int best_model_index = 0;
+			for(int i = 0; i < num_points - 3; i++){
+				models.push_back(getSphereFrom4Points(points.col(i),points.col(i+1),points.col(i+2),points.col(i+3)));
+				float error = models.back().getError(points);
+				if(error < best_error){
+					best_error = error;
+					best_model_index = i;
+				}
+			}
+			return models[best_model_index];
+		}
+
 		static inline Sphere fitSphere(const Eigen::MatrixXf& points){
 			Sphere result;
 			Eigen::VectorXf mean = points.rowwise().mean();
@@ -243,7 +266,7 @@ namespace fusion{
 
 			//Check dimension
 			if (mean.rows() == 3) {
-				result = getSphereFrom4Points(points.col(0), points.col(1), points.col(2), points.col(3));
+				result = sphereRANSAC(const Eigen::MatrixXf& points);
 			}
 
 			return result;
