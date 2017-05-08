@@ -15,6 +15,8 @@
 */
 #include<iostream>
 #include<string>
+#include<numeric>
+#include<algorithm>
 #include<Eigen/Core>
 #include<Eigen/SVD>
 #include<Eigen/Geometry>
@@ -166,11 +168,27 @@ namespace fusion{
 
 			float getError(const Eigen::MatrixXf& points){
 				int num_points = points.cols();
-				float totalError = 0;
+				std::vector<float> errors;
 				for(int i = 0; i < num_points; i++){
-					totalError += std::fabs((points.col(i) - center).norm() - r);
+					float error = std::fabs((points.col(i) - center).norm() - r);
+					//Insert in order
+					std::vector<float>::iterator below = errors.begin();
+					std::vector<float>::iterator above = errors.end();
+					//Binary search for location to insert
+					while(std::distance(above,below) > 1){
+						std::vector<float>::iterator middle = below;
+						std::advance(middle, std::distance(above, below) / 2);
+						if (*middle > error) {
+							above = middle;
+						}
+						else {
+							below = middle;
+						}
+					}
+					errors.insert(above, error);
 				}
-				return totalError;
+				//Return medium
+				return errors[errors.size() / 2];
 			}
 
 		};
@@ -244,18 +262,36 @@ namespace fusion{
 		}
 
 		static inline Sphere sphereRANSAC(const Eigen::MatrixXf& points){
+			//Number of points to fit sphere to
 			int num_points = points.cols();
+
+			//State of optimisation
 			std::vector<Sphere> models;
 			float best_error = 100000000;
 			int best_model_index = 0;
+			
+			//Random number selection
+			std::vector<int> indices(num_points);
+			std::iota(std::begin(indices), std::end(indices), 0);
+
+			//Point stats
+			Eigen::Vector3f mean = points.rowwise().mean();
+			float variance = (points.colwise() + mean).colwise().norm().rowwise().mean()[0];
+
+
+			//Compute models and record the best one
 			for(int i = 0; i < num_points - 3; i++){
-				models.push_back(getSphereFrom4Points(points.col(i),points.col(i+1),points.col(i+2),points.col(i+3)));
+				std::random_shuffle(std::begin(indices), std::end(indices));
+				models.push_back(getSphereFrom4Points(points.col(indices[0]), points.col(indices[1]), points.col(indices[2]), points.col(indices[3])));
 				float error = models.back().getError(points);
-				if(error < best_error){
+
+				float distance = (models.back().center - mean).norm();
+				if(error < best_error && distance < variance){
 					best_error = error;
 					best_model_index = i;
 				}
 			}
+			//return best
 			return models[best_model_index];
 		}
 

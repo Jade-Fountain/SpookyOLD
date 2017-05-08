@@ -111,6 +111,40 @@ namespace FusionTesting
 
 		}
 
+		TEST_METHOD(RANSACSphere) {
+			//Number of points
+			int N = 50;
+			//Noise level
+			float noise_level = 0.1;
+			//Sphere parameters to test
+			Eigen::Vector3f center(1,2,-4);
+			float radius = 0.6;
+			
+			//Construct data
+			Eigen::MatrixXf points(3,N);
+			for(int i = 0; i < N; i++){
+				Eigen::Vector2f random = Eigen::Vector2f::Random();
+				Eigen::Vector3f r;
+				r[2] = random[1];
+				r[0] = std::sqrt(1 - r[2] * r[2]) * std::cos(random[0] * M_PI);
+				r[1] = std::sqrt(1 - r[2] * r[2]) * std::sin(random[0] * M_PI);
+				points.col(i) = r * radius + center + noise_level * Eigen::Vector3f::Random();
+			}
+			//Compute ransac
+			fusion::utility::Sphere ransac = fusion::utility::sphereRANSAC(points);
+			
+			//Check correct
+			bool success = ransac.center.isApprox(center, noise_level) && std::fabs(ransac.r - radius) < noise_level;
+
+			std::stringstream ss;
+			ss << "Sphere = \n" << center << "," << radius << std::endl;
+			ss << "Ransac sphere = \n" << ransac.center << "," << ransac.r << std::endl;
+			std::wstring widestr = utf8_decode(ss.str());
+
+			Assert::AreEqual(success, true, widestr.c_str());
+
+		}
+
 
 	};
 }

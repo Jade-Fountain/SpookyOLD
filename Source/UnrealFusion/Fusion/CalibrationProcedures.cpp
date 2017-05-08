@@ -47,14 +47,15 @@ namespace fusion {
 				result.transform.setIdentity();
 				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
 				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
-				for (int i = 0; i < 10; i++) {
+				for (int i = 0; i < 1; i++) {
 					result.transform = utility::calibration::Position::refineIdenticalPairPosition(pos1, pos2, result.transform, &result.error);
 					result.transform = utility::calibration::Position::refineIdenticalPairRotation(pos1, pos2, result.transform, &result.error);
 				}
 				result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
 				result.relevance = result.quality;
 				FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
-				result.state = CalibrationResult::State::REFINING;
+				//DEBUG:: Straight to calibrated
+				result.state = CalibrationResult::State::CALIBRATED;
 				break;
 			}
 			case (CalibrationResult::State::REFINING):
