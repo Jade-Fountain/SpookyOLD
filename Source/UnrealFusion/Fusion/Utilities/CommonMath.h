@@ -266,7 +266,7 @@ namespace fusion{
 
 			//Check dimension
 			if (mean.rows() == 3) {
-				result = sphereRANSAC(const Eigen::MatrixXf& points);
+				result = sphereRANSAC(points);
 			}
 
 			return result;

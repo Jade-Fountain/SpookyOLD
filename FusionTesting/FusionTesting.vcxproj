@@ -164,7 +164,7 @@
     <ClCompile Include="CalibrationTests.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="..\Source\UnrealFusion\Eigen\eigen.natvis" />
+    <Natvis Include="..\Source\UnrealFusion\eigen.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
