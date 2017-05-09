@@ -267,9 +267,9 @@ namespace fusion{
 					Eigen::Vector3f centerError = sphere.center;
 
 					std::stringstream ss;
-					ss << "errorMat = " << E.transpose() << std::endl;
-					ss << "average error = " << meanError.transpose() << std::endl;
-					ss << "sphere center = " << sphere.center.transpose() << std::endl;
+					//ss << "errorMat = " << E.transpose() << std::endl;
+					//ss << "average error = " << meanError.transpose() << std::endl;
+					ss << "sphere center = " << sphere.center.transpose();
 					ss << "sphere radius = " << sphere.r << std::endl;
 					FUSION_LOG(ss.str());
 

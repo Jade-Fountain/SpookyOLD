@@ -166,7 +166,7 @@ namespace fusion{
 			float r = 0;
 			Eigen::VectorXf center;
 
-			float getError(const Eigen::MatrixXf& points){
+			float getMedianError(const Eigen::MatrixXf& points){
 				int num_points = points.cols();
 				std::vector<float> errors;
 				for(int i = 0; i < num_points; i++){
@@ -189,6 +189,18 @@ namespace fusion{
 				}
 				//Return medium
 				return errors[errors.size() / 2];
+			}
+			float getInlierError(const Eigen::MatrixXf& points, float inlier_threshold) {
+				int num_points = points.cols();
+				int inlier_count = 0;
+				for (int i = 0; i < num_points; i++) {
+					float error = std::fabs((points.col(i) - center).norm() - r);
+					if (error < inlier_threshold) {
+						inlier_count++;
+					}
+				}
+				//Return medium
+				return (num_points+1) / float(1+inlier_count);
 			}
 
 		};
@@ -283,10 +295,10 @@ namespace fusion{
 			for(int i = 0; i < num_points * 10; i++){
 				std::random_shuffle(std::begin(indices), std::end(indices));
 				models.push_back(getSphereFrom4Points(points.col(indices[0]), points.col(indices[1]), points.col(indices[2]), points.col(indices[3])));
-				float error = models.back().getError(points);
+				float error = models.back().getInlierError(points,0.05);
 
 				float distance = (models.back().center - mean).norm();
-				if(error < best_error && distance < variance){
+				if(error < best_error){
 					best_error = error;
 					best_model_index = i;
 				}
