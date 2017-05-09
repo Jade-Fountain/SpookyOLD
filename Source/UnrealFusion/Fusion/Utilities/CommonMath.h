@@ -280,7 +280,7 @@ namespace fusion{
 
 
 			//Compute models and record the best one
-			for(int i = 0; i < num_points - 3; i++){
+			for(int i = 0; i < num_points * 10; i++){
 				std::random_shuffle(std::begin(indices), std::end(indices));
 				models.push_back(getSphereFrom4Points(points.col(indices[0]), points.col(indices[1]), points.col(indices[2]), points.col(indices[3])));
 				float error = models.back().getError(points);

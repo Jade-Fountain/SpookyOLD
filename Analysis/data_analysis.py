@@ -20,7 +20,7 @@ def drawSphere(c, r, ax):
 	ax.plot_wireframe(x, y, z, color="k")
 
 
-my_data = genfromtxt('Spericaldata.csv', delimiter=',')
+my_data = genfromtxt('Spericaldata.csv')
 
 print my_data
 
@@ -31,16 +31,16 @@ n = 100
 
 # For each set of style and range settings, plot n random points in the box
 # defined by x in [23, 32], y in [0, 100], z in [zlow, zhigh].
-for i in range(my_data.shape[0] / 3):
+for i in range(my_data.shape[0]):
     ax.scatter(my_data[i][0], my_data[i][1], my_data[i][2],c = 'r')
 
 
 # draw sphere and center
-mean = (-0.0484143, 0.0625665,  0.201494)
-center = (0.0917047, 0.147517, 0.156683)
-radius = 0.14023
+mean = np.mean(my_data, axis = 0)
+center = (0.0748726,-0.0458811, -0.141839)
+radius = 0.135
 drawSphere(center, radius, ax)
-#draw mean
+# #draw mean
 ax.scatter(mean[0], mean[1], mean[2],c = 'b')
 
 

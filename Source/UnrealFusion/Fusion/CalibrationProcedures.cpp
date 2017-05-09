@@ -27,7 +27,7 @@ namespace fusion {
 		float qualityScaleFactor = 0.05;
 		float fault_hysteresis_rate = 1;
 		float settle_threshold = 0.85;
-		float fault_threshold = 0.75;
+		float fault_threshold = 0.90;
 		std::vector<Eigen::Vector3f> pos1(m1.size());
 		std::vector<Eigen::Vector3f> pos2(m2.size());
 		std::vector<Eigen::Matrix3f> inverse_variances(m1.size());
@@ -47,7 +47,7 @@ namespace fusion {
 				result.transform.setIdentity();
 				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
 				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
-				for (int i = 0; i < 1; i++) {
+				for (int i = 0; i < 10; i++) {
 					result.transform = utility::calibration::Position::refineIdenticalPairPosition(pos1, pos2, result.transform, &result.error);
 					result.transform = utility::calibration::Position::refineIdenticalPairRotation(pos1, pos2, result.transform, &result.error);
 				}
@@ -55,7 +55,7 @@ namespace fusion {
 				result.relevance = result.quality;
 				FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
 				//DEBUG:: Straight to calibrated
-				result.state = CalibrationResult::State::CALIBRATED;
+				result.state = CalibrationResult::State::REFINING;
 				break;
 			}
 			case (CalibrationResult::State::REFINING):

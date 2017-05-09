@@ -160,6 +160,10 @@ namespace fusion {
 		const std::vector<Measurement::Ptr>& target,
 		std::vector<Measurement::Ptr>& target_out
 	){
+		std::stringstream ss;
+		ss << "Source = " << source.front()->getSensor()->system.name << std::endl;
+		ss << "Target = " << target.front()->getSensor()->system.name << std::endl;
+
 		std::vector<Measurement::Ptr> result;
 
 		std::vector<Measurement::Ptr>::const_iterator source_it = source.begin();
@@ -210,11 +214,21 @@ namespace fusion {
 				target_out.push_back(*target_it);
 
 				result.push_back(Measurement::interpolate(*lower_source_it, *upper_source_it, t));
+
+				ss << "----------------------------------------" << std::endl;
+				ss << "resampling source point between " << (*lower_source_it)->getTimestamp() 
+					<<" and " << (*upper_source_it)->getTimestamp() << 
+					" at " << (*target_it)->getTimestamp() << std::endl;
+				ss  << "values: lower = " << (*lower_source_it)->getData().transpose() << std::endl
+					<< " interpolated = " << result.back()->getData().transpose() << std::endl
+					<< " upper =        " << (*upper_source_it)->getData().transpose() << std::endl;
+				ss << "----------------------------------------" << std::endl;
 			}
 
 			//Place source_it after/equal to current target_it
 			source_it++;
 		}
+		FUSION_LOG(ss.str());
 
 		return result;
 	}

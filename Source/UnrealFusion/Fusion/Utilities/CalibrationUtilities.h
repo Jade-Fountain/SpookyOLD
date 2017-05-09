@@ -260,21 +260,23 @@ namespace fusion{
 
 					Eigen::MatrixXf E = B - X.matrix() * A;
 
-					//TODO: fit sphere to errors and translate to center of sphere
 					Eigen::Vector3f meanError = E.rowwise().mean();
+
+					//Sphere error didnt work
 					utility::Sphere sphere = fitSphere(E.topLeftCorner(3,E.cols()));
 					Eigen::Vector3f centerError = sphere.center;
 
 					std::stringstream ss;
 					ss << "errorMat = " << E.transpose() << std::endl;
-					ss << "average error = " << meanError << std::endl;
-					ss << "sphere center = " << sphere.center << std::endl;
+					ss << "average error = " << meanError.transpose() << std::endl;
+					ss << "sphere center = " << sphere.center.transpose() << std::endl;
 					ss << "sphere radius = " << sphere.r << std::endl;
 					FUSION_LOG(ss.str());
 
 					Eigen::Transform<float, 3, Eigen::Affine> X_new = X;
 
 					X_new.pretranslate(centerError);
+					//X_new.pretranslate(meanError);
 
 					if (error != NULL) {
 						*error = getError(samplesA, samplesB, X_new) * (learning_rate) + *error * (1-learning_rate);

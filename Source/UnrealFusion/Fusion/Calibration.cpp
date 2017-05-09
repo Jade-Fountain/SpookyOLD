@@ -143,7 +143,7 @@ namespace fusion {
 		if (measurements1.size() > 0) {
 			CalibrationResult latestResult = getResultsFor(system1,system2);
 			//latestResult.latency = estimateLatency(measurements1, measurements2);
-			//latestResult.latency = 0.080;//= estimateLatencies(measurements2, measurements1);
+			latestResult.latency = 0.080;//= estimateLatencies(measurements2, measurements1);
 			Measurement::setLatencies(measurements1, latestResult.latency);
 			FUSION_LOG("Estimated latency = " + std::to_string(latestResult.latency));
 
@@ -199,9 +199,16 @@ namespace fusion {
 						std::vector<Measurement::Ptr>& m2_ = pair2.second;
 
 						//Synchronise the two streams
-						std::vector<Measurement::Ptr> m1;
-						std::vector<Measurement::Ptr> m2 = Measurement::synchronise(m2_,m1_,m1);
-
+						std::vector<Measurement::Ptr> m1 = m1_;
+						std::vector<Measurement::Ptr> m2 = m2_;
+						////TODO: retarget hight noise measurements, not high latency
+						//if (m1_.front()->getLatency() < m2_.front()->getLatency()) {
+						//	m2 = Measurement::synchronise(m2_, m1_, m1);
+						//}
+						//else {
+						//	m1 = Measurement::synchronise(m1_, m2_, m2);
+						//}
+						
 						measurements1->insert(measurements1->end(), m1.begin(), m1.end());
 						measurements2->insert(measurements2->end(), m2.begin(), m2.end());
 
