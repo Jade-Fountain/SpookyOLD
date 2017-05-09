@@ -28,6 +28,14 @@ namespace fusion {
 		float fault_hysteresis_rate = 1;
 		float settle_threshold = 0.85;
 		float fault_threshold = 0.90;
+
+		//Chunks corresponding to different sensor pairs
+		std::vector<int> chunks;
+		chunks.push_back(0);
+		Measurement::Type last_type_1 = m1.front()->type;
+		Measurement::Type last_type_2 = m2.front()->type;
+
+		//Data for each stream
 		std::vector<Eigen::Vector3f> pos1(m1.size());
 		std::vector<Eigen::Vector3f> pos2(m2.size());
 		std::vector<Eigen::Matrix3f> inverse_variances(m1.size());
@@ -36,7 +44,28 @@ namespace fusion {
 			pos2[i] = m2[i]->getPosition();
 			//TODO: Not strictly correct
 			inverse_variances[i] = (m1[i]->getPositionVar() + m2[i]->getPositionVar()).inverse();
+			
+			//If one of the sensor ids has changed, start new chunk
+			if (last_type_1 != m1[i]->type || last_type_2 != m2[i]->type) {
+				chunks.push_back(i);
+				last_type_1 = m1.front()->type;
+				last_type_2 = m2.front()->type;
+			}
 		}
+		//Last chunk ends here
+		chunks.push_back(m1.size());
+
+		//Build chunked lists for later:
+		//TODO: unhack this whole chunk thing
+		std::vector<std::vector<Eigen::Vector3f>> chunked_pos1;
+		std::vector<std::vector<Eigen::Vector3f>> chunked_pos2;
+		std::vector<std::vector<Eigen::Matrix3f>> chunked_inverse_variances;
+		for (int i = 0; i < chunks.size()-1; i++) {
+			chunked_pos1.push_back(std::vector<Eigen::Vector3f>(pos1.begin() + chunks[i], pos1.begin() + chunks[i + 1]));
+			chunked_pos2.push_back(std::vector<Eigen::Vector3f>(pos2.begin() + chunks[i], pos2.begin() + chunks[i + 1]));
+			chunked_inverse_variances.push_back(std::vector<Eigen::Matrix3f>(inverse_variances.begin()+chunks[i], inverse_variances.begin()+chunks[i+1]));
+		}
+
 		CalibrationResult result = currentCalibration;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
 		//Compute transform and error
@@ -48,8 +77,10 @@ namespace fusion {
 				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
 				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
 				for (int i = 0; i < 10; i++) {
-					result.transform = utility::calibration::Position::refineIdenticalPairPosition(pos1, pos2, result.transform, &result.error);
-					result.transform = utility::calibration::Position::refineIdenticalPairRotation(pos1, pos2, result.transform, &result.error);
+					for (int j = 0; j < chunks.size() - 1; j++) {
+						result.transform = utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &result.error);
+						result.transform = utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &result.error);
+					}
 				}
 				result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
 				result.relevance = result.quality;
@@ -61,8 +92,10 @@ namespace fusion {
 			case (CalibrationResult::State::REFINING):
 			{
 				//refinement calibration
-				result.transform = utility::calibration::Position::refineIdenticalPairPosition(pos1, pos2, result.transform, &result.error);
-				result.transform = utility::calibration::Position::refineIdenticalPairRotation(pos1, pos2, result.transform, &result.error);
+				for (int i = 0; i < chunks.size() - 1; i++) {
+					result.transform = utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[i], chunked_pos2[i], result.transform, &result.error);
+					result.transform = utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[i], chunked_pos2[i], result.transform, &result.error);
+				}
 				float new_quality = utility::qualityFromError(result.error, qualityScaleFactor);
 				if (new_quality - result.quality > quality_convergence_threshold) {
 					//If large gains are being made keep going
