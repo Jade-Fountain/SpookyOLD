@@ -145,6 +145,58 @@ namespace FusionTesting
 
 		}
 
+		TEST_METHOD(QuaternionAverage) {
+			//Single example
+			Eigen::MatrixXf wQ(4,3);
+			wQ.col(0) = Eigen::Vector4f(0, 1, 0.1, 0) * 1;
+			wQ.col(1) = Eigen::Vector4f(0, 1, 0, 0.1) * 1;
+			wQ.col(2) = Eigen::Vector4f(0.1, 1, 0, 0) * 1;
+
+			Eigen::Quaternionf q = fusion::utility::averageQuaternions(wQ);
+
+			Eigen::Vector4f expected(0, 1, 0, 0);
+			bool success = q.coeffs().isApprox(expected, 0.1) ||
+				q.coeffs().isApprox(-expected, 0.1);
+
+			std::stringstream ss;
+			ss << "Input wQ = \n" << wQ << std::endl;
+			ss << "Output q = \n" << q.coeffs().transpose() << std::endl;
+			ss << "Output q error = \n" << (q.coeffs() - expected) << std::endl;
+			ss << "Output -q error = \n" << (q.coeffs() + expected)<< std::endl;
+			std::wstring widestr = utf8_decode(ss.str());
+
+			Assert::AreEqual(success, true, widestr.c_str());
+
+			//Many example
+			Eigen::Vector4f q2(1, 2, 3, 4);
+			q2.normalize();
+			int N = 100;
+			float max_noise = 0.1;
+			Eigen::MatrixXf wQ2(4, N);
+			for (int i = 0; i < N; i++) {
+				float noise_amount = (Eigen::Vector2f::Random()[0] + 1) * max_noise / 2;
+				wQ.col(i) = q2 + Eigen::Vector4f::Random() * noise_amount;
+				//Weighted quaternions
+				wQ.col(i) = wQ.col(i).normalized() * (max_noise - noise_amount) / max_noise;
+			}
+			Eigen::Quaternionf q2_fit = fusion::utility::averageQuaternions(wQ2);
+			
+			success =
+			q2_fit.coeffs().isApprox(q2, max_noise) ||
+			q2_fit.coeffs().isApprox(-q2, max_noise);
+
+			std::stringstream ss2;
+			ss2 << "Input wQ = \n" << wQ2 << std::endl;
+			ss2 << "Output q = \n" << q2_fit.coeffs().transpose() << std::endl;
+			ss2 << "Output q error = \n" << (q2_fit.coeffs() - q2) << std::endl;
+			ss2 << "Output -q error = \n" << (q2_fit.coeffs() + q2) << std::endl;
+			std::wstring widestr2 = utf8_decode(ss2.str());
+
+			Assert::AreEqual(success, true, widestr2.c_str());
+
+
+		}
+
 
 	};
 }

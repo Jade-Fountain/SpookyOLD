@@ -20,6 +20,7 @@
 #include<Eigen/Core>
 #include<Eigen/SVD>
 #include<Eigen/Geometry>
+#include<Eigen/Eigenvalues>
 #include<Eigen/unsupported/KroneckerProduct>
 //#include "Logging.h"
 #pragma once
@@ -318,6 +319,22 @@ namespace fusion{
 			}
 
 			return result;
+		}
+
+		//source: http://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
+		//sources source: http://www.acsu.buffalo.edu/~johnc/ave_quat07.pdf
+		//wQ (4xn mat) = unit quaternions in columns multiplied by their weights
+		static inline Eigen::Quaternionf averageQuaternions(const Eigen::MatrixXf& wQ) {
+			Eigen::MatrixXf Q2 = wQ * wQ.transpose();
+			Eigen::EigenSolver<Eigen::MatrixXf> es(Q2);
+			//Eigenvalues will be real and positive because matrix is pos semidefinite
+			Eigen::VectorXf eval = es.eigenvalues().real();
+			int best = 0;
+			eval.maxCoeff(&best);
+			Eigen::MatrixXf evec = es.eigenvectors().real();
+			Eigen::Vector4f best_evec = evec.col(best);
+			best_evec.normalize();
+			return Eigen::Quaternionf(best_evec);
 		}
 
 

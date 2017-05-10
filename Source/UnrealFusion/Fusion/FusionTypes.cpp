@@ -21,6 +21,8 @@
 #include <cassert>
 
 namespace fusion {
+
+
 	//Define config constants
 	const float Measurement::uncertainty_growth_max = 0.01f; //Fractional growth per second
 

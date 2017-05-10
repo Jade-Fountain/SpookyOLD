@@ -32,6 +32,14 @@ namespace fusion {
 	//Mapping between two affine spaces
 	typedef Eigen::Transform<float, 3, Eigen::Affine> Transform3D;
 
+	//TODO: find a better place for this
+	static inline Transform3D getMeanTransform(const std::vector<Transform3D>& T, const std::vector<float>& weights)
+	{
+		//Eigen::Quaternionf::
+		//for()
+		return Transform3D();
+	}
+
 
 
 	/** System descriptor - abstraction for a string type to be used as a map key - might be changed later

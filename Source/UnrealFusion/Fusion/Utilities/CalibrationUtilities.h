@@ -21,7 +21,7 @@
 #include <Eigen/unsupported/KroneckerProduct>
 #include "CommonMath.h"
 
-#include "Logging.h"
+//#include "Logging.h"
 #pragma once
 namespace fusion{
 	namespace utility{
@@ -266,12 +266,12 @@ namespace fusion{
 					utility::Sphere sphere = fitSphere(E.topLeftCorner(3,E.cols()));
 					Eigen::Vector3f centerError = sphere.center;
 
-					std::stringstream ss;
+					//std::stringstream ss;
 					//ss << "errorMat = " << E.transpose() << std::endl;
 					//ss << "average error = " << meanError.transpose() << std::endl;
-					ss << "sphere center = " << sphere.center.transpose();
-					ss << "sphere radius = " << sphere.r << std::endl;
-					FUSION_LOG(ss.str());
+					//ss << "sphere center = " << sphere.center.transpose();
+					//ss << "sphere radius = " << sphere.r << std::endl;
+					//FUSION_LOG(ss.str());
 
 					Eigen::Transform<float, 3, Eigen::Affine> X_new = X;
 

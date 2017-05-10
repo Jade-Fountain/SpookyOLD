@@ -15,6 +15,7 @@
 */
 #include "UnrealFusion.h"
 #include "Calibration.h"
+#include "FusionTypes.h"
 #include "Fusion/Utilities/CalibrationUtilities.h"
 #include "Logging.h"
 #include "Fusion/Utilities/Conventions.h"
@@ -77,8 +78,15 @@ namespace fusion {
 				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
 				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
 				for (int i = 0; i < 10; i++) {
+					std::vector<Transform3D> transforms;
+					std::vector<float> weights;
 					for (int j = 0; j < chunks.size() - 1; j++) {
-						result.transform = utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &result.error);
+						weights.push_back(100000);
+						transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
+						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
+					}
+					getMeanTransform(transforms,weights);
+					for (int j = 0; j < chunks.size() - 1; j++) {
 						result.transform = utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &result.error);
 					}
 				}
