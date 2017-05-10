@@ -36,7 +36,7 @@ namespace fusion {
 	//TODO: find a better place for this
 	static inline Transform3D getMeanTransform(const std::vector<Transform3D>& T, const std::vector<float>& weights)
 	{
-		Eigen::Matrix4f wQ(4,T.size());
+		Eigen::MatrixXf wQ = Eigen::Matrix4f::Zero(4,T.size());
 		Eigen::Vector3f t_sum(0, 0, 0);
 		float sum_weights = 0;
 		for (int i = 0; i < T.size(); i++) {
@@ -46,9 +46,9 @@ namespace fusion {
 		}
 		Eigen::Quaternionf q = utility::averageQuaternions(wQ);
 		Eigen::Translation3f t(t_sum / sum_weights);
-		Transform3D T44(t);
-		T44.rotate(q);
-		return T44;
+		Transform3D transform(t);
+		transform.rotate(q);
+		return transform;
 	}
 
 
