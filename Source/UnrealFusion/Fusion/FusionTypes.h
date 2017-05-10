@@ -22,6 +22,7 @@
 #include "Eigen/Geometry"
 #include "Logging.h"
 #include "Utilities/DataStructures.h"
+#include "Utilities/CommonMath.h"
 #pragma once
 
 
@@ -35,9 +36,19 @@ namespace fusion {
 	//TODO: find a better place for this
 	static inline Transform3D getMeanTransform(const std::vector<Transform3D>& T, const std::vector<float>& weights)
 	{
-		//Eigen::Quaternionf::
-		//for()
-		return Transform3D();
+		Eigen::Matrix4f wQ(4,T.size());
+		Eigen::Vector3f t_sum(0, 0, 0);
+		float sum_weights = 0;
+		for (int i = 0; i < T.size(); i++) {
+			wQ.col(i) = Eigen::Quaternionf(T[i].rotation()).coeffs() * weights[i];
+			t_sum += T[i].translation() * weights[i];
+			sum_weights += weights[i];
+		}
+		Eigen::Quaternionf q = utility::averageQuaternions(wQ);
+		Eigen::Translation3f t(t_sum / sum_weights);
+		Transform3D T44(t);
+		T44.rotate(q);
+		return T44;
 	}
 
 
