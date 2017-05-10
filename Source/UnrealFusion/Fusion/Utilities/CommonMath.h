@@ -278,6 +278,10 @@ namespace fusion{
 			//Number of points to fit sphere to
 			int num_points = points.cols();
 
+			if (num_points < 4) {
+
+				return Sphere();
+			}
 			//State of optimisation
 			std::vector<Sphere> models;
 			float best_error = 100000000;
@@ -285,6 +289,7 @@ namespace fusion{
 			
 			//Random number selection
 			std::vector<int> indices(num_points);
+			//Fill blank vector from zero to num_points-1
 			std::iota(std::begin(indices), std::end(indices), 0);
 
 			//Point stats

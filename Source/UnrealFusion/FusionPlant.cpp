@@ -89,7 +89,7 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh, float
 				bonePoseLocal);
 		}
 		else {
-			plant.addPoseNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))),
+			plant.addBoneNode(fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString()))),
 				parent_desc,
 				bonePoseLocal);
 		}

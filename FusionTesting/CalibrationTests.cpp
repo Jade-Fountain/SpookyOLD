@@ -146,6 +146,12 @@ namespace FusionTesting
 		}
 
 		TEST_METHOD(QuaternionAverage) {
+			Eigen::MatrixXf single_sample(4,1);
+			single_sample.col(0) = Eigen::Vector4f(1, 1, 2, 4).normalized();
+			Eigen::Quaternionf q_single = fusion::utility::averageQuaternions(single_sample);
+			bool single_success = q_single.coeffs().isApprox(single_sample.col(0));
+			Assert::AreEqual(single_success, true, L"Failed single sample test");
+
 			//Single example
 			Eigen::MatrixXf wQ(4,3);
 			wQ.col(0) = Eigen::Vector4f(0, 1, 0.1, 0) * 1;

@@ -33,8 +33,8 @@ namespace fusion {
 		//Chunks corresponding to different sensor pairs
 		std::vector<int> chunks;
 		chunks.push_back(0);
-		Measurement::Type last_type_1 = m1.front()->type;
-		Measurement::Type last_type_2 = m2.front()->type;
+		int last_id_1 = m1.front()->getSensorID();
+		int last_id_2 = m2.front()->getSensorID();
 
 		//Data for each stream
 		std::vector<Eigen::Vector3f> pos1(m1.size());
@@ -47,10 +47,10 @@ namespace fusion {
 			inverse_variances[i] = (m1[i]->getPositionVar() + m2[i]->getPositionVar()).inverse();
 			
 			//If one of the sensor ids has changed, start new chunk
-			if (last_type_1 != m1[i]->type || last_type_2 != m2[i]->type) {
+			if (last_id_1 != m1[i]->getSensorID() || last_id_2 != m2[i]->getSensorID()) {
 				chunks.push_back(i);
-				last_type_1 = m1.front()->type;
-				last_type_2 = m2.front()->type;
+				last_id_1 = m1[i]->getSensorID();
+				last_id_2 = m2[i]->getSensorID();
 			}
 		}
 		//Last chunk ends here
@@ -77,33 +77,66 @@ namespace fusion {
 				result.transform.setIdentity();
 				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
 				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
-				for (int i = 0; i < 10; i++) {
+				std::stringstream ss;
+				ss << "Transform after initial fit= \n " << result.transform.matrix() << std::endl;
+				for (int i = 0; i < 1; i++) {
+					//TODO:clean up
 					std::vector<Transform3D> transforms;
 					std::vector<float> weights;
 					for (int j = 0; j < chunks.size() - 1; j++) {
 						weights.push_back(100000);
 						transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
+						ss << "Translation tune = \n" << transforms.back().matrix() << std::endl;
 					}
-					getMeanTransform(transforms,weights);
+					result.transform = getMeanTransform(transforms,weights);
+					ss << "Transform after translation tuning = \n" << result.transform.matrix() << std::endl;
+
+					transforms.clear();
+					weights.clear();
 					for (int j = 0; j < chunks.size() - 1; j++) {
-						result.transform = utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &result.error);
+						weights.push_back(100000);
+						transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
+						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
+						ss << "Rotation tune = \n" << transforms.back().matrix() << std::endl;
 					}
+					result.transform = getMeanTransform(transforms, weights);
+					ss << "Transform after rotation tuning = \n" << result.transform.matrix() << std::endl;
+
+					//TODO:clean up
 				}
+				//TODO: proper error
+				FUSION_LOG(ss.str());
 				result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
 				result.relevance = result.quality;
 				FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
 				//DEBUG:: Straight to calibrated
-				result.state = CalibrationResult::State::REFINING;
+				result.state = CalibrationResult::State::CALIBRATED;
 				break;
 			}
 			case (CalibrationResult::State::REFINING):
 			{
 				//refinement calibration
-				for (int i = 0; i < chunks.size() - 1; i++) {
-					result.transform = utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[i], chunked_pos2[i], result.transform, &result.error);
-					result.transform = utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[i], chunked_pos2[i], result.transform, &result.error);
+				//TODO:clean up
+				std::vector<Transform3D> transforms;
+				std::vector<float> weights;
+				for (int j = 0; j < chunks.size() - 1; j++) {
+					weights.push_back(100000);
+					transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
+					weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
 				}
+				result.transform = getMeanTransform(transforms, weights);
+
+				transforms.clear();
+				weights.clear();
+				for (int j = 0; j < chunks.size() - 1; j++) {
+					weights.push_back(100000);
+					transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
+					weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
+				}
+				result.transform = getMeanTransform(transforms, weights);
+				//TODO:clean up
+
 				float new_quality = utility::qualityFromError(result.error, qualityScaleFactor);
 				if (new_quality - result.quality > quality_convergence_threshold) {
 					//If large gains are being made keep going
@@ -142,6 +175,8 @@ namespace fusion {
 				else {
 					result.state = CalibrationResult::State::CALIBRATED;
 				}
+				//DEBUG: STAY CALIBRATED
+				result.state = CalibrationResult::State::CALIBRATED;
 				return result;
 				break;
 			}
