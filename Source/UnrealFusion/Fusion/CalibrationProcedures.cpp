@@ -40,9 +40,13 @@ namespace fusion {
 		std::vector<Eigen::Vector3f> pos1(m1.size());
 		std::vector<Eigen::Vector3f> pos2(m2.size());
 		std::vector<Eigen::Matrix3f> inverse_variances(m1.size());
+		std::stringstream ss;
+		ss << "DATA[" << m1.front()->getSensor()->system.name << ", " << m2.front()->getSensor()->system.name <<  std::endl;
 		for (int i = 0; i < m1.size(); i++) {
+			
 			pos1[i] = m1[i]->getPosition();
 			pos2[i] = m2[i]->getPosition();
+			ss << pos1[i].transpose() << " " << pos2[i].transpose() << std::endl;
 			//TODO: Not strictly correct
 			inverse_variances[i] = (m1[i]->getPositionVar() + m2[i]->getPositionVar()).inverse();
 			
@@ -53,6 +57,7 @@ namespace fusion {
 				last_id_2 = m2[i]->getSensorID();
 			}
 		}
+		FUSION_LOG(ss.str());
 		//Last chunk ends here
 		chunks.push_back(m1.size());
 
@@ -77,8 +82,7 @@ namespace fusion {
 				result.transform.setIdentity();
 				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
 				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
-				std::stringstream ss;
-				ss << "Transform after initial fit= \n " << result.transform.matrix() << std::endl;
+
 				for (int i = 0; i < 1; i++) {
 					//TODO:clean up
 					std::vector<Transform3D> transforms;
@@ -87,10 +91,8 @@ namespace fusion {
 						weights.push_back(100000);
 						transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
-						ss << "Translation tune = \n" << transforms.back().matrix() << std::endl;
 					}
 					result.transform = getMeanTransform(transforms,weights);
-					ss << "Transform after translation tuning = \n" << result.transform.matrix() << std::endl;
 
 					transforms.clear();
 					weights.clear();
@@ -98,15 +100,12 @@ namespace fusion {
 						weights.push_back(100000);
 						transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
-						ss << "Rotation tune = \n" << transforms.back().matrix() << std::endl;
 					}
 					result.transform = getMeanTransform(transforms, weights);
-					ss << "Transform after rotation tuning = \n" << result.transform.matrix() << std::endl;
 
 					//TODO:clean up
 				}
 				//TODO: proper error
-				FUSION_LOG(ss.str());
 				result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
 				result.relevance = result.quality;
 				FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));

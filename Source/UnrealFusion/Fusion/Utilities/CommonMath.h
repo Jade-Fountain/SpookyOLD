@@ -167,11 +167,15 @@ namespace fusion{
 			float r = 0;
 			Eigen::VectorXf center;
 
-			float getMedianError(const Eigen::MatrixXf& points){
-				int num_points = points.cols();
+			float getDistanceToPoint(const Eigen::Vector3f& p){
+				return std::fabs((p - center).norm() - r);
+			}
+
+			float getMedianError(const Eigen::MatrixXf& points, const std::vector<int>& inliers){
+				int num_points = inliers.size();
 				std::vector<float> errors;
 				for(int i = 0; i < num_points; i++){
-					float error = std::fabs((points.col(i) - center).norm() - r);
+					float error = getDistanceToPoint(points.col(inliers[i]));
 					//Insert in order
 					std::vector<float>::iterator below = errors.begin();
 					std::vector<float>::iterator above = errors.end();
@@ -188,20 +192,21 @@ namespace fusion{
 					}
 					errors.insert(above, error);
 				}
-				//Return medium
+				//Return median
 				return errors[errors.size() / 2];
 			}
-			float getInlierError(const Eigen::MatrixXf& points, float inlier_threshold) {
+
+			std::vector<int> getInliers(const Eigen::MatrixXf& points, float inlier_threshold) {
 				int num_points = points.cols();
-				int inlier_count = 0;
+				std::vector<int> inliers;
 				for (int i = 0; i < num_points; i++) {
-					float error = std::fabs((points.col(i) - center).norm() - r);
+					float error = getDistanceToPoint(points.col(i));;
 					if (error < inlier_threshold) {
-						inlier_count++;
+						inliers.push_back(i);
 					}
 				}
 				//Return medium
-				return (num_points+1) / float(1+inlier_count);
+				return inliers;
 			}
 
 		};
@@ -279,14 +284,16 @@ namespace fusion{
 			int num_points = points.cols();
 
 			if (num_points < 4) {
-
 				return Sphere();
 			}
 			//State of optimisation
 			std::vector<Sphere> models;
 			float best_error = 100000000;
 			int best_model_index = 0;
-			
+			int max_models = 100;
+			float inlier_threshold = 0.01;
+			int inliers_needed = num_points / 5;
+
 			//Random number selection
 			std::vector<int> indices(num_points);
 			//Fill blank vector from zero to num_points-1
@@ -296,17 +303,23 @@ namespace fusion{
 			Eigen::Vector3f mean = points.rowwise().mean();
 			float variance = (points.colwise() + mean).colwise().norm().rowwise().mean()[0];
 
-
 			//Compute models and record the best one
-			for(int i = 0; i < num_points * 10; i++){
+			while(models.size() < max_models){
+				//Shuffle points to sample
 				std::random_shuffle(std::begin(indices), std::end(indices));
-				models.push_back(getSphereFrom4Points(points.col(indices[0]), points.col(indices[1]), points.col(indices[2]), points.col(indices[3])));
-				float error = models.back().getInlierError(points,0.05);
+				//Get a model
+				Sphere model = getSphereFrom4Points(points.col(indices[0]), points.col(indices[1]), points.col(indices[2]), points.col(indices[3]));
+				//Count inliers
+				std::vector<int> inliers = model.getInliers(points,inlier_threshold);
 
-				float distance = (models.back().center - mean).norm();
-				if(error < best_error){
-					best_error = error;
-					best_model_index = i;
+				//If there are enough inliers, check the actual error
+				if(inliers.size() > inliers_needed){
+					float error = model.getMedianError(points,inliers);
+					models.push_back(model);
+					if(error < best_error){
+						best_error = error;
+						best_model_index = models.size()-1;
+					}
 				}
 			}
 			//return best
