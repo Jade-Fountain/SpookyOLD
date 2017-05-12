@@ -308,7 +308,7 @@ namespace fusion{
 			return result;
 		}
 
-		static inline Sphere sphereRANSAC(const Eigen::MatrixXf& points){
+		static inline Sphere sphereRANSAC(const Eigen::MatrixXf& points) {
 			//Number of points to fit sphere to
 			int num_points = points.cols();
 
@@ -321,6 +321,7 @@ namespace fusion{
 			float best_error = 100000000;
 			int best_model_index = 0;
 			int max_models = 100;
+			int max_search = 1000;
 			float inlier_threshold = 0.01;
 			int inliers_needed = num_points / 5;
 
@@ -334,27 +335,34 @@ namespace fusion{
 			float variance = (points.colwise() + mean).colwise().norm().rowwise().mean()[0];
 
 			//Compute models and record the best one
-			for (int i = 0; i < max_models; i++) {
+			int i = 0;
+			while(models.size() < max_models && i++ < max_search) {
 				//Shuffle points to sample
 				std::random_shuffle(std::begin(indices), std::end(indices));
 				//Get a model
 				Sphere model = getSphereFrom4Points(points.col(indices[0]), points.col(indices[1]), points.col(indices[2]), points.col(indices[3]));
 				//Count inliers
-				std::vector<int> inliers = model.getInliers(points,inlier_threshold);
+				std::vector<int> inliers = model.getInliers(points, inlier_threshold);
 
 				//If there are enough inliers, check the actual error
-				if(inliers.size() > inliers_needed){
-					float error = model.getMedianError(points,inliers);
+				if (inliers.size() > inliers_needed) {
+					float error = model.getMedianError(points, inliers);
 					models.push_back(model);
-					if(error < best_error){
+					if (error < best_error) {
 						best_error = error;
-						best_model_index = models.size()-1;
+						best_model_index = models.size() - 1;
 						best_inliers = inliers;
 					}
 				}
 			}
 			//return best + refinement
-			return models[best_model_index].refine(points, best_inliers, 10);
+			if (models.size() == 0) {
+				return Sphere();
+			}
+			else
+			{
+				return models[best_model_index].refine(points, best_inliers, 10);
+			}
 		}
 
 		static inline Sphere fitSphere(const Eigen::MatrixXf& points){
