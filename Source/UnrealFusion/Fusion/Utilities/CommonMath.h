@@ -167,11 +167,11 @@ namespace fusion{
 			float r = 0;
 			Eigen::VectorXf center;
 
-			float getDistanceToPoint(const Eigen::Vector3f& p){
+			float getDistanceToPoint(const Eigen::Vector3f& p) const {
 				return std::fabs((p - center).norm() - r);
 			}
 
-			float getMedianError(const Eigen::MatrixXf& points, const std::vector<int>& inliers){
+			float getMedianError(const Eigen::MatrixXf& points, const std::vector<int>& inliers) const{
 				int num_points = inliers.size();
 				std::vector<float> errors;
 				for(int i = 0; i < num_points; i++){
@@ -196,7 +196,19 @@ namespace fusion{
 				return errors[errors.size() / 2];
 			}
 
-			std::vector<int> getInliers(const Eigen::MatrixXf& points, float inlier_threshold) {
+			Eigen::Vector3f getAvgErrorVec(const Eigen::MatrixXf& points, const std::vector<int>& inliers) const {
+				int num_points = inliers.size();
+				Eigen::Vector3f sum_errors;
+				for (int i = 0; i < num_points; i++) {
+					//Vector from origin to projection of point to sphere
+					Eigen::Vector3f proj = (points.col(inliers[i]) - center).normalized() * r + center;
+					//Vector from projected point to point
+					sum_errors += points.col(inliers[i]) - proj;
+				}
+				return sum_errors / num_points;
+			}
+
+			std::vector<int> getInliers(const Eigen::MatrixXf& points, float inlier_threshold) const {
 				int num_points = points.cols();
 				std::vector<int> inliers;
 				for (int i = 0; i < num_points; i++) {
@@ -207,6 +219,23 @@ namespace fusion{
 				}
 				//Return medium
 				return inliers;
+			}
+
+			Sphere refine(const Eigen::MatrixXf& points, const std::vector<int>& inliers, int iterations) const {
+				Sphere s = *this;
+				float error = s.getMedianError(points, inliers);
+				for (int i = 0; i < iterations; i++) {
+					Sphere s_new = s;
+					s_new.r = error + s_new.r;
+					Eigen::Vector3f error_vec = s_new.getAvgErrorVec(points, inliers);
+					s_new.center += error_vec;
+					float error_new = s_new.getMedianError(points, inliers);
+					if (error_new < error) {
+						s = s_new;
+						error = error_new;
+					}
+				}
+				return s;
 			}
 
 		};
@@ -288,6 +317,7 @@ namespace fusion{
 			}
 			//State of optimisation
 			std::vector<Sphere> models;
+			std::vector<int> best_inliers;
 			float best_error = 100000000;
 			int best_model_index = 0;
 			int max_models = 100;
@@ -304,7 +334,7 @@ namespace fusion{
 			float variance = (points.colwise() + mean).colwise().norm().rowwise().mean()[0];
 
 			//Compute models and record the best one
-			while(models.size() < max_models){
+			for (int i = 0; i < max_models; i++) {
 				//Shuffle points to sample
 				std::random_shuffle(std::begin(indices), std::end(indices));
 				//Get a model
@@ -319,11 +349,12 @@ namespace fusion{
 					if(error < best_error){
 						best_error = error;
 						best_model_index = models.size()-1;
+						best_inliers = inliers;
 					}
 				}
 			}
-			//return best
-			return models[best_model_index];
+			//return best + refinement
+			return models[best_model_index].refine(points, best_inliers, 10);
 		}
 
 		static inline Sphere fitSphere(const Eigen::MatrixXf& points){
