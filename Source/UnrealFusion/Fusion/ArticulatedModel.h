@@ -105,6 +105,8 @@ namespace fusion {
 		public:
 			//Adds node to the skeleton
 			void addNode(const NodeDescriptor & node, const NodeDescriptor & parent);
+			//Adds a generic node if necessary
+			void addGenericNode(const NodeDescriptor & node);
 
 			//Assigns parents and children of all nodes
 			void enumerateHeirarchy();
@@ -135,6 +137,7 @@ namespace fusion {
 			void setBoneForNode(const NodeDescriptor & node, const Transform3D& boneTransform);
 			void setPoseNode(const NodeDescriptor & node, const Transform3D& poseTransform);
 
+
 			////////////////////////////////////////////////////
 			//					Results
 			////////////////////////////////////////////////////
@@ -142,6 +145,7 @@ namespace fusion {
 			Transform3D getNodeGlobalPose(const NodeDescriptor& node);
 			//Returns local orientation of node
 			Transform3D getNodeLocalPose(const NodeDescriptor& node);
+			
 
 		/*//////////////////////////////////////////////////////////////////
 		*				Private Data

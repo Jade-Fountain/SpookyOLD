@@ -39,6 +39,7 @@ namespace fusion {
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
 		m->getSensor()->addNode(node);
+		skeleton.addGenericNode(node);
 		measurement_buffer.push_back(m);
 	}
 
@@ -47,6 +48,7 @@ namespace fusion {
 		//Add nodes which the measurement might correspond to - actually gets stored in the sensor pointer
 		for(auto& n : nodes){
 			m->getSensor()->addNode(n);
+			skeleton.addGenericNode(n);
 		}
 		measurement_buffer.push_back(m);
 	}

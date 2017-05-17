@@ -369,6 +369,7 @@ namespace fusion{
 			Sphere result;
 			Eigen::VectorXf mean = points.rowwise().mean();
 			result.center = mean;
+			result.r = 0;
 
 			//Check dimension
 			if (mean.rows() == 3) {

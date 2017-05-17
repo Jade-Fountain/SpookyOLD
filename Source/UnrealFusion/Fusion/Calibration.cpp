@@ -311,7 +311,7 @@ namespace fusion {
 	CalibrationResult Calibrator::getResultsFor(SystemDescriptor s1, SystemDescriptor s2)
 	{
 		SystemPair forward(s1, s2);
-		SystemPair reverse(s1, s2);
+		SystemPair reverse(s2, s1);
 		if (calibrationResults.count(forward) > 0) {
 			return calibrationResults[forward];
 		}

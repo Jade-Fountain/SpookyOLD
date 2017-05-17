@@ -262,7 +262,7 @@ namespace fusion{
 
 					Eigen::Vector3f meanError = E.rowwise().mean();
 
-					//Sphere error didnt work
+					//Be careful of sphere error
 					utility::Sphere sphere = fitSphere(E.topLeftCorner(3,E.cols()));
 					Eigen::Vector3f centerError = sphere.center;
 

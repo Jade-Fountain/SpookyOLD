@@ -17,6 +17,10 @@
 		{
 			"Name": "Kinect4Unreal",
 			"Enabled": true
+		},
+		{
+			"Name": "OptitrackNatnet",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

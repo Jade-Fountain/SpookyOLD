@@ -190,6 +190,7 @@ void UFusionPlant::UpdateSkeletonOutput(float outputUnitsInMeters) {
 
 FCalibrationResult UFusionPlant::getCalibrationResult(FString s1, FString s2)
 {
+
 	fusion::CalibrationResult T = plant.getCalibrationResult(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)),fusion::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
 	Eigen::Quaternionf q(T.transform.matrix().block<3,3>(0,0));
 	Eigen::Vector3f v(T.transform.matrix().block<3, 1>(0, 3));

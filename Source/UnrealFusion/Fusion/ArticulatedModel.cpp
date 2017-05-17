@@ -205,6 +205,17 @@ namespace fusion {
 		nodes[node]->local_state.expectation = Measurement::getPosQuatFromTransform(poseTransform);
 	}
 
+	void ArticulatedModel::addGenericNode(const NodeDescriptor & node) {
+		if (nodes.count(node) == 0) {
+			addNode(node, NodeDescriptor("root"));
+			std::vector<Articulation> art;
+			art.push_back(Articulation::createPose());
+			nodes[node]->setModel(art);
+			nodes[node]->local_state.expectation = Measurement::getPosQuatFromTransform(Transform3D::Identity());
+		}
+	}
+
+
 	Transform3D ArticulatedModel::getNodeGlobalPose(const NodeDescriptor& node){
 		if(nodes.count(node) == 0){
 			return Transform3D::Identity();
