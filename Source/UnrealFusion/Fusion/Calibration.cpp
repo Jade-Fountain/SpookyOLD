@@ -115,17 +115,20 @@ namespace fusion {
 
 	bool Calibrator::checkChanges(const std::vector<Measurement::Ptr>& measurements) {
 		//Check change for each measurement
-		bool result = false;
+		std::map<NodeDescriptor,bool> results;
 		for (auto& mes : measurements) {
 			NodeDescriptor node = mes->getNode();
 			float diff = calibrationSet.compareMeasurement(mes, mes->getSystem(), node);
-			//TODO:Perform next check over each node individually?
 
-			//If any of the measurements are new then return true
-
-			result = result || (diff > diff_threshold);
+			//Result is true if all sensors on the given node exceed the threshold
+			results[node] = utility::safeAccess(results, node) && (diff > diff_threshold);
 		}
-		return result;
+		bool final_result = false;
+		for(auto& r : results){
+			final_result = final_result || r.second;
+		}
+		//If any nodes move then change has occured
+		return final_result;
 	}
 
 	void Calibrator::calibrateSystems(SystemDescriptor system1, SystemDescriptor system2)

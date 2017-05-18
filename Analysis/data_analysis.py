@@ -117,7 +117,7 @@ def drawPointCloudData():
 	#=============================
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection='3d')
-	draw3DTrace('Kinect',data[:,0:3],ax)
+	draw3DTrace('Optitrack',data[:,0:3],ax,1)
 
 	#=============================
 	# Plot Vive traces
@@ -125,7 +125,7 @@ def drawPointCloudData():
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection='3d')
 
-	draw3DTrace('Vive',data[:,3:6],ax)
+	draw3DTrace('Vive',data[:,3:6],ax,1)
 
 
 	#=============================
@@ -199,7 +199,7 @@ def drawPointCloudData():
 
 #DO STUFF:
 
-drawSphereErrorData()
+# drawSphereErrorData()
 drawPointCloudData()
 
 plt.show()

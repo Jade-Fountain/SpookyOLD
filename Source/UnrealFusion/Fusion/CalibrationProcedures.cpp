@@ -24,6 +24,7 @@ namespace fusion {
 	//TODO: refactor this mess
 	CalibrationResult Calibrator::calPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& currentCalibration)	const
 	{
+		float initial_quality_threshold = 0.85;
 		float quality_convergence_threshold = 0.1;
 		float qualityScaleFactor = 0.05;
 		float fault_hysteresis_rate = 1;
@@ -83,34 +84,40 @@ namespace fusion {
 				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
 				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
 
-				for (int i = 0; i < 1; i++) {
-					//TODO:clean up
-					std::vector<Transform3D> transforms;
-					std::vector<float> weights;
-					for (int j = 0; j < chunks.size() - 1; j++) {
-						weights.push_back(100000);
-						transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
-						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
-					}
-					result.transform = getMeanTransform(transforms,weights);
+				//for (int i = 0; i < 1; i++) {
+				//	//TODO:clean up
+				//	std::vector<Transform3D> transforms;
+				//	std::vector<float> weights;
+				//	for (int j = 0; j < chunks.size() - 1; j++) {
+				//		weights.push_back(100000);
+				//		transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
+				//		weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
+				//	}
+				//	result.transform = getMeanTransform(transforms,weights);
 
-					transforms.clear();
-					weights.clear();
-					for (int j = 0; j < chunks.size() - 1; j++) {
-						weights.push_back(100000);
-						transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
-						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
-					}
-					result.transform = getMeanTransform(transforms, weights);
+				//	transforms.clear();
+				//	weights.clear();
+				//	for (int j = 0; j < chunks.size() - 1; j++) {
+				//		weights.push_back(100000);
+				//		transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
+				//		weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
+				//	}
+				//	result.transform = getMeanTransform(transforms, weights);
 
 					//TODO:clean up
-				}
+				//}
 				//TODO: proper error
 				result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
 				result.relevance = result.quality;
 				FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
 				//DEBUG:: Straight to calibrated
-				result.state = CalibrationResult::State::CALIBRATED;
+				if(result.quality > initial_quality_threshold){
+					result.state = CalibrationResult::State::CALIBRATED;
+					FUSION_LOG("Calibration passed required threshold: " + std::to_string(initial_quality_threshold) + ", quality = " + std::to_string(result.quality));
+				}
+				else {
+					FUSION_LOG("Calibration DID NOT PASS required threshold: " + std::to_string(initial_quality_threshold) + ", quality = " + std::to_string(result.quality));
+				}
 				break;
 			}
 			case (CalibrationResult::State::REFINING):
@@ -175,7 +182,7 @@ namespace fusion {
 					result.state = CalibrationResult::State::CALIBRATED;
 				}
 				//DEBUG: STAY CALIBRATED
-				result.state = CalibrationResult::State::CALIBRATED;
+				//result.state = CalibrationResult::State::CALIBRATED;
 				return result;
 				break;
 			}
