@@ -87,7 +87,7 @@ namespace fusion {
 				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
 				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
 
-				for (int i = 0; i < 1; i++) {
+				for (int i = 0; i < 10; i++) {
 					//TODO:clean up
 					std::vector<Transform3D> transforms;
 					std::vector<float> weights;
@@ -144,6 +144,8 @@ namespace fusion {
 					transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 					weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
 				}
+				transforms.push_back(result.transform);
+				weights.push_back(result.quality);
 				result.transform = getMeanTransform(transforms, weights);
 				//TODO:clean up
 
@@ -170,6 +172,7 @@ namespace fusion {
 			{
 				//TODO: distinguish noise vs. actual movement
 				//TODO: implement that fault decay detection thing
+				//TODO: fix fault detection for new model
 				//Track new transform and see how much it moves? (expensive)
 				float error = utility::calibration::Position::getError(pos1, pos2, currentCalibration.transform);
 				result.relevance = result.relevance * (1 - fault_hysteresis_rate) + fault_hysteresis_rate * utility::qualityFromError(error, qualityScaleFactor);
@@ -178,16 +181,21 @@ namespace fusion {
 				//Relevance is the latest quality value, filtered with exponential filter
 				//If our quality varies from the expected too much, we need to recalibrate
 				if (result.relevance / result.quality < fault_threshold) {
-					//Try to improve the relevance
-					result.state = CalibrationResult::State::REFINING;
-					result.quality = result.relevance;
+					if (result.quality < initial_quality_threshold) {
+						//Try to improve the relevance
+						result.state = CalibrationResult::State::UNCALIBRATED;
+					} else {
+						//Try to improve the relevance
+						//TODO: fix refinement
+						result.state = CalibrationResult::State::UNCALIBRATED;
+						result.quality = result.relevance;
+					}
 				}
 				else {
 					result.state = CalibrationResult::State::CALIBRATED;
 				}
 				//DEBUG: STAY CALIBRATED
-				//result.state = CalibrationResult::State::CALIBRATED;
-				return result;
+				result.state = CalibrationResult::State::CALIBRATED;
 				break;
 			}
 		}
@@ -198,6 +206,7 @@ namespace fusion {
 
 	CalibrationResult Calibrator::cal6DoF(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)const 
 	{
+		float qualityScaleFactor = 1;
 		//At least one node
 		std::vector<std::vector<Eigen::Matrix4f>> pos1(1);
 		std::vector<std::vector<Eigen::Matrix4f>> pos2(1);
@@ -216,11 +225,24 @@ namespace fusion {
 		}
 		CalibrationResult result;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
-		//Compute transform and error
-		result.transform = utility::calibration::Transform::twoSystems(pos1, pos2, &result.error);
+		
+		//Compute transforms and errors
+		std::vector<float> weights;
+		std::vector<Transform3D> transformsX;
+		std::vector<Transform3D> transformsY;
+		for (int i = 0; i < pos1.size(); i++) {
+			float error = 100;
+			transformsX.push_back(utility::calibration::Transform::twoSystems_Kronecker_Shah2013(pos1[i], pos2[i], &error).first);
+			transformsY.push_back(utility::calibration::Transform::twoSystems_Kronecker_Shah2013(pos1[i], pos2[i], &error).second);
+			weights.push_back(utility::qualityFromError(error, qualityScaleFactor));
+		}
+		result.transform = getMeanTransform(transformsX, weights);
+		Transform3D transformY = getMeanTransform(transformsY, weights);
+
+		result.error = utility::calibration::Transform::twoSystemsError(result.transform, transformY, );
 		//TODO: compute quality
 		result.quality = utility::qualityFromError(result.error, 1);
-		result.state = CalibrationResult::State::REFINING;
+		result.state = CalibrationResult::State::CALIBRATED;
 		return result;
 	}
 

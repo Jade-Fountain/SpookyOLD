@@ -295,19 +295,156 @@ namespace fusion{
 			//For calibrating position and rotation data simultaneously
 			namespace Transform {
 
-				//For calibrating a pair of systems with two sensors connected by a rigid body
-				// XA = bY
-				static inline Eigen::Transform<float, 3, Eigen::Affine> twoSystems(
-					const std::vector<std::vector<Eigen::Matrix4f>>& samplesA, 
-					const std::vector<std::vector<Eigen::Matrix4f>>& samplesB,
+				
+
+				std::pair<Eigen::Vector3f,Eigen::Vector3f> getTranslationComponent
+				(const std::vector<Eigen::Matrix4f>& samplesA, const std::vector<Eigen::Matrix4f>& samplesB,const Eigen::Matrix3f& Ry, bool& success){
+					Eigen::MatrixXf combinedF; 
+					Eigen::VectorXf combinedD; 
+
+					for (int i = 0; i < samplesA.size(); i++){
+						Eigen::Matrix3f RA = samplesA[i].topLeftCorner(3,3); 
+						Eigen::Vector3f pA = samplesA[i].topRightCorner(3,1); 
+						Eigen::Vector3f pB = samplesB[i].topRightCorner(3,1); 
+
+						Eigen::MatrixXf F(3,6);
+						F << RA, -Eigen::Matrix3f::Identity(); 
+
+						Eigen::Vector3f D = Ry * pB - pA; 
+
+						if (i == 0){	
+							combinedF = F; 
+							combinedD = D; 
+						}else{
+							combinedF = Eigen::MatrixXf(combinedF.rows() + F.rows(), combinedF.cols());
+							combinedF << combinedF,F; 
+							combinedD = Eigen::VectorXf(combinedD.rows() + D.rows());
+							combinedD << combinedD, D;
+						}
+					}
+
+					Eigen::JacobiSVD<Eigen::MatrixXf> svd(combinedF);
+					//TODO: evaluate success
+					bool pxpySuccess = true;//solveWithSVD(combinedF,combinedD,pxpy); 
+					Eigen::VectorXf pxpy = svd.solve(combinedD);
+
+					if(!pxpySuccess){
+						//If SVD fails, return identity
+						std::cout << __FILE__ << " : " << __LINE__ << " - WARNING: SVD FAILED" << std::endl;
+						success = false;
+						return std::pair<Eigen::Vector3f, Eigen::Vector3f>();
+					}
+					
+					std::pair<Eigen::Vector3f, Eigen::Vector3f> txty = std::make_pair(pxpy.topLeftCorner(3,1), pxpy.bottomLeftCorner(3,1));
+					return txty;
+				}
+
+				/*
+				solves AX=YB for X,Y and A in sampleA, B in sampleB
+
+				Source:
+				@ARTICLE{Zhuang1994, 
+				author={Hanqi Zhuang and Roth, Zvi S. and Sudhakar, R.}, 
+				journal={Robotics and Automation, IEEE Transactions on}, 
+				title={Simultaneous robot/world and tool/flange calibration by solving homogeneous transformation equations of the form AX=YB}, 
+				year={1994}, 
+				month={Aug}, 
+				volume={10}, 
+				number={4}, 
+				pages={549-554}
+				}	
+				*/
+				static inline std::pair<Eigen::Transform<float, 3, Eigen::Affine>, Eigen::Transform<float, 3, Eigen::Affine>>
+				twoSystems_Kronecker_Shah2013(
+					const std::vector<Eigen::Matrix4f>& samplesA, 
+					const std::vector<Eigen::Matrix4f>& samplesB,
 					float* error = NULL)
 				{
+					if(samplesA.size() < 3 || samplesB.size() < 3){
+						std::cout << "CalibrationTools - NEED MORE THAN 2 SAMPLES" << std::endl;
+						throw std::domain_error("CalibrationTools - NEED MORE THAN 2 SAMPLES");
+					}
+					std::pair<Eigen::Transform<float, 3, Eigen::Affine>, Eigen::Transform<float, 3, Eigen::Affine>> 
+						result(Eigen::Matrix4f::Identity(),Eigen::Matrix4f::Identity());
+
+					//--------------------------
+					//Rotation part
+					//--------------------------
+
+					//Create kronecker matrix K
+					int n = samplesA.size();
+					Eigen::MatrixXf K = Eigen::MatrixXf::Zero(9,9);
+					for(int i = 0; i < n; i++){
+						const Eigen::MatrixXf& A = samplesA[i];
+						const Eigen::MatrixXf& B = samplesB[i];
+
+						K += Eigen::KroneckerProduct<Eigen::MatrixXf, Eigen::MatrixXf>(B.topLeftCorner(3,3),A.topLeftCorner(3,3));
+					}
+
+					//Take singular value decomposition of K
+					Eigen::MatrixXf U,V;
+					Eigen::VectorXf s;
+					//Get U,V,s
+					getSVDComponents<Eigen::MatrixXf>(K,U,s,V);
+
+					// std::cout << "U = \n" << U << std::endl;
+					// std::cout << "s = \n" << s << std::endl;
+					// std::cout << "V = \n" << V << std::endl;
+
+					//Get index of singular values closest to n
+					// Eigen::VectorXf sMinusN = arma::abs(s-double(n));
+					// sMinusN.min(index);
+
+					//Use largest singular value
+					int index = 0;
+
+					Eigen::VectorXf u = U.col(index);
+					Eigen::VectorXf v = V.col(index);
+
+					// std::cout << "u = \n" << u << std::endl;
+					// std::cout << "s(index)  = \n" << s(index) << std::endl;
+					// std::cout << "v = \n" << v << std::endl;
+
+					Eigen::Matrix3f V_x = Eigen::Map<Eigen::MatrixXf>(u.data(), 3,3);
+					Eigen::Matrix3f V_y = Eigen::Map<Eigen::MatrixXf>(v.data(), 3,3);
+
+					float detV_x = V_x.determinant();
+					float detV_y = V_y.determinant();
+
+					// std::cout << "det(V_x) = \n" << detV_x << std::endl;
+					// std::cout << "det(V_y) = \n" << detV_y << std::endl;
+
+					float alpha_x =  1 / std::cbrt(detV_x);
+					float alpha_y =  1 / std::cbrt(detV_y);
+
+					// std::cout << "alpha_x = \n" << alpha_x << std::endl;
+					// std::cout << "alpha_y = \n" << alpha_y << std::endl;
+
+					Eigen::Matrix3f R_y = orthogonaliseBasic(alpha_x * V_x);
+					Eigen::Matrix3f R_x = orthogonaliseBasic(alpha_y * V_y);
+
+					// std::cout << "det(R_x) = \n" << arma::det(R_x) << std::endl;
+					// std::cout << "det(R_y) = \n" << arma::det(R_y) << std::endl;
+
+					//Translation part
+					bool success = false;
+					auto translation = getTranslationComponent(samplesA, samplesB, R_y, success);
+
+					result.first.translate(translation.first);
+					result.second.translate(translation.second);
+
+					result.first.rotate(R_x);
+					result.second.rotate(R_y);
 
 					if (error != NULL) {
-						*error = 0;// (TX.matrix() * A - B);
+						for(int i = 0; i < n; i++){
+							const Eigen::MatrixXf& A = samplesA[i];
+							const Eigen::MatrixXf& B = samplesB[i];
+							*error += (result.first.matrix() * A - B * result.second.matrix()).norm();
+						}
+						*error = *error / n;
 					}
-					//TODO
-					return Eigen::Transform<float, 3, Eigen::Affine>();
+					return result;
 				}
 			}
 

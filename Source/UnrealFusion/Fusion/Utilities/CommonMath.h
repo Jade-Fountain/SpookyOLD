@@ -41,6 +41,19 @@ namespace fusion{
 			return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
 		}
 
+		//Source: https://fuyunfei1.gitbooks.io/c-tips/content/pinv_with_eigen.html
+		//Pseudo inverse
+		template<typename _Matrix_Type_>
+		static inline void getSVDComponents(const _Matrix_Type_ &a, Eigen::MatrixXf& U, Eigen::VectorXf& s, Eigen::MatrixXf& V, double epsilon = std::numeric_limits<double>::epsilon())
+		{
+			Eigen::JacobiSVD< _Matrix_Type_ > svd(a, Eigen::ComputeThinU | Eigen::ComputeThinV);
+			double tolerance = epsilon * std::max(a.cols(), a.rows()) * svd.singularValues().array().abs()(0);
+			V = svd.matrixV();
+			U =  svd.matrixU();
+			s = svd.singularValues();
+		}
+
+
 		static inline Eigen::Matrix3f orthogonaliseBasic(const Eigen::Matrix3f& M) {
 			Eigen::Vector3f x = M.col(0);
 			x.normalize();
