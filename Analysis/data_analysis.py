@@ -117,7 +117,7 @@ def drawPointCloudData():
 	#=============================
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection='3d')
-	draw3DTrace('Optitrack',data[:,0:3],ax,1)
+	draw3DTrace('Optitrack',data[:,0:3],ax,3)
 
 	#=============================
 	# Plot Vive traces
@@ -125,66 +125,66 @@ def drawPointCloudData():
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection='3d')
 
-	draw3DTrace('Vive',data[:,3:6],ax,1)
+	draw3DTrace('Vive',data[:,3:6],ax,3)
 
 
 	#=============================
 	# Plot norm analysis
 	#=============================
-	fig = plt.figure()
+	# fig = plt.figure()
 
-	#Calculate norms
-	norms = np.zeros([n,2])
-	norms[:,0] = np.linalg.norm(data[:,0:3],axis = 1)
-	norms[:,1] = np.linalg.norm(data[:,3:6],axis = 1)
-	mean_diff = np.mean(norms[:,0] - norms[:,1])
-	norms[:,1] = norms[:,1] + mean_diff
-	# Time axis
-	t = range(n)
-	plt.title('Norms')
-	plt.plot(t,norms[:,0])
-	plt.plot(t,norms[:,1])
-	plt.legend(['Kinect', 'Vive'])
+	# #Calculate norms
+	# norms = np.zeros([n,2])
+	# norms[:,0] = np.linalg.norm(data[:,0:3],axis = 1)
+	# norms[:,1] = np.linalg.norm(data[:,3:6],axis = 1)
+	# mean_diff = np.mean(norms[:,0] - norms[:,1])
+	# norms[:,1] = norms[:,1] + mean_diff
+	# # Time axis
+	# t = range(n)
+	# plt.title('Norms')
+	# plt.plot(t,norms[:,0])
+	# plt.plot(t,norms[:,1])
+	# plt.legend(['Kinect', 'Vive'])
 
 	#=============================
 	# Plot vel analysis
 	#=============================
-	fig = plt.figure()
+	# fig = plt.figure()
 
-	#Calculate norms
-	vel = np.gradient(data, axis = 0)
-	vel_norms = np.zeros([n,2])
-	vel_norms[:,0] = np.linalg.norm(vel[:,0:3],axis = 1)
-	vel_norms[:,1] = np.linalg.norm(vel[:,3:6],axis = 1)
-	vel_mean_diff = np.mean(vel_norms[:,0] - vel_norms[:,1])
-	vel_norms[:,1] = vel_norms[:,1] + vel_mean_diff
-	# Time axis
-	t = range(n)
-	plt.title('Vel')
-	plt.plot(t,vel_norms[:,0])
-	plt.plot(t,vel_norms[:,1])
-	plt.legend(['Kinect', 'Vive'])
+	# #Calculate norms
+	# vel = np.gradient(data, axis = 0)
+	# vel_norms = np.zeros([n,2])
+	# vel_norms[:,0] = np.linalg.norm(vel[:,0:3],axis = 1)
+	# vel_norms[:,1] = np.linalg.norm(vel[:,3:6],axis = 1)
+	# vel_mean_diff = np.mean(vel_norms[:,0] - vel_norms[:,1])
+	# vel_norms[:,1] = vel_norms[:,1] + vel_mean_diff
+	# # Time axis
+	# t = range(n)
+	# plt.title('Vel')
+	# plt.plot(t,vel_norms[:,0])
+	# plt.plot(t,vel_norms[:,1])
+	# plt.legend(['Kinect', 'Vive'])
 	#=============================
 	# Plot X Y Z analysis
 	#=============================
-	fig = plt.figure()
-	t = range(n)
-	plt.title('X')
-	plt.plot(t,data[:,0])
-	plt.plot(t,data[:,3])
-	plt.legend(['Kinect', 'Vive'])
-	fig = plt.figure()
-	t = range(n)
-	plt.title('Y')
-	plt.plot(t,data[:,1])
-	plt.plot(t,data[:,4])
-	plt.legend(['Kinect', 'Vive'])
-	fig = plt.figure()
-	t = range(n)
-	plt.title('Z')
-	plt.plot(t,data[:,2])
-	plt.plot(t,data[:,5])
-	plt.legend(['Kinect', 'Vive'])
+	# fig = plt.figure()
+	# t = range(n)
+	# plt.title('X')
+	# plt.plot(t,data[:,0])
+	# plt.plot(t,data[:,3])
+	# plt.legend(['Kinect', 'Vive'])
+	# fig = plt.figure()
+	# t = range(n)
+	# plt.title('Y')
+	# plt.plot(t,data[:,1])
+	# plt.plot(t,data[:,4])
+	# plt.legend(['Kinect', 'Vive'])
+	# fig = plt.figure()
+	# t = range(n)
+	# plt.title('Z')
+	# plt.plot(t,data[:,2])
+	# plt.plot(t,data[:,5])
+	# plt.legend(['Kinect', 'Vive'])
 	#=============================
 	# Plot FFT analysis
 	#=============================

@@ -37,8 +37,8 @@ namespace fusion {
 		};
 
 		template<class X, class Y>
-		Y& safeAccess(std::map<X, Y>& m, const X& x) {
-			if (m.count(x) == 0) m[x] = Y();
+		Y& safeAccess(std::map<X, Y>& m, const X& x, const Y& initialVal = Y()) {
+			if (m.count(x) == 0) m[x] = initialVal;
 			return m[x];
 		}
 

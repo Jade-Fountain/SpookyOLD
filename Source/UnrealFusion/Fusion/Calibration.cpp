@@ -121,7 +121,7 @@ namespace fusion {
 			float diff = calibrationSet.compareMeasurement(mes, mes->getSystem(), node);
 
 			//Result is true if all sensors on the given node exceed the threshold
-			results[node] = utility::safeAccess(results, node) && (diff > diff_threshold);
+			results[node] = utility::safeAccess(results, node, true) && (diff > diff_threshold);
 		}
 		bool final_result = false;
 		for(auto& r : results){
