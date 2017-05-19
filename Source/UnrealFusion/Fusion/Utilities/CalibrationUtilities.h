@@ -295,9 +295,20 @@ namespace fusion{
 			//For calibrating position and rotation data simultaneously
 			namespace Transform {
 
+				static inline float getTwoSystemsError(
+					Eigen::Transform<float, 3, Eigen::Affine> X, Eigen::Transform<float, 3, Eigen::Affine> Y,
+					const std::vector<Eigen::Matrix4f>& samplesA, const std::vector<Eigen::Matrix4f>& samplesB) 
+				{
+					float error = 0;
+					for (int i = 0; i < samplesA.size(); i++) {
+						const Eigen::MatrixXf& A = samplesA[i];
+						const Eigen::MatrixXf& B = samplesB[i];
+						error += (A * X.matrix()  - Y.matrix() * B).norm();
+					}
+					return error / samplesA.size();
+				}
 				
-
-				std::pair<Eigen::Vector3f,Eigen::Vector3f> getTranslationComponent
+				static inline std::pair<Eigen::Vector3f,Eigen::Vector3f> getTranslationComponent
 				(const std::vector<Eigen::Matrix4f>& samplesA, const std::vector<Eigen::Matrix4f>& samplesB,const Eigen::Matrix3f& Ry, bool& success){
 					Eigen::MatrixXf combinedF; 
 					Eigen::VectorXf combinedD; 
@@ -316,17 +327,20 @@ namespace fusion{
 							combinedF = F; 
 							combinedD = D; 
 						}else{
+							auto tempF = combinedF;
 							combinedF = Eigen::MatrixXf(combinedF.rows() + F.rows(), combinedF.cols());
-							combinedF << combinedF,F; 
+							combinedF << tempF,F;
+							auto tempD = combinedD;
 							combinedD = Eigen::VectorXf(combinedD.rows() + D.rows());
-							combinedD << combinedD, D;
+							combinedD << tempD, D;
 						}
 					}
 
-					Eigen::JacobiSVD<Eigen::MatrixXf> svd(combinedF);
+					//Eigen::JacobiSVD<Eigen::MatrixXf> svd(combinedF);
 					//TODO: evaluate success
 					bool pxpySuccess = true;//solveWithSVD(combinedF,combinedD,pxpy); 
-					Eigen::VectorXf pxpy = svd.solve(combinedD);
+					//Eigen::VectorXf pxpy = svd.solve(combinedD);
+					Eigen::VectorXf pxpy = pInv(combinedF) * combinedD;
 
 					if(!pxpySuccess){
 						//If SVD fails, return identity
@@ -375,10 +389,10 @@ namespace fusion{
 					int n = samplesA.size();
 					Eigen::MatrixXf K = Eigen::MatrixXf::Zero(9,9);
 					for(int i = 0; i < n; i++){
-						const Eigen::MatrixXf& A = samplesA[i];
-						const Eigen::MatrixXf& B = samplesB[i];
+						Eigen::MatrixXf RA = samplesA[i].topLeftCorner(3, 3);
+						Eigen::MatrixXf RB = samplesB[i].topLeftCorner(3, 3);
 
-						K += Eigen::KroneckerProduct<Eigen::MatrixXf, Eigen::MatrixXf>(B.topLeftCorner(3,3),A.topLeftCorner(3,3));
+						K += Eigen::KroneckerProduct<Eigen::MatrixXf, Eigen::MatrixXf>(RB,RA);
 					}
 
 					//Take singular value decomposition of K
@@ -437,12 +451,7 @@ namespace fusion{
 					result.second.rotate(R_y);
 
 					if (error != NULL) {
-						for(int i = 0; i < n; i++){
-							const Eigen::MatrixXf& A = samplesA[i];
-							const Eigen::MatrixXf& B = samplesB[i];
-							*error += (result.first.matrix() * A - B * result.second.matrix()).norm();
-						}
-						*error = *error / n;
+						*error = getTwoSystemsError(result.first, result.second, samplesA, samplesB);
 					}
 					return result;
 				}

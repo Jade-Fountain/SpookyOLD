@@ -204,6 +204,48 @@ namespace FusionTesting
 
 		}
 
+		Eigen::Matrix4f randomTransform() {
+			Eigen::Matrix4f X = Eigen::Matrix4f::Identity();
+			X.topLeftCorner(3, 3) = Eigen::Quaternionf::UnitRandom().toRotationMatrix();
+			X.topRightCorner(3, 1) = Eigen::Vector3f::Random();
+			return X;
+		}
+
+		TEST_METHOD(HandshakeCalibration) {
+			Eigen::Matrix4f X = randomTransform();
+			Eigen::Matrix4f Y = randomTransform();
+
+			int N = 20;
+			std::vector<Eigen::Matrix4f> samplesA;
+			std::vector<Eigen::Matrix4f> samplesB;
+			for (int i = 0; i < N; i++) {
+				Eigen::Matrix4f A = randomTransform();
+				//AX=YB => B = Y'AX
+				Eigen::Matrix4f B = Y.inverse() * A * X;
+
+				samplesA.push_back(A);
+				samplesB.push_back(B);
+			}
+
+			float error = 1000;
+			auto result = fusion::utility::calibration::Transform::twoSystems_Kronecker_Shah2013(samplesA, samplesB, &error);
+
+			auto Xest = result.first;
+			auto Yest = result.second;
+
+			bool success = Xest.matrix().isApprox(X) && Yest.matrix().isApprox(Y);
+
+			std::stringstream ss2;
+			ss2 << "X = \n" << X << std::endl;
+			ss2 << "Xest = \n" << Xest.matrix() << std::endl;
+			ss2 << "Y = \n" << Y << std::endl;
+			ss2 << "Yest = \n" << Yest.matrix() << std::endl;
+			ss2 << "error = \n" << error << std::endl;
+			std::wstring widestr2 = utf8_decode(ss2.str());
+
+			Assert::AreEqual(success, true, widestr2.c_str());
+		}
+
 
 	};
 }

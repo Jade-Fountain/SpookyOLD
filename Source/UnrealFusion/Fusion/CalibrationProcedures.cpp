@@ -232,14 +232,20 @@ namespace fusion {
 		std::vector<Transform3D> transformsY;
 		for (int i = 0; i < pos1.size(); i++) {
 			float error = 100;
-			transformsX.push_back(utility::calibration::Transform::twoSystems_Kronecker_Shah2013(pos1[i], pos2[i], &error).first);
-			transformsY.push_back(utility::calibration::Transform::twoSystems_Kronecker_Shah2013(pos1[i], pos2[i], &error).second);
+			auto group_result = utility::calibration::Transform::twoSystems_Kronecker_Shah2013(pos1[i], pos2[i], &error);
+			transformsX.push_back(group_result.first);
+			transformsY.push_back(group_result.second);
 			weights.push_back(utility::qualityFromError(error, qualityScaleFactor));
 		}
 		result.transform = getMeanTransform(transformsX, weights);
 		Transform3D transformY = getMeanTransform(transformsY, weights);
 
-		result.error = utility::calibration::Transform::twoSystemsError(result.transform, transformY, );
+		result.error = 0;
+		for (int i = 0; i < pos1.size(); i++) {
+			result.error += utility::calibration::Transform::getTwoSystemsError(result.transform, transformY, pos1[i], pos2[i]);
+		}
+		result.error = result.error / pos1.size();
+
 		//TODO: compute quality
 		result.quality = utility::qualityFromError(result.error, 1);
 		result.state = CalibrationResult::State::CALIBRATED;
