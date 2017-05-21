@@ -230,8 +230,8 @@ namespace fusion {
 			pos1[index].push_back(utility::convention::unserialiseTo4x4f(m1[i]->getData()));
 			pos2[index].push_back(utility::convention::unserialiseTo4x4f(m2[i]->getData()));
 
-			ss << "stream1, group " << index << " \n"<< pos1[index].back() << std::endl;
-			ss << "stream2, group " << index << " \n"<< pos2[index].back() << std::endl;
+			//ss << "stream1, group " << index << " \n"<< pos1[index].back() << std::endl;
+			//ss << "stream2, group " << index << " \n"<< pos2[index].back() << std::endl;
 		}
 		CalibrationResult result;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
