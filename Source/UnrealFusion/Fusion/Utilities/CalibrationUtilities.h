@@ -356,6 +356,8 @@ namespace fusion{
 				/*
 				solves AX=YB for X,Y and A in sampleA, B in sampleB
 
+				Typically X is the sensor link transform and Y is the sensor space transform Y:SystemB->System1
+
 				Source:
 				@ARTICLE{Zhuang1994, 
 				author={Hanqi Zhuang and Roth, Zvi S. and Sudhakar, R.}, 

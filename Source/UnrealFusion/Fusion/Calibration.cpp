@@ -244,9 +244,9 @@ namespace fusion {
 			break;
 		case Measurement::Type::RIGID_BODY:
 			if (t2 == Measurement::Type::RIGID_BODY) {
-				return calPos(m1, m2, calib);
+				//return calPos(m1, m2, calib);
 				//TODO: implement this:
-				//return cal6DoF(m1, m2);
+				return cal6DoF(m1, m2, calib);
 			}
 			else if (t2 == Measurement::Type::POSITION) {
 				return calPos(m1, m2, calib);

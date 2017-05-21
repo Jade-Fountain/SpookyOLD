@@ -57,6 +57,8 @@ namespace fusion {
 		Measurement::Ptr meas = std::make_shared<Measurement>();
 		meas->type = Type::RIGID_BODY;
 		meas->data = Eigen::Matrix<float, 7, 1>();
+		//Eigen coeffs are stored (x,y,z,w)
+		//However, Eigen::Quaternionf(w,x,y,z) constructor doesnt obey this. Never use this constructor and should be fine
 		meas->data << position, quaternion.coeffs();
 		meas->uncertainty = sigma;
 		meas->size = 7;

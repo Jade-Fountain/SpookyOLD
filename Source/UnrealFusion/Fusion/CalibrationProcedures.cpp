@@ -204,9 +204,16 @@ namespace fusion {
 		return result;
 	}
 
-	CalibrationResult Calibrator::cal6DoF(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2)const 
+	CalibrationResult Calibrator::cal6DoF(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& currentCalibration)const
 	{
+		if (currentCalibration.state == CalibrationResult::State::CALIBRATED) return currentCalibration;
 		float qualityScaleFactor = 1;
+
+		//Debug
+		std::stringstream ss;
+		ss << "cal6Dof[" << m1.front()->getSensor()->system.name << ", " << m2.front()->getSensor()->system.name << "]" << std::endl;
+
+
 		//At least one node
 		std::vector<std::vector<Eigen::Matrix4f>> pos1(1);
 		std::vector<std::vector<Eigen::Matrix4f>> pos2(1);
@@ -222,6 +229,9 @@ namespace fusion {
 			int index = nodes[currentNode];
 			pos1[index].push_back(utility::convention::unserialiseTo4x4f(m1[i]->getData()));
 			pos2[index].push_back(utility::convention::unserialiseTo4x4f(m2[i]->getData()));
+
+			ss << "stream1, group " << index << " \n"<< pos1[index].back() << std::endl;
+			ss << "stream2, group " << index << " \n"<< pos2[index].back() << std::endl;
 		}
 		CalibrationResult result;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
@@ -232,23 +242,35 @@ namespace fusion {
 		std::vector<Transform3D> transformsY;
 		for (int i = 0; i < pos1.size(); i++) {
 			float error = 100;
+			// pos1[i][k] * X = Y * pos2[i][k] 
+			//Y:System2->System1
 			auto group_result = utility::calibration::Transform::twoSystems_Kronecker_Shah2013(pos1[i], pos2[i], &error);
 			transformsX.push_back(group_result.first);
 			transformsY.push_back(group_result.second);
 			weights.push_back(utility::qualityFromError(error, qualityScaleFactor));
 		}
-		result.transform = getMeanTransform(transformsX, weights);
+		//Compute mean transforms over each group
+		Transform3D transformX = getMeanTransform(transformsX, weights);
 		Transform3D transformY = getMeanTransform(transformsY, weights);
+		result.transform = transformY.inverse(); //Y':System1->System2
 
+		//Compute error
 		result.error = 0;
 		for (int i = 0; i < pos1.size(); i++) {
-			result.error += utility::calibration::Transform::getTwoSystemsError(result.transform, transformY, pos1[i], pos2[i]);
+			result.error += utility::calibration::Transform::getTwoSystemsError(transformX, transformY, pos1[i], pos2[i]);
 		}
 		result.error = result.error / pos1.size();
-
+		
 		//TODO: compute quality
 		result.quality = utility::qualityFromError(result.error, 1);
 		result.state = CalibrationResult::State::CALIBRATED;
+
+		ss << "Result: transformX = " << std::endl << transformX.matrix() << std::endl;
+		ss << "Result: transformY = " << std::endl << transformY.matrix() << std::endl;
+		ss << "Result: transform[" << result.systems.first.name << "->" << result.systems.second.name << "] = " << std::endl << result.transform.matrix() << std::endl;
+		ss << "Result: error[" << result.systems.first.name << "->" << result.systems.second.name << "] = " << std::endl << result.error << std::endl;
+		ss << "Result: quality[" << result.systems.first.name << "->" << result.systems.second.name << "] = " << std::endl << result.quality << std::endl;
+		FUSION_LOG(ss.str());
 		return result;
 	}
 

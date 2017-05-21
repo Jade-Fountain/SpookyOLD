@@ -215,13 +215,19 @@ namespace FusionTesting
 			Eigen::Matrix4f X = randomTransform();
 			Eigen::Matrix4f Y = randomTransform();
 
+			float pos_noise = 0.1;
+
 			int N = 20;
 			std::vector<Eigen::Matrix4f> samplesA;
 			std::vector<Eigen::Matrix4f> samplesB;
 			for (int i = 0; i < N; i++) {
 				Eigen::Matrix4f A = randomTransform();
+				//Get some noise
+				Eigen::Matrix4f noise = randomTransform();
+				noise.topRightCorner(3, 1) *= pos_noise;
+				noise.topLeftCorner(3, 3) = Eigen::Matrix3f::Identity();
 				//AX=YB => B = Y'AX
-				Eigen::Matrix4f B = Y.inverse() * A * X;
+				Eigen::Matrix4f B = Y.inverse() * noise * A * X;
 
 				samplesA.push_back(A);
 				samplesB.push_back(B);
@@ -233,7 +239,7 @@ namespace FusionTesting
 			auto Xest = result.first;
 			auto Yest = result.second;
 
-			bool success = Xest.matrix().isApprox(X) && Yest.matrix().isApprox(Y);
+			bool success = Xest.matrix().isApprox(X, pos_noise) && Yest.matrix().isApprox(Y, pos_noise);
 
 			std::stringstream ss2;
 			ss2 << "X = \n" << X << std::endl;
