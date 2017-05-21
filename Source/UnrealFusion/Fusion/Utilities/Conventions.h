@@ -25,7 +25,7 @@ namespace fusion {
 			static Eigen::Matrix4f unserialiseTo4x4f(Eigen::VectorXf data) {
 				Eigen::Translation3f v(data.block<3, 1>(0, 0));
 				Eigen::Quaternionf q(Eigen::Vector4f(data.bottomRows(4)));
-				assert(q.coeffs.isApprox(data.bottomRows()));
+				//assert(q.coeffs.isApprox(data.bottomRows()));
 				Eigen::Transform<float, 3, Eigen::Affine> T(v);
 				T.rotate(q);
 				return T.matrix();

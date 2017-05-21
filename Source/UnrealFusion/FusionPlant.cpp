@@ -276,7 +276,8 @@ Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, in
 Measurement::Ptr UFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector4 uncertainty, float confidence)
 {
 	//Create basic measurement
-	Eigen::Quaternionf meas(rotation.X, rotation.Y, rotation.Z, rotation.W);
+	//BEWARE: dumb format mismatch:
+	Eigen::Quaternionf meas(rotation.W, rotation.X, rotation.Y, rotation.Z);
 	Eigen::Matrix<float, 4, 4> un = Eigen::Matrix<float, 4, 4>::Identity();
 	un.diagonal() = Eigen::Vector4f(&uncertainty[0]);
 	Measurement::Ptr result = Measurement::createQuaternionMeasurement(meas, un);
