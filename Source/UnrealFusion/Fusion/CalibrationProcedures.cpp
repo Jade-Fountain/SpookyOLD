@@ -211,7 +211,7 @@ namespace fusion {
 
 		//Debug
 		std::stringstream ss;
-		ss << "cal6Dof[" << m1.front()->getSensor()->system.name << ", " << m2.front()->getSensor()->system.name << "]" << std::endl;
+		ss << "cal6Dof[" << m1.front()->getSensor()->system.name << ", " << m2.front()->getSensor()->system.name << "], samples =[" << m1.size() << ", " << m2.size() << "]" << std::endl;
 
 		//TODO: abstract this chunking algorithm and use elsewhere
 		//At least one node
