@@ -52,6 +52,14 @@ class UNREALFUSION_API UFusionPlant : public UActorComponent
 	//Input Skeletons
 	std::vector<UPoseableMeshComponent*> skeletons;
 	std::vector<Eigen::Matrix<float, 7, 1>> skeletonCovariances;
+
+	//Configuration
+	struct {
+		struct {
+			float input_m = 1;
+			float output_m = 1;
+		} units;
+	} config;
 protected:
 	//Fusion result
 	UPROPERTY(BlueprintReadOnly)
@@ -74,11 +82,16 @@ public:
 
 	//Add complete skeleton to list of fusion objects
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void Configure(float input_units_m = 1, float output_units_m = 1);
+
+
+	//Add complete skeleton to list of fusion objects
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var);
-	
+
 	//Set the output target which will have the complete fused skeleton pose applied
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void SetOutputTarget(UPoseableMeshComponent* poseable_mesh, float inputUnitsInMeters = 0.01);
+	void SetOutputTarget(UPoseableMeshComponent* poseable_mesh);
 	
 	//Perform some setup postprocessing
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
@@ -120,7 +133,7 @@ public:
 	//Copies the results of fusion to the target skeleton
 	// Default output units is centimeters as that is what Unreal Engine uses
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
-	void UpdateSkeletonOutput(float outputUnitsInMeters = 0.01);
+	void UpdateSkeletonOutput();
 //===========================
 //Data retrieval functions
 //===========================
