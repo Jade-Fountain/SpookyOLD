@@ -47,7 +47,7 @@ class UNREALFUSION_API UFusionPlant : public UActorComponent
 	GENERATED_BODY()
 
 	//Fusionplant
-	static fusion::Core plant;
+	fusion::Core plant;
 
 	//Input Skeletons
 	std::vector<UPoseableMeshComponent*> skeletons;
@@ -60,6 +60,7 @@ class UNREALFUSION_API UFusionPlant : public UActorComponent
 			float output_m = 1;
 		} units;
 	} config;
+
 protected:
 	//Fusion result
 	UPROPERTY(BlueprintReadOnly)

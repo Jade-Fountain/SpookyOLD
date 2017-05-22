@@ -24,7 +24,6 @@ using fusion::Measurement;
 //Setup and initialisation
 //===========================
 
-fusion::Core UFusionPlant::plant;
 
 // Sets default values for this component's properties
 UFusionPlant::UFusionPlant()

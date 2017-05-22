@@ -96,6 +96,11 @@ namespace fusion {
 						transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
 					}
+					
+
+					CRASHES ON mean transform
+
+
 					result.transform = getMeanTransform(transforms,weights);
 
 					transforms.clear();
