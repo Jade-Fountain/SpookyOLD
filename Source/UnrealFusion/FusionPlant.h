@@ -47,7 +47,7 @@ class UNREALFUSION_API UFusionPlant : public UActorComponent
 	GENERATED_BODY()
 
 	//Fusionplant
-	fusion::Core plant;
+	static fusion::Core plant;
 
 	//Input Skeletons
 	std::vector<UPoseableMeshComponent*> skeletons;

@@ -58,6 +58,8 @@ namespace fusion {
 		//TODO: add ifdefs for profiling
 		//Add new data to calibration, with checking for usefulness
 		//utility::profiler.startTimer("Correlator");
+		//FUSION_LOG("Fusing: " + std::to_string(measurement_buffer.size()) + "measurements");
+
 		correlator.addMeasurementGroup(measurement_buffer);
 		correlator.identify();
 		//utility::profiler.endTimer("Correlator");
