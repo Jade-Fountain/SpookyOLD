@@ -159,16 +159,17 @@ namespace fusion {
 		return difference(other).norm();
 	}
 	//TODO: refactor using custom struct with two measurement streams
-	std::vector<Measurement::Ptr> Measurement::synchronise(
-		const std::vector<Measurement::Ptr>& source, 
-		const std::vector<Measurement::Ptr>& target,
-		std::vector<Measurement::Ptr>& target_out
+	void Measurement::synchronise(
+		std::vector<Measurement::Ptr>& source, 
+		std::vector<Measurement::Ptr>& target
+		//std::vector<Measurement::Ptr>& target_out
 	){
 		std::stringstream ss;
 		ss << "Source = " << source.front()->getSensor()->system.name << std::endl;
 		ss << "Target = " << target.front()->getSensor()->system.name << std::endl;
 
 		std::vector<Measurement::Ptr> result;
+		std::vector<Measurement::Ptr> target_out;
 
 		std::vector<Measurement::Ptr>::const_iterator source_it = source.begin();
 		std::vector<Measurement::Ptr>::const_iterator target_it = target.begin();
@@ -234,14 +235,28 @@ namespace fusion {
 		}
 		FUSION_LOG(ss.str());
 
+		source = result;
+		target = target_out;
+	}
+
+	Eigen::VectorXf Measurement::interpolateData(const Measurement::Ptr& x, const Measurement::Ptr& y, const float& t, const Measurement::Type& type) {
+		Eigen::VectorXf result = x->getData() * (1-t) + y->getData() * t;
+		if (type == Measurement::Type::ROTATION || type == Measurement::Type::RIGID_BODY) {
+			Eigen::Quaternionf q1 = x->getRotation();
+			Eigen::Quaternionf q2 = y->getRotation();
+			Eigen::Quaternionf q = q1.slerp(t, q2);
+			if (type == Measurement::Type::ROTATION) {
+				return q.coeffs();
+			}
+			result.tail(4) = q.coeffs();
+		}
 		return result;
 	}
 
 	Measurement::Ptr Measurement::interpolate(const Measurement::Ptr& m0, const Measurement::Ptr& m1, float t){
 		assert(m0->getSensor() == m1->getSensor());
 		Measurement::Ptr result = std::make_shared<Measurement>(*m0);
-		//TODO: support nonlinear data types
-		result->data =  m0->data * (1-t) + m1->data * t;
+		result->data = Measurement::interpolateData(m0,m1,t,m0->type);
 		result->setTimestamp(m0->getTimestamp() * (1-t) + m1->getTimestamp() * t);
 
 		float uncertainty_growth = 4 * t * (1-t) * uncertainty_growth_max * (m0->getTimestamp() - m1->getTimestamp()) / 2;

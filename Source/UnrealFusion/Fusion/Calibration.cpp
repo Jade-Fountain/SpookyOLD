@@ -207,13 +207,13 @@ namespace fusion {
 						//Synchronise the two streams
 						std::vector<Measurement::Ptr> m1 = m1_;
 						std::vector<Measurement::Ptr> m2 = m2_;
-						////TODO: retarget hight noise measurements, not high latency
-						//if (m1_.front()->getLatency() < m2_.front()->getLatency()) {
-						//	m2 = Measurement::synchronise(m2_, m1_, m1);
-						//}
-						//else {
-						//	m1 = Measurement::synchronise(m1_, m2_, m2);
-						//}
+						//TODO: retarget hight noise measurements, not high latency
+						if (m1.size() < m2.size()) {
+							Measurement::synchronise(m2, m1);
+						}
+						else if(m1.size() > m2.size()){
+							Measurement::synchronise(m1, m2);
+						}
 						
 						measurements1->insert(measurements1->end(), m1.begin(), m1.end());
 						measurements2->insert(measurements2->end(), m2.begin(), m2.end());

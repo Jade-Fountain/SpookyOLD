@@ -311,12 +311,12 @@ namespace fusion {
 
 		//Synchronises the source stream with the target stream
 		// It is assumed that the two  streams are chronologically sorted
-		static std::vector<Measurement::Ptr> synchronise(const std::vector<Measurement::Ptr>& source,
-														const std::vector<Measurement::Ptr>& target,
-														std::vector<Measurement::Ptr>& source_out);
+		static void synchronise(std::vector<Measurement::Ptr>& source,
+														 std::vector<Measurement::Ptr>& target);
 
 		//Interpolates between two measurements of the same type
 		static const float uncertainty_growth_max;
+		static Eigen::VectorXf interpolateData(const Measurement::Ptr & x, const Measurement::Ptr & y, const float & t, const Measurement::Type & type);
 		static Measurement::Ptr interpolate(const Measurement::Ptr& m0, const Measurement::Ptr& m1, float t);
 		static Measurement::Ptr extrapolate(const Measurement::Ptr& m, float time_sec);
 		
@@ -378,6 +378,7 @@ namespace fusion {
 			return sensor->getLatency();
 		}
 	};
+
 
 
 }

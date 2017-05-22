@@ -8,9 +8,10 @@ namespace fusion {
 	float Correlator::getCorrelationScore(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2)
 	{
 		//Synchronise 
-		std::vector<Measurement::Ptr> m1;
+		std::vector<Measurement::Ptr> m1 = measurements1;
 		//Sync measurements2 to times of measurements1
-		std::vector<Measurement::Ptr> m2 = Measurement::synchronise(measurements2,measurements1,m1);
+		std::vector<Measurement::Ptr> m2 = measurements1;
+		Measurement::synchronise(m2, m1);
 
 		Measurement::Type t1 = m1.front()->type;
 		Measurement::Type t2 = m2.front()->type;
