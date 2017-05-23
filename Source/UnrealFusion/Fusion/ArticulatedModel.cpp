@@ -42,7 +42,6 @@ namespace fusion {
 		return pose;
 	}
 
-	//TODO: put timestamp in new_state
 	void Node::updateState(const State& new_state, const float& timestamp, const float& latency) {
 		rechacheRequired = true;
 		if (true || timestamp == local_state.last_update_time) {
@@ -79,18 +78,28 @@ namespace fusion {
 
 	void Node::fuse(){
 		Transform3D parent_pose = Transform3D::Identity();
+		
+		//If this node has a parent, recursively fuse until we know its transform
 		if (parent != NULL) {
 			parent->fuse();
 			parent_pose = parent->getGlobalPose();
 		}
-		if(articulations[0].getType() == Articulation::Type::BONE || articulations[0].getType() == Articulation::Type::POSE){
+
+		Articulation::Type articulationType = articulations[0].getType();
+		//If pose node or bone node
+		if(articulationType == Articulation::Type::BONE || articulationType == Articulation::Type::POSE){
+			
+			//For each measurement
 			for(auto& m : measurements){
+
+				//Throwout bad measurements
 				if (m->confidence < 0.75) {
 					continue;
 				}
 
+				//If measurement is rotation
 				if(m->type == Measurement::Type::ROTATION ||
-				(articulations[0].getType() == Articulation::Type::BONE && m->type == Measurement::Type::RIGID_BODY) )
+				(articulationType == Articulation::Type::BONE && m->type == Measurement::Type::RIGID_BODY) )
 				{
 					Node::State new_state;
 					//Simple update based on parent pose
@@ -100,7 +109,8 @@ namespace fusion {
 					new_state.variance = m->getRotationVar();
 					updateState(new_state, m->getTimestamp(), m->getLatency());
 				} 
-				else if (m->type == Measurement::Type::RIGID_BODY && articulations[0].getType() == Articulation::Type::POSE)
+				//If measurement also contains position
+				else if (m->type == Measurement::Type::RIGID_BODY && articulationType == Articulation::Type::POSE)
 				{
 					Node::State new_state;
 					new_state.variance = m->getPosQuatVar();
@@ -181,12 +191,10 @@ namespace fusion {
 	}
 
 	void ArticulatedModel::fuse() {
-		//TODO: implement fusion
 		for(auto& node : nodes){
 			//TODO: support other fusion methods
 			node.second->fuse();
 		}
-		//For now, just empty measurements
 		clearMeasurements();
 	}
 

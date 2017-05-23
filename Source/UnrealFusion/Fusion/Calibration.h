@@ -87,7 +87,7 @@ namespace fusion {
 		//TODO: make this determine total samples across all systems / nodes
 		std::map<CalibrationResult::State, int> count_threshold = 
 		{	
-			{CalibrationResult::State::UNCALIBRATED,50},
+			{CalibrationResult::State::UNCALIBRATED,150},
 			{CalibrationResult::State::REFINING,50},
 			{CalibrationResult::State::CALIBRATED,50} 
 		};

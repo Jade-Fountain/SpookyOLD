@@ -267,9 +267,6 @@ namespace fusion {
 		//utility::profiler.startTimer("Calibration: 1");
 		//Check there is data corresponding to more than one system for a given node, otherwise useless
 		//TODO: optimise this filterLonelyData - currently takes way too long
-		if (measurementQueue.size() > 10) {
-			FUSION_LOG("Measurement queue greater than 10!");
-		}
 		auto measurements = filterLonelyData(measurementQueue);
 		//utility::profiler.endTimer("Calibration: 1");
 
@@ -281,7 +278,7 @@ namespace fusion {
 
 		if (dataNovel) {
 			//Store the (refs to) the relevant measurements
-			FUSION_LOG("Adding calibration measurments!! " + std::to_string(measurements.size()));
+			//FUSION_LOG("Adding calibration measurments!! " + std::to_string(measurements.size()));
 			//utility::profiler.startTimer("Calibration: 3");
 			for (auto& m : measurements) {
 				addMeasurement(m);
