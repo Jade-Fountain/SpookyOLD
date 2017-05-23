@@ -87,7 +87,7 @@ namespace fusion {
 				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
 				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
 
-				for (int i = 0; i < 10; i++) {
+				for (int i = 0; i < 1; i++) {
 					//TODO:clean up
 					std::vector<Transform3D> transforms;
 					std::vector<float> weights;
@@ -97,11 +97,7 @@ namespace fusion {
 						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
 					}
 					
-
-					CRASHES ON mean transform
-
-
-					result.transform = getMeanTransform(transforms,weights);
+					result.transform = utility::getMeanTransform(transforms,weights);
 
 					transforms.clear();
 					weights.clear();
@@ -110,7 +106,7 @@ namespace fusion {
 						transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
 					}
-					result.transform = getMeanTransform(transforms, weights);
+					result.transform = utility::getMeanTransform(transforms, weights);
 
 					//TODO:clean up
 				}
@@ -140,7 +136,7 @@ namespace fusion {
 					transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 					weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
 				}
-				result.transform = getMeanTransform(transforms, weights);
+				result.transform = utility::getMeanTransform(transforms, weights);
 
 				transforms.clear();
 				weights.clear();
@@ -151,7 +147,7 @@ namespace fusion {
 				}
 				transforms.push_back(result.transform);
 				weights.push_back(result.quality);
-				result.transform = getMeanTransform(transforms, weights);
+				result.transform = utility::getMeanTransform(transforms, weights);
 				//TODO:clean up
 
 				float new_quality = utility::qualityFromError(result.error, qualityScaleFactor);
@@ -260,8 +256,8 @@ namespace fusion {
 			weights.push_back(utility::qualityFromError(error, qualityScaleFactor));
 		}
 		//Compute mean transforms over each group
-		Transform3D transformX = getMeanTransform(transformsX, weights);
-		Transform3D transformY = getMeanTransform(transformsY, weights);
+		Transform3D transformX = utility::getMeanTransform(transformsX, weights);
+		Transform3D transformY = utility::getMeanTransform(transformsY, weights);
 		result.transform = transformY.inverse(); //Y':System1->System2
 
 		//Compute error

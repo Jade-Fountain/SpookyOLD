@@ -34,27 +34,7 @@ namespace fusion {
 	typedef Eigen::Transform<float, 3, Eigen::Affine> Transform3D;
 
 	//TODO: find a better place for this
-	static inline Transform3D getMeanTransform(const std::vector<Transform3D>& T, const std::vector<float>& weights)
-	{
-		Eigen::MatrixXf wQ = Eigen::Matrix4f::Zero(4,T.size());
-		Eigen::Vector3f t_sum(0, 0, 0);
-		float sum_weights = 0;
-		float normalising_weight = 0;
-		int k = 0;
-		while (normalising_weight == 0) {
-			normalising_weight = weights[k++];
-		}
-		for (int i = 0; i < T.size(); i++) {
-			wQ.col(i) = Eigen::Quaternionf(T[i].rotation()).coeffs() * weights[i] / normalising_weight;
-			t_sum += T[i].translation() * weights[i] / normalising_weight;
-			sum_weights += weights[i] / normalising_weight;
-		}
-		Eigen::Quaternionf q = utility::averageQuaternions(wQ);
-		Eigen::Translation3f t(t_sum / sum_weights);
-		Transform3D transform(t);
-		transform.rotate(q);
-		return transform;
-	}
+
 
 
 

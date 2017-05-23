@@ -218,6 +218,9 @@ namespace fusion{
 					//ss << "Rotation matrix reorth = \n" << TX.matrix() << std::endl;
 					//FUSION_LOG(ss.str());
 
+					//If answer invalid, return same as before
+					if (TX.matrix().hasNaN()) return X;
+					//Return improved
 					return TX;
 				}
 

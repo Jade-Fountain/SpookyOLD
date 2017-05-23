@@ -354,6 +354,7 @@ namespace fusion{
 				std::random_shuffle(std::begin(indices), std::end(indices));
 				//Get a model
 				Sphere model = getSphereFrom4Points(points.col(indices[0]), points.col(indices[1]), points.col(indices[2]), points.col(indices[3]));
+				if (model.center.hasNaN() || std::isnan(model.r)) continue;
 				//Count inliers
 				std::vector<int> inliers = model.getInliers(points, inlier_threshold);
 
@@ -400,15 +401,39 @@ namespace fusion{
 			Eigen::EigenSolver<Eigen::MatrixXf> es(Q2);
 			//Eigenvalues will be real and positive because matrix is pos semidefinite
 			Eigen::VectorXf eval = es.eigenvalues().real();
-			int best = 0;
-			eval.maxCoeff(&best);
+			Eigen::VectorXf::Index bestEVIndex;
+			eval.maxCoeff(&bestEVIndex);
 			Eigen::MatrixXf evec = es.eigenvectors().real();
-			Eigen::Vector4f best_evec = evec.col(best);
+			Eigen::Vector4f best_evec = evec.col(bestEVIndex);
+
+			//DEBUG: Eigen::Vector4f best_evec = wQ.col(0);
 			best_evec.normalize();
 			return Eigen::Quaternionf(best_evec);
+			
 		}
 
-
+		static inline Eigen::Transform<float, 3, Eigen::Affine> 
+			getMeanTransform(const std::vector<Eigen::Transform<float, 3, Eigen::Affine>>& T, const std::vector<float>& weights)
+		{
+			Eigen::MatrixXf wQ = Eigen::MatrixXf::Zero(4, T.size());
+			Eigen::Vector3f t_sum(0, 0, 0);
+			float sum_weights = 0;
+			float normalising_weight = 0;
+			int k = 0;
+			while (normalising_weight == 0) {
+				normalising_weight = weights[k++];
+			}
+			for (int i = 0; i < T.size(); i++) {
+				wQ.col(i) = Eigen::Quaternionf(T[i].rotation()).coeffs() * weights[i] / normalising_weight;
+				t_sum += T[i].translation() * weights[i] / normalising_weight;
+				sum_weights += weights[i] / normalising_weight;
+			}
+			Eigen::Quaternionf q = utility::averageQuaternions(wQ);
+			Eigen::Translation3f t(t_sum / sum_weights);
+			Eigen::Transform<float, 3, Eigen::Affine> transform(t);
+			transform.rotate(q);
+			return transform;
+		}
 	
 	}
 }
