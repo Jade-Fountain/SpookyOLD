@@ -4,6 +4,90 @@
 		"selected_items":
 		[
 			[
+				"artic",
+				"articulationType"
+			],
+			[
+				"target",
+				"target_out"
+			],
+			[
+				"Matrix",
+				"Matrix3f"
+			],
+			[
+				"combined",
+				"combinedD"
+			],
+			[
+				"combin",
+				"combinedF"
+			],
+			[
+				"Matr",
+				"MatrixXf"
+			],
+			[
+				"com",
+				"combinedD"
+			],
+			[
+				"Vect",
+				"VectorXf"
+			],
+			[
+				"matr",
+				"MatrixXf"
+			],
+			[
+				"Vecto",
+				"VectorXf"
+			],
+			[
+				"Vector",
+				"Vector3f"
+			],
+			[
+				"Matri",
+				"MatrixXf"
+			],
+			[
+				"vector",
+				"VectorXf"
+			],
+			[
+				"Mat",
+				"MatrixXf"
+			],
+			[
+				"times",
+				"timestamps"
+			],
+			[
+				"jso",
+				"json_data"
+			],
+			[
+				"opt",
+				"optitrack_data"
+			],
+			[
+				"OP",
+				"optitrack_data"
+			],
+			[
+				"optit",
+				"optitrack_data_raw"
+			],
+			[
+				"opti",
+				"optitrack_data_raw"
+			],
+			[
+				"op",
+				"optitrack_data_raw"
+			],
+			[
 				"lower",
 				"lower_i"
 			],
@@ -30,10 +114,6 @@
 			[
 				"center",
 				"centerError"
-			],
-			[
-				"vector",
-				"Vector3f"
 			],
 			[
 				"unambiguous",
@@ -95,7 +175,7 @@
 			"file": "Source/UnrealFusion/Fusion/Core.cpp",
 			"settings":
 			{
-				"buffer_size": 4109,
+				"buffer_size": 4263,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -104,7 +184,8 @@
 			"file": "Source/UnrealFusion/FusionPlant.cpp",
 			"settings":
 			{
-				"buffer_size": 14041,
+				"buffer_size": 14443,
+				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
@@ -120,7 +201,24 @@
 			"file": "FusionTesting/CalibrationTests.cpp",
 			"settings":
 			{
-				"buffer_size": 7196,
+				"buffer_size": 8739,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/NUbots/Code/NUbots/shared/utility/autocal/CalibrationTools.cpp",
+			"settings":
+			{
+				"buffer_size": 13698,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Source/UnrealFusion/Fusion/Utilities/CommonMath.h",
+			"settings":
+			{
+				"buffer_size": 13722,
 				"line_ending": "Windows"
 			}
 		},
@@ -128,8 +226,36 @@
 			"file": "Source/UnrealFusion/Fusion/CalibrationProcedures.cpp",
 			"settings":
 			{
-				"buffer_size": 11460,
+				"buffer_size": 14911,
 				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/NUbots/Code/easywsclient-master/example-client.cpp",
+			"settings":
+			{
+				"buffer_size": 958,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "// Compile with:\n// g++ -std=gnu++0x example-client-cpp11.cpp -o example-client-cpp11\n#include \"easywsclient.hpp\"\n//#include \"easywsclient.cpp\" // <-- include only if you don't want compile separately\n#ifdef _WIN32\n#pragma comment( lib, \"ws2_32\" )\n#include <WinSock2.h>\n#endif\n#include <assert.h>\n#include <stdio.h>\n#include <string>\n#include <memory>\n\nint main()\n{\n    using easywsclient::WebSocket;\n#ifdef _WIN32\n    INT rc;\n    WSADATA wsaData;\n\n    rc = WSAStartup(MAKEWORD(2, 2), &wsaData);\n    if (rc) {\n        printf(\"WSAStartup Failed.\\n\");\n        return 1;\n    }\n#endif\n\n    std::unique_ptr<WebSocket> ws(WebSocket::from_url(\"ws://localhost:8126/foo\"));\n    assert(ws);\n    ws->send(\"goodbye\");\n    ws->send(\"hello\");\n    while (ws->getReadyState() != WebSocket::CLOSED) {\n        WebSocket::pointer wsp = &*ws; // <-- because a unique_ptr cannot be copied into a lambda\n        ws->poll();\n        ws->dispatch([wsp](const std::string & message) {\n            printf(\">>> %s\\n\", message.c_str());\n            if (message == \"world\") { wsp->close(); }\n        });\n    }\n#ifdef _WIN32\n    WSACleanup();\n#endif\n    // N.B. - unique_ptr will free the WebSocket instance upon return:\n    return 0;\n}\n",
+			"file": "/C/Users/NUbots/Code/easywsclient-master/example-client-cpp11.cpp",
+			"file_size": 1208,
+			"file_write_time": 131401519935327052,
+			"settings":
+			{
+				"buffer_size": 1207,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Source/UnrealFusion/Fusion/Calibration.cpp",
+			"settings":
+			{
+				"buffer_size": 12292,
 				"line_ending": "Windows"
 			}
 		},
@@ -137,7 +263,8 @@
 			"file": "Source/UnrealFusion/Fusion/Utilities/CalibrationUtilities.h",
 			"settings":
 			{
-				"buffer_size": 10526,
+				"buffer_size": 16042,
+				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
@@ -145,7 +272,7 @@
 			"file": "Source/UnrealFusion/FusionPlant.h",
 			"settings":
 			{
-				"buffer_size": 7127,
+				"buffer_size": 7340,
 				"line_ending": "Windows"
 			}
 		},
@@ -155,14 +282,6 @@
 			{
 				"buffer_size": 7427,
 				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "Source/UnrealFusion/Fusion/Utilities/CommonMath.h",
-			"settings":
-			{
-				"buffer_size": 12058,
 				"line_ending": "Windows"
 			}
 		},
@@ -187,8 +306,52 @@
 			"file": "Analysis/ground_truth_analysis.py",
 			"settings":
 			{
-				"buffer_size": 1572,
+				"buffer_size": 2869,
 				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "Searching 25 files for \"4.13\" (case sensitive)\n\n0 matches\n\nSearching 25 files for \"4.14\" (case sensitive)\n\n0 matches\n\nSearching 25 files for \"version\" (case sensitive)\n\nD:\\Epic Games\\4.14\\Engine\\Plugins\\OptiTrack\\OptitrackGearVR\\OptitrackGearVR.uplugin:\n    4  \t\"VersionName\" : \"1.5.0\",\n    5  \t\"FriendlyName\" : \"OptiTrack - Gear VR (for Unreal Engine 4.15)\",\n    6: \t\"Description\" : \"Modified version of the standard Gear VR HMD plugin, with added support for positional tracking and drift correction using an OptiTrack motion capture system. Note that if this plugin is enabled, the built-in Gear VR HMD plugin must be disabled.\",\n    7  \t\"Category\" : \"OptiTrack\",\n    8  \t\"CreatedBy\" : \"OptiTrack\",\n\nD:\\Epic Games\\4.14\\Engine\\Plugins\\OptiTrack\\OptitrackGearVR\\Source\\OptitrackGearVR\\OptitrackGearVR_APL.xml:\n    1: <?xml version=\"1.0\" encoding=\"utf-8\"?>\n    2  <!--GearVR plugin additions-->\n    3  <root xmlns:android=\"http://schemas.android.com/apk/res/android\">\n\nD:\\Epic Games\\4.14\\Engine\\Plugins\\OptiTrack\\OptitrackNatnet\\Source\\OptitrackNatnet\\Classes\\OptitrackClientOrigin.h:\n   88  \t* the rigid body in question hasn't streamed any new data recently.\n   89  \t*\n   90: \t* This \"Untransformed\" version only applies the global WorldToMeters scale,\n   91  \t* and does not apply the offset/rotation/scale of this origin actor.\n   92  \t*\n\nD:\\Epic Games\\4.14\\Engine\\Plugins\\OptiTrack\\OptitrackNatnet\\Source\\OptitrackNatnet\\Private\\OptitrackClientOrigin.cpp:\n  233  \t\t\t}\n  234  \n  235: \t\t\t// Relative to OptiTrack volume origin, with conversions for: scale, Y-up to Z-up, right-handed to left-handed. (X basis is preserved.)\n  236  \t\t\tconst FVector position( rbData.x * coordScalingFactor, rbData.z * coordScalingFactor, rbData.y * coordScalingFactor );\n  237  \t\t\tconst FQuat orientation( rbData.qx, rbData.qz, rbData.qy, -rbData.qw );\n\nD:\\Epic Games\\4.14\\Engine\\Plugins\\OptiTrack\\OptitrackNatnet\\Source\\OptitrackNatnet\\Private\\OptitrackNatnet.cpp:\n   95  \tuint8_t clientVer[4];\n   96  \tNatNet_GetVersion( clientVer );\n   97: \tGLog->Logf( TEXT( \"FOptitrackNatnetModule: NatNetLib loaded, version %d.%d.%d.%d\" ), clientVer[0], clientVer[1], clientVer[2], clientVer[3] );\n   98  #endif // !UE_BUILD_SHIPPING\n   99  }\n\nD:\\Epic Games\\4.14\\Engine\\Plugins\\OptiTrack\\OptitrackNatnet\\ThirdParty\\NatNetSDK\\include\\NatNetTypes.h:\n    3  used when working with NatNetServer and NatNetClient objects.\n    4  \n    5: version 3.0.0.0\n    6  */\n    7  \n    .\n  144  {\n  145      char szName[MAX_NAMELENGTH];            // host app's name\n  146:     unsigned char Version[4];               // host app's version [major.minor.build.revision]\n  147:     unsigned char NatNetVersion[4];         // host app's NatNet version [major.minor.build.revision]\n  148  } sSender;\n  149  \n  ...\n  173      unsigned char HostComputerAddress[4];   // host IP address\n  174      char szHostApp[MAX_NAMELENGTH];         // name of host app \n  175:     unsigned char HostAppVersion[4];        // version of host app\n  176:     unsigned char NatNetVersion[4];         // host app's version of NatNet\n  177  } sServerDescription;\n  178  \n\nD:\\Epic Games\\4.14\\Engine\\Plugins\\OptiTrack\\OptitrackOculusRift\\OptitrackOculusRift.uplugin:\n    4    \"VersionName\": \"1.5.0\",\n    5    \"FriendlyName\": \"OptiTrack - Oculus Rift (for Unreal Engine 4.15)\",\n    6:   \"Description\": \"Modified version of the standard Oculus Rift HMD plugin, with added support for positional tracking and drift correction using an OptiTrack motion capture system. Note that if this plugin is enabled, the built-in Oculus Rift HMD plugin must be disabled.\",\n    7    \"Category\": \"OptiTrack\",\n    8    \"CreatedBy\": \"OptiTrack\",\n\n11 matches across 7 files\n\n\nSearching 24 files for \"Eigen::Quaternion4f \" (case sensitive)\n\n0 matches\n\nSearching 2026 files for \"Eigen::Quaternion4f \" (case sensitive)\n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\UnrealFusion.VC.VC.opendb:\n    ERROR: Unable to open file\n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\Intermediate\\Build\\Win64\\UE4Editor\\Development\\UnrealFusion\\UnrealFusion.h.pch:\n    File too large, skipping\n\n0 matches\n\nSearching 2028 files for \"Eigen::Quaternion4f\" (case sensitive)\n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\UnrealFusion.VC.VC.opendb:\n    ERROR: Unable to open file\n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\Intermediate\\Build\\Win64\\UE4Editor\\Development\\UnrealFusion\\UnrealFusion.h.pch:\n    File too large, skipping\n\n0 matches\n\nSearching 527 files for \"Eigen::Quaternionf\" (case sensitive)\n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\Source\\UnrealFusion\\Fusion\\ArticulatedModel.cpp:\n   95  \t\t\t\t\tNode::State new_state;\n   96  \t\t\t\t\t//Simple update based on parent pose\n   97: \t\t\t\t\tnew_state.expectation = Eigen::Quaternionf(parent_pose.rotation().inverse() * m->getRotation()).coeffs();\n   98  \t\t\t\t\tnew_state.expectation.normalize();\n   99  \t\t\t\t\t//TODO: make names consitent\n  ...\n  106  \t\t\t\t\tnew_state.variance = m->getPosQuatVar();\n  107  \t\t\t\t\t//Simple update based on parent pose\n  108: \t\t\t\t\tEigen::Quaternionf qLocal= Eigen::Quaternionf(parent_pose.rotation().inverse() * m->getRotation());\n  109  \t\t\t\t\tEigen::Vector3f posLocal = parent_pose.inverse() * m->getPosition();\n  110  \t\t\t\t\tnew_state.expectation = Eigen::Matrix<float, 7, 1>::Zero();\n  ...\n  195  \t\tart.push_back(Articulation::createBone(boneTransform.translation()));\n  196  \t\tnodes[node]->setModel(art);\n  197: \t\tnodes[node]->local_state.expectation = Eigen::Quaternionf(boneTransform.rotation()).coeffs();\n  198  \t}\n  199  \n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\Source\\UnrealFusion\\Fusion\\Articulation.cpp:\n   53              {\n   54                  //Theta is a quaternion\n   55:     \t\t\tEigen::Quaternionf q = Eigen::Quaternionf(Eigen::Vector4f(theta));\n   56      \t\t\tT.translate(v);\n   57      \t\t\tT.rotate(q);\n   ..\n   61  \t\t\t{\n   62  \t\t\t\t//Theta is a quaternion\n   63: \t\t\t\tEigen::Quaternionf q = Eigen::Quaternionf(Eigen::Vector4f(theta.tail(4)));\n   64  \t\t\t\tEigen::Vector3f pos = theta.head(3);\n   65  \t\t\t\tT.translate(pos);\n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\Source\\UnrealFusion\\Fusion\\FusionTypes.cpp:\n   38  \t\treturn std::move(meas);\n   39  \t}\n   40: \tMeasurement::Ptr Measurement::createQuaternionMeasurement(Eigen::Quaternionf quaternion, Eigen::Matrix<float,4,4> sigma) {\n   41  \t\tMeasurement::Ptr meas = std::make_shared<Measurement>();\n   42  \t\tmeas->type = Type::ROTATION;\n   ..\n   54  \t\treturn std::move(meas);\n   55  \t}\n   56: \tMeasurement::Ptr Measurement::createPoseMeasurement(Eigen::Vector3f position, Eigen::Quaternionf quaternion, Eigen::Matrix<float,7,7> sigma) {\n   57  \t\tMeasurement::Ptr meas = std::make_shared<Measurement>();\n   58  \t\tmeas->type = Type::RIGID_BODY;\n   59  \t\tmeas->data = Eigen::Matrix<float, 7, 1>();\n   60  \t\t//Eigen coeffs are stored (x,y,z,w)\n   61: \t\t//However, Eigen::Quaternionf(w,x,y,z) constructor doesnt obey this. Never use this constructor and should be fine\n   62  \t\tmeas->data << position, quaternion.coeffs();\n   63  \t\tmeas->uncertainty = sigma;\n   ..\n   86  \t}\n   87  \n   88: \tEigen::Quaternionf Measurement::getRotation(){\n   89  \t\tif(type == Type::ROTATION || type == Type::RIGID_BODY){\n   90: \t\t\treturn Eigen::Quaternionf(Eigen::Vector4f(data.tail(4)));\n   91  \t\t} else {\n   92: \t\t\treturn Eigen::Quaternionf::Identity();\n   93  \t\t}\n   94  \t}\n   ..\n  133  \t\tif(rot){\n  134  \t\t\t//Quat defined by tail 4 always\n  135: \t\t\tEigen::Quaternionf q(Eigen::Vector4f(data.tail(4)));\n  136  \t\t\tT.rotate(q);\n  137  \t\t}\n  ...\n  269  \tEigen::Matrix<float, 7, 1> Measurement::getPosQuatFromTransform(const Transform3D& T) {\n  270  \t\tEigen::Matrix<float, 7, 1> result;\n  271: \t\tresult << T.translation(), Eigen::Quaternionf(T.rotation()).coeffs();\n  272  \t\treturn result;\n  273  \t}\n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\Source\\UnrealFusion\\Fusion\\FusionTypes.h:\n   41  \t\tfloat sum_weights = 0;\n   42  \t\tfor (int i = 0; i < T.size(); i++) {\n   43: \t\t\twQ.col(i) = Eigen::Quaternionf(T[i].rotation()).coeffs() * weights[i];\n   44  \t\t\tt_sum += T[i].translation() * weights[i];\n   45  \t\t\tsum_weights += weights[i];\n   46  \t\t}\n   47: \t\tEigen::Quaternionf q = utility::averageQuaternions(wQ);\n   48  \t\tEigen::Translation3f t(t_sum / sum_weights);\n   49  \t\tTransform3D transform(t);\n   ..\n  279  \t\t//=========================\n  280  \t\tstatic Measurement::Ptr createCartesianMeasurement(Eigen::Vector3f position, Eigen::Matrix<float,3,3> sigma);\n  281: \t\tstatic Measurement::Ptr createQuaternionMeasurement(Eigen::Quaternionf quaternion, Eigen::Matrix<float,4,4> sigma);\n  282  \t\tstatic Measurement::Ptr createScaleMeasurement(Eigen::Vector3f scale, Eigen::Matrix<float,3,3> sigma);\n  283: \t\tstatic Measurement::Ptr createPoseMeasurement(Eigen::Vector3f position, Eigen::Quaternionf quaternion, Eigen::Matrix<float,7,7> sigma);\n  284  \n  285  \t\t//=========================\n  ...\n  293  \t\tEigen::Matrix3f getPositionVar();\n  294  \n  295: \t\tEigen::Quaternionf getRotation();\n  296  \t\tEigen::Matrix4f getRotationVar();\n  297  \n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\Source\\UnrealFusion\\Fusion\\Utilities\\CommonMath.h:\n  100  \t\tstatic inline Eigen::Transform<float, 3, Eigen::Affine> matrixToTransform3D(const Eigen::Matrix4f& X) {\n  101  \t\t\t//Make sure normalised\n  102: \t\t\t//Eigen::Quaternionf q(X.block<3, 3>(0, 0));\n  103  \t\t\t//q.normalize();\n  104  \t\t\tEigen::Translation3f t(X.block<3, 1>(0, 3));\n  ...\n  115  \t\t\tfloat t\n  116  \t\t) {\n  117: \t\t\tEigen::Quaternionf q1(T1.rotation());\n  118: \t\t\tEigen::Quaternionf q2(T2.rotation());\n  119  \n  120: \t\t\tEigen::Quaternionf q = q1.slerp(t, q2);\n  121  \n  122  \t\t\tEigen::Vector3f v1(T1.translation());\n  ...\n  396  \t\t//sources source: http://www.acsu.buffalo.edu/~johnc/ave_quat07.pdf\n  397  \t\t//wQ (4xn mat) = unit quaternions in columns multiplied by their weights\n  398: \t\tstatic inline Eigen::Quaternionf averageQuaternions(const Eigen::MatrixXf& wQ) {\n  399  \t\t\tEigen::MatrixXf Q2 = wQ * wQ.transpose();\n  400  \t\t\tEigen::EigenSolver<Eigen::MatrixXf> es(Q2);\n  ...\n  406  \t\t\tEigen::Vector4f best_evec = evec.col(best);\n  407  \t\t\tbest_evec.normalize();\n  408: \t\t\treturn Eigen::Quaternionf(best_evec);\n  409  \t\t}\n  410  \n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\Source\\UnrealFusion\\Fusion\\Utilities\\Conventions.h:\n   25  \t\t\tstatic Eigen::Matrix4f unserialiseTo4x4f(Eigen::VectorXf data) {\n   26  \t\t\t\tEigen::Translation3f v(data.block<3, 1>(0, 0));\n   27: \t\t\t\tEigen::Quaternionf q(Eigen::Vector4f(data.bottomRows(4)));\n   28  \t\t\t\t//assert(q.coeffs.isApprox(data.bottomRows()));\n   29  \t\t\t\tEigen::Transform<float, 3, Eigen::Affine> T(v);\n   ..\n   32  \t\t\t}\n   33  \n   34: \t\t\tstatic Eigen::Vector4f quatToVec(Eigen::Quaternionf q) {\n   35  \t\t\t\treturn Eigen::Vector4f(q.w(), q.x(), q.y(), q.z());\n   36  \t\t\t}\n\nC:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\Source\\UnrealFusion\\FusionPlant.cpp:\n  193  \n  194  \tfusion::CalibrationResult T = plant.getCalibrationResult(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)),fusion::SystemDescriptor(TCHAR_TO_UTF8(*s2)));\n  195: \tEigen::Quaternionf q(T.transform.matrix().block<3,3>(0,0));\n  196  \tEigen::Vector3f v(T.transform.matrix().block<3, 1>(0, 3));\n  197  \tFQuat fq(q.x(), q.y(), q.z(), q.w());\n  ...\n  277  {\n  278  \t//Create basic measurement\n  279: \tEigen::Quaternionf meas(rotation.X, rotation.Y, rotation.Z, rotation.W);\n  280  \tEigen::Matrix<float, 4, 4> un = Eigen::Matrix<float, 4, 4>::Identity();\n  281  \tun.diagonal() = Eigen::Vector4f(&uncertainty[0]);\n  ...\n  307  \tEigen::Vector3f ev(&v[0]);\n  308  \t//BEWARE: dumb format mismatch:\n  309: \tEigen::Quaternionf eq(q.W,q.X,q.Y,q.Z);\n  310  \t//Create basic measurement\n  311  \tEigen::Matrix<float, 7, 7> un = Eigen::Matrix<float, 7, 7>::Identity();\n\n32 matches across 7 files\n",
+			"settings":
+			{
+				"buffer_size": 11772,
+				"line_ending": "Windows",
+				"name": "Find Results",
+				"scratch": true
+			}
+		},
+		{
+			"file": "Source/UnrealFusion/Fusion/FusionTypes.cpp",
+			"settings":
+			{
+				"buffer_size": 10249,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Source/UnrealFusion/Fusion/ArticulatedModel.cpp",
+			"settings":
+			{
+				"buffer_size": 9237,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/NUbots/Code/fusionkit-master/doc/WebsocketExample/wstest.html",
+			"settings":
+			{
+				"buffer_size": 2972,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Source/UnrealFusion/Websocket.cpp",
+			"settings":
+			{
+				"buffer_size": 1564,
 				"line_ending": "Windows"
 			}
 		},
@@ -196,7 +359,17 @@
 			"file": "Analysis/data_analysis.py",
 			"settings":
 			{
-				"buffer_size": 4976,
+				"buffer_size": 5075,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Analysis/point_clouds.csv",
+			"settings":
+			{
+				"buffer_size": 2932,
+				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
@@ -213,7 +386,7 @@
 			"file": "Source/UnrealFusion/Fusion/ArticulatedModel.h",
 			"settings":
 			{
-				"buffer_size": 4922,
+				"buffer_size": 5018,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -242,12 +415,12 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 0.0,
+		"height": 196.0,
 		"last_filter": "",
 		"selected_items":
 		[
 		],
-		"width": 0.0
+		"width": 464.0
 	},
 	"console":
 	{
@@ -273,6 +446,13 @@
 	],
 	"file_history":
 	[
+		"/C/Users/NUbots/Code/easywsclient-master/Makefile",
+		"/C/Users/NUbots/Code/fusionkit-master/doc/WebsocketExample/server.js",
+		"/C/Program Files (x86)/FusionKitStudio/Studio.exe.config",
+		"/C/Users/NUbots/Code/FusionKit/fusionkit_websocket_example.html",
+		"/C/Users/NUbots/Documents/Unreal Projects/UnrealFusion/Source/UnrealFusion/Fusion/Articulation.cpp",
+		"/C/Users/NUbots/Documents/Unreal Projects/UnrealFusion/Analysis/LHR-FFCDFF41_1494999405_01.pb",
+		"/D/Epic Games/4.14/Engine/Plugins/OptiTrack/OptitrackNatnet/OptitrackNatnet.uplugin",
 		"/C/Users/NUbots/Documents/Unreal Projects/UnrealFusion/Analysis/optitrack_data.csv",
 		"/C/Users/NUbots/Documents/Unreal Projects/UnrealFusion/Analysis/point_clouds.csv",
 		"/C/Users/NUbots/Documents/Unreal Projects/UnrealFusion/Analysis/data_analysis.py",
@@ -315,6 +495,9 @@
 		"height": 138.0,
 		"where_history":
 		[
+			"C:\\Users\\NUbots\\Documents\\Unreal Projects\\UnrealFusion\\Source",
+			"",
+			"D:\\Epic Games\\4.14\\Engine\\Plugins\\OptiTrack",
 			"C:\\Users\\User\\Code\\UnrealFusion\\Source\\UnrealFusion\\Fusion",
 			""
 		]
@@ -324,6 +507,38 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"setTimeout",
+			"articulations[0].getType()",
+			"getMeanTransform",
+			"plant",
+			"skeletonCovariances",
+			"skeletons",
+			"config.units",
+			"Eigen::Quaternionf",
+			"Eigen::Quaternion4f",
+			"Eigen::Quaternion4f ",
+			"Matrix3f",
+			"Rotation3D",
+			"Matrix4f",
+			"F",
+			"Vector3f",
+			"arma::vec",
+			"arma::mat",
+			"Transform3D",
+			"arma::vec3",
+			"arma::mat",
+			"arma::vec",
+			"rotation",
+			"result",
+			"version",
+			"4.14",
+			"4.13",
+			"0",
+			"fkdata",
+			"*i",
+			"[0]",
+			"optitrack_data_raw",
+			"print",
 			"[1]",
 			"[0]",
 			"       ",
@@ -411,7 +626,7 @@
 	"groups":
 	[
 		{
-			"selected": 4,
+			"selected": 8,
 			"sheets":
 			[
 				{
@@ -420,15 +635,121 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4109,
+						"buffer_size": 4263,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2979,
-								2979
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 785.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 24,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "Source/UnrealFusion/FusionPlant.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 14443,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								10904,
+								10904
 							]
 						],
 						"settings":
@@ -440,8 +761,8 @@
 								{
 									"1":
 									[
-										2981,
-										2982
+										11061,
+										11062
 									]
 								},
 								"icon":
@@ -456,8 +777,8 @@
 								{
 									"1":
 									[
-										1968,
-										1969
+										10571,
+										10572
 									]
 								},
 								"unmatched":
@@ -466,36 +787,46 @@
 							},
 							"bracket_highlighter.regions":
 							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
 								"bh_c_define_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
 								"bh_curly_close",
 								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
@@ -506,21 +837,11 @@
 								"bh_regex_open",
 								"bh_regex_close",
 								"bh_regex_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content"
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content"
 							],
 							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
 							"glslvalidator_configured": true,
@@ -529,42 +850,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 785.0,
+						"translation.y": 4424.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "Source/UnrealFusion/FusionPlant.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 14041,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
-							"glslvalidator_configured": true,
-							"glslvalidator_enabled": 1,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 3593.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 12,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
@@ -596,7 +885,7 @@
 						"translation.y": 1235.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 13,
+					"stack_index": 16,
 					"type": "text"
 				},
 				{
@@ -605,7 +894,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7196,
+						"buffer_size": 8739,
 						"regions":
 						{
 						},
@@ -641,51 +930,51 @@
 								"bh_regex_open",
 								"bh_regex_close",
 								"bh_regex_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
 								"bh_square_close",
 								"bh_square_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_single_quote",
 								"bh_single_quote_center",
 								"bh_single_quote_open",
 								"bh_single_quote_close",
 								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
@@ -703,135 +992,24 @@
 						"translation.y": 1404.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 15,
 					"type": "text"
 				},
 				{
 					"buffer": 4,
-					"file": "Source/UnrealFusion/Fusion/CalibrationProcedures.cpp",
+					"file": "/C/Users/NUbots/Code/NUbots/shared/utility/autocal/CalibrationTools.cpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 11460,
+						"buffer_size": 13698,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2534,
-								2534
-							]
-						],
-						"settings":
-						{
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-									"1":
-									[
-										1192,
-										1193
-									]
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content"
-							],
-							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
-							"glslvalidator_configured": true,
-							"glslvalidator_enabled": 1,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 920.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "Source/UnrealFusion/Fusion/Utilities/CalibrationUtilities.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10526,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
+								3270,
+								3270
 							]
 						],
 						"settings":
@@ -843,8 +1021,8 @@
 								{
 									"1":
 									[
-										9854,
-										9855
+										3274,
+										3275
 									]
 								},
 								"icon":
@@ -859,8 +1037,8 @@
 								{
 									"1":
 									[
-										8758,
-										8759
+										3174,
+										3175
 									]
 								},
 								"unmatched":
@@ -869,83 +1047,82 @@
 							},
 							"bracket_highlighter.regions":
 							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
 								"bh_regex",
 								"bh_regex_center",
 								"bh_regex_open",
 								"bh_regex_close",
 								"bh_regex_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_single_quote",
 								"bh_single_quote_center",
 								"bh_single_quote_open",
 								"bh_single_quote_close",
 								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
-								"bh_angle_content"
+								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
 							],
 							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
 							"glslvalidator_configured": true,
 							"glslvalidator_enabled": 1,
-							"history_list_is_closing": true,
 							"syntax": "Packages/C++/C++.sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 4330.0,
+						"translation.y": 1580.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
+					"stack_index": 13,
 					"type": "text"
 				},
 				{
-					"buffer": 6,
-					"file": "Source/UnrealFusion/FusionPlant.h",
+					"buffer": 5,
+					"file": "Source/UnrealFusion/Fusion/Utilities/CommonMath.h",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7127,
+						"buffer_size": 13722,
 						"regions":
 						{
 						},
@@ -958,6 +1135,95 @@
 						],
 						"settings":
 						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										3399,
+										3400
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"brackethighlighter.default"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										2381,
+										2382
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
 							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
 							"glslvalidator_configured": true,
 							"glslvalidator_enabled": 1,
@@ -965,20 +1231,723 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1532.0,
+						"translation.y": 716.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 14,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "Source/UnrealFusion/Fusion/CalibrationProcedures.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 14911,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5380,
+								5380
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										5400,
+										5401
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"brackethighlighter.default"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										5374,
+										5375
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1526.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "/C/Users/NUbots/Code/easywsclient-master/example-client.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 958,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								656,
+								658
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										956,
+										957
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"brackethighlighter.default"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										469,
+										470
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content"
+							],
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "/C/Users/NUbots/Code/easywsclient-master/example-client-cpp11.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1207,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1062,
+								1062
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										1061,
+										1062
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"brackethighlighter.default"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										1045,
+										1046
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content"
+							],
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "Source/UnrealFusion/Fusion/Calibration.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 12292,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8402,
+								8402
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										8409,
+										8410
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"brackethighlighter.default"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										8360,
+										8361
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"history_list_is_closing": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3154.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "Source/UnrealFusion/Fusion/Utilities/CalibrationUtilities.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 16042,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"history_list_is_closing": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 4330.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 25,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "Source/UnrealFusion/FusionPlant.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7340,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2001,
+								1997
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+									"1":
+									[
+										1847,
+										1848
+									]
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 452.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
 					"type": "text"
 				}
 			]
 		},
 		{
-			"selected": 4,
+			"selected": 8,
 			"sheets":
 			[
 				{
-					"buffer": 7,
+					"buffer": 12,
 					"file": "Source/UnrealFusion/Fusion/Correlator.cpp",
 					"semi_transient": false,
 					"settings":
@@ -1092,135 +2061,14 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1623.0,
+						"translation.y": 1947.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 10,
+					"stack_index": 18,
 					"type": "text"
 				},
 				{
-					"buffer": 8,
-					"file": "Source/UnrealFusion/Fusion/Utilities/CommonMath.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 12058,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								8597,
-								8597
-							]
-						],
-						"settings":
-						{
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-									"1":
-									[
-										8849,
-										8850
-									]
-								},
-								"icon":
-								{
-									"1":
-									[
-										"Packages/BracketHighlighter/icons/curly_bracket.png",
-										"brackethighlighter.default"
-									]
-								},
-								"open":
-								{
-									"1":
-									[
-										8363,
-										8364
-									]
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content"
-							],
-							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
-							"glslvalidator_configured": true,
-							"glslvalidator_enabled": 1,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 4982.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
+					"buffer": 13,
 					"file": "Analysis/optitrack.py",
 					"semi_transient": false,
 					"settings":
@@ -1321,11 +2169,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 23,
 					"type": "text"
 				},
 				{
-					"buffer": 10,
+					"buffer": 14,
 					"file": "Analysis/optitrack_data.csv",
 					"semi_transient": false,
 					"settings":
@@ -1426,129 +2274,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 22,
 					"type": "text"
 				},
 				{
-					"buffer": 11,
+					"buffer": 15,
 					"file": "Analysis/ground_truth_analysis.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1572,
+						"buffer_size": 2869,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1572,
-								1572
-							]
-						],
-						"settings":
-						{
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content"
-							],
-							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
-							"glslvalidator_configured": true,
-							"glslvalidator_enabled": 1,
-							"syntax": "Packages/Python/Python.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 432.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "Analysis/data_analysis.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4976,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1187,
-								1197
+								2143,
+								2143
 							]
 						],
 						"settings":
@@ -1560,8 +2303,8 @@
 								{
 									"1":
 									[
-										1216,
-										1217
+										2142,
+										2143
 									]
 								},
 								"icon":
@@ -1576,8 +2319,8 @@
 								{
 									"1":
 									[
-										1197,
-										1198
+										2105,
+										2106
 									]
 								},
 								"unmatched":
@@ -1586,21 +2329,580 @@
 							},
 							"bracket_highlighter.regions":
 							[
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
 								"bh_tag",
 								"bh_tag_center",
 								"bh_tag_open",
 								"bh_tag_close",
 								"bh_tag_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
 								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 553.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 17,
+					"type": "text"
+				},
+				{
+					"buffer": 16,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 11772,
+						"regions":
+						{
+							"match":
+							{
+								"flags": 112,
+								"regions":
+								[
+									[
+										394,
+										401
+									],
+									[
+										824,
+										831
+									],
+									[
+										1202,
+										1209
+									],
+									[
+										1539,
+										1546
+									],
+									[
+										2090,
+										2097
+									],
+									[
+										2406,
+										2413
+									],
+									[
+										2590,
+										2597
+									],
+									[
+										2699,
+										2706
+									],
+									[
+										2964,
+										2971
+									],
+									[
+										3049,
+										3056
+									],
+									[
+										3342,
+										3349
+									],
+									[
+										4760,
+										4778
+									],
+									[
+										5050,
+										5068
+									],
+									[
+										5077,
+										5095
+									],
+									[
+										5473,
+										5491
+									],
+									[
+										5729,
+										5747
+									],
+									[
+										5752,
+										5770
+									],
+									[
+										5917,
+										5935
+									],
+									[
+										5940,
+										5958
+									],
+									[
+										6278,
+										6296
+									],
+									[
+										6582,
+										6600
+									],
+									[
+										6870,
+										6888
+									],
+									[
+										7096,
+										7114
+									],
+									[
+										7225,
+										7243
+									],
+									[
+										7311,
+										7329
+									],
+									[
+										7440,
+										7458
+									],
+									[
+										7709,
+										7727
+									],
+									[
+										7984,
+										8002
+									],
+									[
+										8152,
+										8170
+									],
+									[
+										8520,
+										8538
+									],
+									[
+										8777,
+										8795
+									],
+									[
+										8952,
+										8970
+									],
+									[
+										9302,
+										9320
+									],
+									[
+										9474,
+										9492
+									],
+									[
+										9522,
+										9540
+									],
+									[
+										9578,
+										9596
+									],
+									[
+										9862,
+										9880
+									],
+									[
+										10145,
+										10163
+									],
+									[
+										10448,
+										10466
+									],
+									[
+										10694,
+										10712
+									],
+									[
+										11059,
+										11077
+									],
+									[
+										11290,
+										11308
+									],
+									[
+										11590,
+										11608
+									]
+								],
+								"scope": ""
+							}
+						},
+						"selection":
+						[
+							[
+								9802,
+								9802
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+									"1":
+									[
+										9462,
+										9463
+									]
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"detect_indentation": false,
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"line_numbers": false,
+							"output_tag": 7,
+							"result_base_dir": "",
+							"result_file_regex": "^([^ \t].*):$",
+							"result_line_regex": "^ +([0-9]+):",
+							"scroll_past_end": true,
+							"syntax": "Packages/Default/Find Results.hidden-tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 3780.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 17,
+					"file": "Source/UnrealFusion/Fusion/FusionTypes.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10249,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6278,
+								6278
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										6282,
+										6283
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"brackethighlighter.default"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										6260,
+										6261
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"history_list_is_closing": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3294.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "Source/UnrealFusion/FusionPlant.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 14443,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4005,
+								4005
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										3547,
+										3548
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"brackethighlighter.default"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										3411,
+										3412
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
@@ -1620,12 +2922,78 @@
 								"bh_curly_center",
 								"bh_curly_open",
 								"bh_curly_close",
-								"bh_curly_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
+								"bh_curly_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1710.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 18,
+					"file": "Source/UnrealFusion/Fusion/ArticulatedModel.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9237,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3619,
+								3619
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										5022,
+										5023
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"brackethighlighter.default"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										3614,
+										3615
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
@@ -1636,6 +3004,372 @@
 								"bh_default_open",
 								"bh_default_close",
 								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1350.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 19,
+					"file": "/C/Users/NUbots/Code/fusionkit-master/doc/WebsocketExample/wstest.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2972,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1216,
+								1216
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										1229,
+										1230
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"brackethighlighter.default"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										434,
+										435
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/HTML/HTML.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 162.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 20,
+					"file": "Source/UnrealFusion/Websocket.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1564,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								578,
+								578
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content"
+							],
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 21,
+					"file": "Analysis/data_analysis.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5075,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2898,
+								2898
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
@@ -1649,14 +3383,228 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 486.0,
+						"translation.y": 1840.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 19,
 					"type": "text"
 				},
 				{
-					"buffer": 13,
+					"buffer": 10,
+					"file": "Source/UnrealFusion/Fusion/Utilities/CalibrationUtilities.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 16042,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								14871,
+								14871
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"history_list_is_closing": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 7062.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 22,
+					"file": "Analysis/point_clouds.csv",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2932,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2932,
+								2932
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"glslvalidator_configured": true,
+							"glslvalidator_enabled": 1,
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 882.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 20,
+					"type": "text"
+				},
+				{
+					"buffer": 23,
 					"file": "Analysis/Spericaldata.csv",
 					"semi_transient": false,
 					"settings":
@@ -1759,16 +3707,16 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 21,
 					"type": "text"
 				},
 				{
-					"buffer": 14,
+					"buffer": 24,
 					"file": "Source/UnrealFusion/Fusion/ArticulatedModel.h",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4922,
+						"buffer_size": 5018,
 						"regions":
 						{
 						},
@@ -1866,7 +3814,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 11,
+					"stack_index": 26,
 					"type": "text"
 				}
 			]
@@ -1900,7 +3848,7 @@
 		"cols":
 		[
 			0.0,
-			0.3921875,
+			0.224363374668,
 			1.0
 		],
 		"rows":
@@ -1931,6 +3879,42 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"webso",
+				"Source\\UnrealFusion\\Websocket.cpp"
+			],
+			[
+				"articu",
+				"Source\\UnrealFusion\\Fusion\\ArticulatedModel.cpp"
+			],
+			[
+				"fusionpla",
+				"Source\\UnrealFusion\\FusionPlant.h"
+			],
+			[
+				"fusionplan",
+				"Source\\UnrealFusion\\FusionPlant.cpp"
+			],
+			[
+				"fusionty",
+				"Source\\UnrealFusion\\Fusion\\FusionTypes.cpp"
+			],
+			[
+				"common",
+				"Source\\UnrealFusion\\Fusion\\Utilities\\CommonMath.h"
+			],
+			[
+				"calibrau",
+				"Source\\UnrealFusion\\Fusion\\Utilities\\CalibrationUtilities.h"
+			],
+			[
+				"calibration",
+				"Source\\UnrealFusion\\Fusion\\Calibration.cpp"
+			],
+			[
+				"point",
+				"Analysis\\point_clouds.csv"
+			],
 			[
 				"sper",
 				"Analysis\\Spericaldata.csv"
@@ -1991,7 +3975,7 @@
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": true,
+	"side_bar_visible": false,
 	"side_bar_width": 302.0,
 	"status_bar_visible": true,
 	"template_settings":
