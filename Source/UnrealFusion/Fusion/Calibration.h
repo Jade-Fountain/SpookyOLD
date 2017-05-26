@@ -149,11 +149,14 @@ namespace fusion {
 		void addMeasurement(const Measurement::Ptr& m);
 		void addMeasurementGroup(const std::vector<Measurement::Ptr>& measurementQueue);
 
-		//Calibrate
+		//Calibrate - integrates data and calibrates if possible
 		void calibrate();
 
 		//Returns true if useable data is now available
 		bool isStable();
+		
+		//Sets calibration result from external data
+		void setResults(const CalibrationResult & r);
 
 		//Searches for calibration results and returns them for use in fusion
 		CalibrationResult getResultsFor(SystemDescriptor s1, SystemDescriptor s2);

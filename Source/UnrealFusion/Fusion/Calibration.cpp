@@ -311,6 +311,13 @@ namespace fusion {
 		return true;
 	}
 
+	void  Calibrator::setResults(const CalibrationResult & r) {
+		SystemPair forward = r.systems;
+		SystemPair reverse(forward.second, forward.first);
+		calibrationResults[forward] = r;
+		calibrationResults[reverse] = r.inverse();
+	}
+
 	CalibrationResult Calibrator::getResultsFor(SystemDescriptor s1, SystemDescriptor s2)
 	{
 		SystemPair forward(s1, s2);

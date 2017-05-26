@@ -83,6 +83,7 @@ namespace fusion {
 	//Results of a calibration are stored in this struct and returned
 	class CalibrationResult {
 	public:
+
 		enum State {
 			UNCALIBRATED = 0,
 			REFINING = 1,
@@ -97,6 +98,8 @@ namespace fusion {
 		Transform3D transform;
 		//Latency in ms of systems.second compared to systems.first
 		float latency = 0;
+		//Time when calibration was carried out
+		double timestamp = 0;
 
 		//Error is the mean re-projection error
 		float error = 0;
@@ -105,8 +108,14 @@ namespace fusion {
 		//Relevance - parameter used to detect faults in the system
 		float relevance = 1;
 
+		//Constructors
+		CalibrationResult(){}
+		CalibrationResult(const SystemDescriptor& s1, const SystemDescriptor& s2) {
+			systems = std::make_pair(s1, s2);
+		}
+
 		//Returns the inverse of the calibration result
-		CalibrationResult inverse() {
+		CalibrationResult inverse() const{
 			CalibrationResult result = *this;
 			result.transform = transform.inverse();
 			return result;

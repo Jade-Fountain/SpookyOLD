@@ -31,11 +31,43 @@ namespace fusion {
 		skeleton.setPoseNode(node, poseInitial);
 	}
 
+	// =================
+	//Saving and loading
+	// =================
+	void Core::setSaveDirectory(const std::string& dir) {
+		saveManager.setWorkingDirectory(dir);
+	}
+
+	void Core::loadCalibration(const SystemDescriptor& s1, const SystemDescriptor& s2) {
+		CalibrationResult cal(s1, s2);
+		bool success = saveManager.loadCalibration(&cal);
+		if (success) {
+			calibrator.setResults(cal);
+			FUSION_LOG("Loaded Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
+		}
+		else {
+			FUSION_LOG("Loading Calibration[" + s1.name + ", " + s2.name + "] FAILED");
+		}
+	}
+	
+	void Core::saveCalibration(const SystemDescriptor& s1, const SystemDescriptor& s2) {
+		bool success = saveManager.saveCalibration(calibrator.getResultsFor(s1, s2));
+		if (success) {
+			FUSION_LOG("Saved Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
+		}
+		else {
+			FUSION_LOG("Saving Calibration[" + s1.name + ", " + s2.name + "] FAILED");
+		}
+	}
+
+
+	// =================
+	//END: Saving and loading
+	// =================
 	void Core::finaliseSetup()
 	{
 		skeleton.enumerateHeirarchy();
 	}
-
 	//Adds a new measurement to the system
 	void Core::addMeasurement(const Measurement::Ptr& m, const NodeDescriptor& node) {
 		m->getSensor()->addNode(node);

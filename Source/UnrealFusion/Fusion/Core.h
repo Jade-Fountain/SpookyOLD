@@ -24,13 +24,16 @@
 #include "ArticulatedModel.h"
 #include "Fusion/Utilities/DataStructures.h"
 #include "Utilities/TimeProfiling.h"
-
+#include "SaveManager.h"
 namespace fusion {
 
 
 	//Centre of a fusion plant
 	class Core{
 	private:
+		//Object responsible for saving and loading calibrations
+		SaveManager saveManager;
+
 		//Measurement buffer for this frame
 		std::vector<Measurement::Ptr> measurement_buffer;
 
@@ -56,7 +59,14 @@ namespace fusion {
 		//Adds a node to the fusion graph model
 		void addBoneNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Transform3D& boneTransform);
 		void addPoseNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Transform3D& poseInitial);
-		
+
+		//Sets saveManager's save directory where calibration results will be saved and loaded
+		void setSaveDirectory(const std::string & dir);
+
+		//Save and load calibration results
+		void loadCalibration(const SystemDescriptor & s1, const SystemDescriptor & s2);
+		void saveCalibration(const SystemDescriptor & s1, const SystemDescriptor & s2);
+
 		//Computes necessary metadata after setup
 		void finaliseSetup();
 
