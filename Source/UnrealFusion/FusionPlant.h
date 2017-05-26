@@ -150,8 +150,22 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	FTransform getNodeGlobalPose(FString node);
 
+//===========================
+//Data saving/loading functions
+//===========================
 
+	//Sets save/load location	
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void setSaveDirectory(FString dir);
 
+	//Saves the calibration result mapping T:s1->s2
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void saveCalibrationResult(FString s1, FString s2);
+	
+	//Loads the calibration result mapping T:s1->s2
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void loadCalibrationResult(FString s1, FString s2);
+	
 //===========================
 //Utility
 //===========================

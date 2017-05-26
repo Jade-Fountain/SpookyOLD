@@ -225,6 +225,27 @@ FTransform UFusionPlant::getNodeGlobalPose(FString node)
 	//UE_LOG(LogTemp, Warning, TEXT("getNodePose : %s"), *(unrealMatrix.ToString()));
 	return FTransform(unrealMatrix);
 }
+//===========================
+//Data saving/loading functions
+//===========================
+
+//Sets save/load location	
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::setSaveDirectory(FString dir) {
+	plant.setSaveDirectory(TCHAR_TO_UTF8(*dir));
+}
+
+//Saves the calibration result mapping T:s1->s2
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::saveCalibrationResult(FString s1, FString s2){
+	plant.saveCalibration(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)),fusion::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
+}
+
+//Loads the calibration result mapping T:s1->s2
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::loadCalibrationResult(FString s1, FString s2){
+	plant.loadCalibration(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)), fusion::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
+}
 
 //===========================
 //Utility
