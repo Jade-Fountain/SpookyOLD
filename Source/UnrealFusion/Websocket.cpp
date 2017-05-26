@@ -63,10 +63,10 @@ void UWebsocket::TickComponent( float DeltaTime, ELevelTick TickType, FActorComp
 	
 	// ...
 	if (ws) {
-		//FUSION_LOG("Polling websocket");
 		ws->send("r");
 		ws->poll(1000);
 		ws->dispatch([this](const std::string & message) {
+			FUSION_LOG(message);
 			latestString = message;
 		});
 	}
