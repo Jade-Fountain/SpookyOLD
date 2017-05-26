@@ -16,21 +16,71 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include "FusionTypes.h"
+#include <fstream>
 
 namespace fusion {
 	
 	/*	Savemanager is responsible for loading and saving data from/to files. In particular, calibration results
 	*/
 	class SaveManager {
+		//Member variables
+		std::string workingDirectory;
+		std::string filename_ender = ".spky";
+
+		////////////////////////////////////////////
+		//Methods for templated functions
+		////////////////////////////////////////////
+
+		//Internal methods for calibration result
+		std::string getPath(const CalibrationResult & r) const;
+		CalibrationResult loadFromStream(std::ifstream& s) const;
+		std::string toString(const CalibrationResult & r) const;
+
+		//TODO: internal methods for Measurement
+		// std::string getPath(const Measurement & r) const;
+		// Measurement loadFromStream() const;
+		// std::string toString(const Measurement & r) const;
 
 	public:
 		//Configuration
 		bool setWorkingDirectory(const std::string& dir);
 
-		//Loading and saving calibration results
-		bool loadCalibration(CalibrationResult* currentResult);
-		bool saveCalibration(const CalibrationResult& result);
+		//Loading objects
+		template <class T>
+		bool SaveManager::load(T * current)
+		{
+			//Get save location
+			std::string pathname = getPath(*current);
+			//Open file
+			std::ifstream input;
+			input.open(pathname, std::ios::in);
+			//If success do load calibration
+			bool success = input.is_open();
+			if(success){
+				T loadedT = loadFromStream(input);
+				*current = loadedT;
+				input.close();
+			}
+			return success;
+		}
 
+		//Saving objects
+		template <class T>
+		bool SaveManager::save(const T & result)
+		{
+			//Get save location
+			std::string pathname = getPath(result);
+			//Open file
+			std::fstream output;
+			output.open(pathname, std::ios::out);
+			//If success do load calibration
+			bool success = output.is_open();
+			if(success){
+				output << toString(result);
+				output.close();
+			}
+			return success;
+		}
 	};
 
 }

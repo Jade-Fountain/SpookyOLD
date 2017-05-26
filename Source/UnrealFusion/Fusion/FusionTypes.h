@@ -33,11 +33,6 @@ namespace fusion {
 	//Mapping between two affine spaces
 	typedef Eigen::Transform<float, 3, Eigen::Affine> Transform3D;
 
-	//TODO: find a better place for this
-
-
-
-
 	/** System descriptor - abstraction for a string type to be used as a map key - might be changed later
 	*
 	*/

@@ -15,20 +15,87 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "UnrealFusion.h"
 #include "SaveManager.h"
+#include "Eigen/Core"
+
 
 namespace fusion {
-	bool SaveManager::setWorkingDirectory(const std::string & dir)
-	{
-		return false;
-	}
-	bool SaveManager::loadCalibration(CalibrationResult * currentResult)
-	{
-		return false;
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//									SaveManager:Private
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	std::string SaveManager::getPath(const CalibrationResult & r) const {
+		return workingDirectory + "/" + r.systems.first.name + "_" + r.systems.second.name + filename_ender;;
 	}
 
-	bool SaveManager::saveCalibration(const CalibrationResult & result)
+	CalibrationResult SaveManager::loadFromStream(std::ifstream& s) const{
+		CalibrationResult r;
+		std::string dummy;
+
+		//System names
+		s >> dummy; s >> r.systems.first.name;	FUSION_LOG(dummy + " " + r.systems.first.name);
+		s >> dummy; s >> r.systems.second.name;	FUSION_LOG(dummy + " " + r.systems.second.name);
+
+		//State
+		int state;
+		s >> dummy; s >> state;	
+		r.state = CalibrationResult::State(state);
+		FUSION_LOG(dummy + " " + std::to_string(int(r.state)));
+
+		//Transform
+		s >> dummy;
+		Eigen::RowVectorXf v;			
+		for(int i = 0; i < 16; i++){
+			s >> v[i];
+		}
+		Eigen::Matrix4f M(v.data());
+		r.transform = Transform3D(M);
+		std::stringstream ss;
+		ss << r.transform.matrix();
+		FUSION_LOG(dummy + " " + ss.str());
+
+		//Other
+		s >> dummy; s >> r.latency;		FUSION_LOG(dummy + " " + std::to_string(r.latency));
+		s >> dummy; s >> r.timestamp;	FUSION_LOG(dummy + " " + std::to_string(r.timestamp));
+		s >> dummy; s >> r.error;		FUSION_LOG(dummy + " " + std::to_string(r.error));
+		s >> dummy; s >> r.quality;		FUSION_LOG(dummy + " " + std::to_string(r.quality));
+		s >> dummy; s >> r.relevance;	FUSION_LOG(dummy + " " + std::to_string(r.relevance));
+
+		return r;
+	}
+
+	std::string SaveManager::toString(const CalibrationResult & r) const{
+		std::stringstream ss;
+		ss << "domain: " << r.systems.first.name << std::endl;
+		ss << "range: " << r.systems.second.name << std::endl;
+		ss << "state: " << int(r.state) << std::endl;
+		Eigen::Matrix4f M = r.transform.matrix();
+		Eigen::Map<Eigen::RowVectorXf> v(M.data(), 16);
+		ss << "transform: " << v << std::endl;
+		ss << "latency: " << r.latency << std::endl;
+		ss << "timestamp: " << r.timestamp << std::endl;
+		ss << "error: " << r.error << std::endl;
+		ss << "quality: " << r.quality << std::endl;
+		ss << "relevance: " << r.relevance << std::endl;
+		return ss.str();
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//									SaveManager:Public
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	bool SaveManager::setWorkingDirectory(const std::string & dir)
 	{
-		return false;
+		workingDirectory = dir;
+		std::fstream testFile;
+		std::string testDir = dir + "/test.txt";
+		testFile.open(testDir, std::ios::out);
+		bool success = testFile.is_open();
+		if (!success) {
+			FUSION_LOG("WARNING : Directory " + dir + "/test.txt could not be opened. Make sure the directory exists!");
+		}
+		testFile.close();
+		return success;
 	}
 
 }
