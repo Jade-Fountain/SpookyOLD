@@ -38,8 +38,9 @@ namespace fusion {
 		saveManager.setWorkingDirectory(dir);
 	}
 
-	void Core::loadCalibration(const SystemDescriptor& s1, const SystemDescriptor& s2) {
+	void Core::loadCalibration(const SystemDescriptor& s1, const SystemDescriptor& s2, bool tryReverse) {
 		CalibrationResult cal(s1, s2);
+		//TODO: if fail, try reverse order
 		bool success = saveManager.load(&cal);
 		if (success) {
 			calibrator.setResults(cal);
@@ -47,6 +48,9 @@ namespace fusion {
 		}
 		else {
 			FUSION_LOG("Loading Calibration[" + s1.name + ", " + s2.name + "] FAILED");
+			if(tryReverse){
+				loadCalibration(s2,s1,false);
+			}
 		}
 	}
 	

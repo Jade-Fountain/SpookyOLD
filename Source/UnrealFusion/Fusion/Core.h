@@ -64,7 +64,7 @@ namespace fusion {
 		void setSaveDirectory(const std::string & dir);
 
 		//Save and load calibration results
-		void loadCalibration(const SystemDescriptor & s1, const SystemDescriptor & s2);
+		void loadCalibration(const SystemDescriptor & s1, const SystemDescriptor & s2, bool tryReverse = true);
 		void saveCalibration(const SystemDescriptor & s1, const SystemDescriptor & s2);
 
 		//Computes necessary metadata after setup

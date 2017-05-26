@@ -44,7 +44,7 @@ namespace fusion {
 
 		//Transform
 		s >> dummy;
-		Eigen::RowVectorXf v;			
+		Eigen::RowVectorXf v(16);			
 		for(int i = 0; i < 16; i++){
 			s >> v[i];
 		}
