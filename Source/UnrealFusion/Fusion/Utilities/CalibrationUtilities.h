@@ -121,6 +121,76 @@ namespace fusion{
 					return TX;
 				}
 
+				//For calibrating a pair of systems with two sensors measuring the same point from two different reference frames
+				// Xa = b
+				// or XA = B
+				//K.S.Arun, T.S.Huang and S.D.Blostein, "Least-Squares Fitting of Two 3-D Point Sets," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol.PAMI - 9, no. 5, pp. 698 - 700, Sept. 1987.
+				//doi: 10.1109 / TPAMI.1987.4767965
+				//keywords : {Application software; Computer vision; Economic indicators; Iterative algorithms; Matrix decomposition; Motion estimation; Parameter estimation; Position measurement; Quaternions; Singular value decomposition; Computer vision; least - squares; motion estimation; quaternion; singular value decomposition},
+				//URL : http ://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4767965&isnumber=4767950
+				static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateIdenticalPairTransform_Arun(
+					const std::vector<Eigen::Vector3f>& samplesA,
+					const std::vector<Eigen::Vector3f>& samplesB,
+					float* error = NULL
+				) {
+					if (samplesA.size() != samplesB.size()) {
+						throw std::runtime_error(std::string(__FILE__) + std::to_string(__LINE__) + std::string(" : samplesA and samplesB of different size"));
+					}
+					//Compute centroids
+					Eigen::Vector3f meanA(0, 0, 0);
+					Eigen::Vector3f meanB(0, 0, 0);
+
+					Eigen::MatrixXf A(4, samplesA.size());
+					Eigen::MatrixXf B(4, samplesB.size());
+
+					for (int i = 0; i < samplesA.size(); i++) {
+						meanA += samplesA[i];
+						meanB += samplesB[i];
+
+						A.col(i) << samplesA[i], 1;
+						B.col(i) << samplesB[i], 1;
+					}
+					meanA = meanA / samplesA.size();
+					meanB = meanB / samplesB.size();
+
+					//init key matrix
+					Eigen::Matrix3f H = Eigen::Matrix3f::Zero();
+
+					//Compute centered point matrix H
+					for (int i = 0; i < samplesA.size(); i++) {
+						Eigen::Vector3f q = samplesA[i] - meanA;
+						Eigen::Vector3f q_primed = samplesB[i] - meanB;
+						H += q * q_primed.transpose();
+					}
+
+					//Compute svd of H
+					Eigen::JacobiSVD<Eigen::Matrix3f> svd(H);
+					Eigen::Matrix3f RX = svd.matrixV() * svd.matrixU().transpose();
+					//If det(RX) != 1 then fail!
+					if (std::fabs(RX.determinant() - 1) > 0.01) {
+						//Failed!
+						if (error != NULL) {
+							*error = -1;
+						}
+						return Eigen::Transform<float, 3, Eigen::Affine>::Identity();
+					}
+
+					//Calculate translation
+					Eigen::Translation3f t = Eigen::Translation3f(meanB - RX * meanA);
+					
+					//Put into transform
+					Eigen::Transform<float, 3, Eigen::Affine> TX(t);
+					TX.rotate(RX);
+
+					//Get error
+					if (error != NULL) {
+						auto E = TX.matrix() * A - B;
+						*error = errorFunc(E);
+					}
+
+					return TX;
+				}
+
 				static inline Eigen::Transform<float, 3, Eigen::Affine> calibrateWeightedIdenticalPair(
 					const std::vector<Eigen::Vector3f>& samplesA,
 					const std::vector<Eigen::Vector3f>& samplesB,

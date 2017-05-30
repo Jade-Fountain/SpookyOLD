@@ -47,7 +47,7 @@ namespace FusionTesting
 			}
 
 			float error = 0;
-			Eigen::Transform<float, 3, Eigen::Affine> X_ = fusion::utility::calibration::Position::calibrateIdenticalPairTransform(samplesA, samplesB, &error);
+			Eigen::Transform<float, 3, Eigen::Affine> X_ = fusion::utility::calibration::Position::calibrateIdenticalPairTransform_Arun(samplesA, samplesB, &error);
 
 			std::stringstream ss;
 			ss << "Correct X = \n" << X.matrix() << std::endl;
