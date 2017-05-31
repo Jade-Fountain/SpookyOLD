@@ -387,7 +387,10 @@ namespace fusion{
 
 			//Check dimension
 			if (mean.rows() == 3) {
-				result = sphereRANSAC(points);
+				Sphere ransacResult = sphereRANSAC(points);
+				if (!ransacResult.center.hasNaN() && !std::isnan(ransacResult.r)) {
+					result = ransacResult;
+				}
 			}
 
 			return result;

@@ -169,6 +169,12 @@ public:
 //===========================
 //Utility
 //===========================
+
+	//Compute axis angle representation (x,y,z,alpha)
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	FVector4 getRotatorAxisAngle(FRotator R);
+
+
 	//Method to copy data from one poseable mesh to another
 	void CopyPose(UPoseableMeshComponent* target, const UPoseableMeshComponent* input);
 

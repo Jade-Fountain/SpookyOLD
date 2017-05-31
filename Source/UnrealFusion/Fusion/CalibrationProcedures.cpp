@@ -85,17 +85,19 @@ namespace fusion {
 				//Clear previous
 				result.transform.setIdentity();
 				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
-				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform(pos1, pos2, &result.error);
+				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform_Arun(pos1, pos2, &result.error);
 
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 1; i++) {
 					//TODO:clean up
 					std::vector<Transform3D> transforms;
 					std::vector<float> weights;
+
 					for (int j = 0; j < chunks.size() - 1; j++) {
 						weights.push_back(100000);
-						transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
+						transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
 					}
+
 					result.transform = utility::getMeanTransform(transforms, weights);
 
 					
@@ -103,11 +105,10 @@ namespace fusion {
 					weights.clear();
 					for (int j = 0; j < chunks.size() - 1; j++) {
 						weights.push_back(100000);
-						transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
+						transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
 					}
-					
-					result.transform = utility::getMeanTransform(transforms,weights);
+					result.transform = utility::getMeanTransform(transforms, weights);
 
 					//TODO:clean up
 				}

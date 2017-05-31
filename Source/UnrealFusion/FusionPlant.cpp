@@ -251,6 +251,15 @@ void UFusionPlant::loadCalibrationResult(FString s1, FString s2){
 //Utility
 //===========================
 
+//Compute axis angle representation (x,y,z,alpha)
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+FVector4 UFusionPlant::getRotatorAxisAngle(FRotator R) {
+	float angle;
+	FVector axis;
+	R.Quaternion().ToAxisAndAngle(axis,angle);
+	return FVector4(axis[0], axis[1], axis[2], angle * 180 / M_PI);
+}
+
 void UFusionPlant::CopyPose(UPoseableMeshComponent* target, const UPoseableMeshComponent* input)
 {
 	if (target->RequiredBones.IsValid())
