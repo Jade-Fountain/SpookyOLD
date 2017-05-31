@@ -164,7 +164,7 @@ namespace fusion{
 					}
 
 					//Compute svd of H
-					Eigen::JacobiSVD<Eigen::Matrix3f> svd(H);
+					Eigen::JacobiSVD<Eigen::MatrixXf> svd(H, Eigen::ComputeThinU | Eigen::ComputeThinV);
 					Eigen::Matrix3f RX = svd.matrixV() * svd.matrixU().transpose();
 					//If det(RX) != 1 then fail!
 					if (std::fabs(RX.determinant() - 1) > 0.01) {
