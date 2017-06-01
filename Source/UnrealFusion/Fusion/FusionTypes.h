@@ -102,6 +102,8 @@ namespace fusion {
 		float quality = 0;
 		//Relevance - parameter used to detect faults in the system
 		float relevance = 1;
+		//Weight counts the number of samples incorporated into this calibration result
+		float weight = 1;
 
 		//Constructors
 		CalibrationResult(){}
@@ -119,6 +121,17 @@ namespace fusion {
 		//Checks if sensor is calibrated
 		bool calibrated() {
 			return state != UNCALIBRATED;
+		}
+
+		void updateResult(const Transform3D& new_T, const float& new_weight) {
+			std::vector<Transform3D> trans(2);
+			std::vector<float> weights(2);
+			trans.push_back(transform);
+			weights.push_back(weight);
+			trans.push_back(new_T);
+			weights.push_back(new_weight);
+			transform = utility::getMeanTransform(trans, weights);
+			weight += new_weight;
 		}
 	};
 
