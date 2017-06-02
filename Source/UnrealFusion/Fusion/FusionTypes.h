@@ -151,6 +151,14 @@ namespace fusion {
 			//Update weight to reflect new information integrated
 			weight += new_cal.weight;
 		}
+
+		void reset() {
+			error = 0;
+			quality = 0;
+			relevance = 0;
+			transform = Eigen::Matrix4f::Identity();
+			state = State::UNCALIBRATED;
+		}
 	};
 
 	/** Structs describing measurements

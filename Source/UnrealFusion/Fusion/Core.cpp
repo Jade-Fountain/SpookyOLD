@@ -44,7 +44,7 @@ namespace fusion {
 		bool success = saveManager.load(&cal);
 		if (success) {
 			calibrator.setResults(cal);
-			FUSION_LOG("Loaded Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
+			//FUSION_LOG("Loaded Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
 		}
 		else {
 			FUSION_LOG("Loading Calibration[" + s1.name + ", " + s2.name + "] FAILED");
@@ -57,7 +57,7 @@ namespace fusion {
 	void Core::saveCalibration(const SystemDescriptor& s1, const SystemDescriptor& s2) {
 		bool success = saveManager.save(calibrator.getResultsFor(s1, s2));
 		if (success) {
-			FUSION_LOG("Saved Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
+			//FUSION_LOG("Saved Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
 		}
 		else {
 			FUSION_LOG("Saving Calibration[" + s1.name + ", " + s2.name + "] FAILED");

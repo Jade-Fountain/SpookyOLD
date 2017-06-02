@@ -14,6 +14,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "UnrealFusion.h"
+#include <EngineGlobals.h>
+#include <Runtime/Engine/Classes/Engine/Engine.h>
 #include <string>
 #pragma once
 
@@ -21,4 +23,9 @@
 inline void FUSION_LOG(std::string s){
 	FString str(s.c_str());
 	UE_LOG(LogTemp, Warning, TEXT("FUSION LOG : %s"),*str);
+}
+
+inline void FUSION_SCREEN_MESSAGE(std::string s) {
+	FString str(s.c_str());
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("FUSION LOG : %s"), *str));
 }
