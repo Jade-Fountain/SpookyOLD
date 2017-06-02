@@ -76,46 +76,59 @@ namespace fusion {
 		}
 
 
-		CalibrationResult result = currentCalibration;
+		CalibrationResult result;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
-		//Compute transform and error
+		result.latency = currentCalibration.latency;
+		//TODO: get current time since start, perhaps with use of a Platform.h?
+		result.timestamp = m1.back()->getTimestamp();
+		
+		//--------------------------------------
+		//Compute current results
+		//--------------------------------------
+		//Clear previous
+		result.transform.setIdentity();
+		//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
+		result.transform = utility::calibration::Position::calibrateIdenticalPairTransform_Arun(pos1, pos2, &result.error);
+
+		for (int i = 0; i < 1; i++) {
+			//TODO:clean up
+			std::vector<Transform3D> transforms;
+			std::vector<float> weights;
+
+			for (int j = 0; j < chunks.size() - 1; j++) {
+				weights.push_back(100000);
+				transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
+				weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
+			}
+
+			result.transform = utility::getMeanTransform(transforms, weights);
+
+
+			transforms.clear();
+			weights.clear();
+			for (int j = 0; j < chunks.size() - 1; j++) {
+				weights.push_back(100000);
+				transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
+				weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
+			}
+			result.transform = utility::getMeanTransform(transforms, weights);
+
+			//TODO:clean up
+		}
+		result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
+		result.relevance = result.quality;
+		result.weight = m1.size();
+
+		FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
+
+		//--------------------------------------
+		//Decide what to do with results
+		//--------------------------------------
+
+		//Compute transform, error, quality, relevance and weight
 		switch (currentCalibration.state) {
 			case (CalibrationResult::State::UNCALIBRATED):
 			{
-				//Clear previous
-				result.transform.setIdentity();
-				//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
-				result.transform = utility::calibration::Position::calibrateIdenticalPairTransform_Arun(pos1, pos2, &result.error);
-
-				for (int i = 0; i < 1; i++) {
-					//TODO:clean up
-					std::vector<Transform3D> transforms;
-					std::vector<float> weights;
-
-					for (int j = 0; j < chunks.size() - 1; j++) {
-						weights.push_back(100000);
-						transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
-						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
-					}
-
-					result.transform = utility::getMeanTransform(transforms, weights);
-
-					
-					transforms.clear();
-					weights.clear();
-					for (int j = 0; j < chunks.size() - 1; j++) {
-						weights.push_back(100000);
-						transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
-						weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
-					}
-					result.transform = utility::getMeanTransform(transforms, weights);
-
-					//TODO:clean up
-				}
-				//TODO: proper error
-				result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
-				result.relevance = result.quality;
-				FUSION_LOG("CALIBRATED!!! error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality));
 				//DEBUG:: Straight to calibrated
 				if(result.quality > initial_quality_threshold){
 					result.state = CalibrationResult::State::CALIBRATED;
@@ -123,53 +136,29 @@ namespace fusion {
 				}
 				else {
 					FUSION_LOG("Calibration DID NOT PASS required threshold: " + std::to_string(initial_quality_threshold) + ", quality = " + std::to_string(result.quality));
-				}
-				
-				break;
+				}	
 			}
 			case (CalibrationResult::State::REFINING):
 			{
+				//Combine calibrations
+				result.updateResult(currentCalibration);
 				//refinement calibration
-				//TODO:clean up
-				std::vector<Transform3D> transforms;
-				std::vector<float> weights;
-				for (int j = 0; j < chunks.size() - 1; j++) {
-					weights.push_back(100000);
-					transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
-					weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
-				}
-				result.transform = utility::getMeanTransform(transforms, weights);
-
-				transforms.clear();
-				weights.clear();
-				for (int j = 0; j < chunks.size() - 1; j++) {
-					weights.push_back(100000);
-					transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
-					weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
-				}
-				transforms.push_back(result.transform);
-				weights.push_back(result.quality);
-				result.transform = utility::getMeanTransform(transforms, weights);
-				//TODO:clean up
-
-				float new_quality = utility::qualityFromError(result.error, qualityScaleFactor);
-				if (new_quality - result.quality > quality_convergence_threshold) {
+				float new_quality = result.quality;
+				if (new_quality - currentCalibration.quality > quality_convergence_threshold) {
 					//If large gains are being made keep going
-					FUSION_LOG("REFINING: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(result.quality));
+					FUSION_LOG("REFINING: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality));
 					result.state = CalibrationResult::State::REFINING;
 				}
 				else if (new_quality > settle_threshold) {
 					//If change is a small improvement, we are done
-					FUSION_LOG("REFINEMENT FINISHED!!! new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(result.quality));
+					FUSION_LOG("REFINEMENT FINISHED!!! new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality));
 					result.state = CalibrationResult::State::CALIBRATED;
 				}
 				else {
 					//If we cant improve, then we probably started in a bad state, so start again
-					FUSION_LOG("Starting over: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(result.quality));
+					FUSION_LOG("Starting over: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality));
 					result.state = CalibrationResult::State::UNCALIBRATED;
 				}
-				result.quality = new_quality;
-				break;
 			}
 			case (CalibrationResult::State::CALIBRATED):
 			{
@@ -178,27 +167,28 @@ namespace fusion {
 				//TODO: fix fault detection for new model
 				//Track new transform and see how much it moves? (expensive)
 				float error = utility::calibration::Position::getError(pos1, pos2, currentCalibration.transform);
-				result.relevance = result.relevance * (1 - fault_hysteresis_rate) + fault_hysteresis_rate * utility::qualityFromError(error, qualityScaleFactor);
+				float new_quality = utility::qualityFromError(error, qualityScaleFactor);
+				result.relevance = currentCalibration.relevance * (1 - fault_hysteresis_rate) + fault_hysteresis_rate * new_quality;
 				FUSION_LOG(" Already calibrated - watching for faults - relevance = " + std::to_string(result.relevance) + " vs. quality = " + std::to_string(result.quality));
 				FUSION_LOG(" relevance / quality = " + std::to_string(result.relevance / result.quality) + " vs. thres = " + std::to_string(fault_threshold));
 				//Relevance is the latest quality value, filtered with exponential filter
 				//If our quality varies from the expected too much, we need to recalibrate
 				if (result.relevance / result.quality < fault_threshold) {
 					if (result.quality < initial_quality_threshold) {
-						//Try to improve the relevance
+						//Start again
 						result.state = CalibrationResult::State::UNCALIBRATED;
+						FUSION_LOG("Starting over: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality));
 					} else {
 						//Try to improve the relevance
 						//TODO: fix refinement
-						result.state = CalibrationResult::State::UNCALIBRATED;
+						result.state = CalibrationResult::State::REFINING;
 						result.quality = result.relevance;
+						FUSION_LOG("Returning to refinement: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality));
 					}
 				}
 				else {
 					result.state = CalibrationResult::State::CALIBRATED;
 				}
-				//DEBUG: STAY CALIBRATED
-				result.state = CalibrationResult::State::CALIBRATED;
 				break;
 			}
 		}

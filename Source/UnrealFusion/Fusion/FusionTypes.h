@@ -138,6 +138,7 @@ namespace fusion {
 			//new timestamps
 			latency = new_cal.latency;
 			timestamp = new_cal.timestamp;
+			state = new_cal.state;
 
 			//Interpolate error and quality
 			//TODO: make this correct error/quality amount
