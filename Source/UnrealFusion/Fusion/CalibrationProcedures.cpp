@@ -28,9 +28,10 @@ namespace fusion {
 		float initial_quality_threshold = 0.5;
 		float quality_convergence_threshold = 0.01;
 		float qualityScaleFactor = 0.05;
-		float fault_hysteresis_rate = 1;
+		float fault_hysteresis_rate = 0.05;
 		float settle_threshold = 0.85;
-		float fault_threshold = 0.90;
+		float fault_angle_threshold = M_PI * 10 / 180;
+		float fault_distance_threshold = 0.1;
 
 		//Chunks corresponding to different sensor pairs
 		std::vector<int> chunks;
@@ -118,7 +119,7 @@ namespace fusion {
 			//TODO:clean up
 		}
 		result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
-		result.relevance = result.quality;
+		result.relevance = Eigen::Vector2f(0,0);
 		result.weight = m1.size();
 
 		FUSION_LOG("Performed calibration on new data. error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
@@ -174,22 +175,28 @@ namespace fusion {
 				//TODO: implement that fault decay detection thing
 				//TODO: fix fault detection for new model
 				//Track new transform and see how much it moves? (expensive)
-				result.relevance = currentCalibration.relevance * (1 - fault_hysteresis_rate) + fault_hysteresis_rate * result.quality;
-				FUSION_LOG(" Already calibrated - watching for faults - relevance = " + std::to_string(result.relevance) + " vs. quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
-				FUSION_LOG(" relevance / quality = " + std::to_string(result.relevance / result.quality) + " vs. thres = " + std::to_string(fault_threshold) + " result.weight = " + std::to_string(result.weight));
-				//Relevance is the latest quality value, filtered with exponential filter
+				auto transform_error = utility::transformNorm(result.transform.inverse() * currentCalibration.transform);
+				Eigen::Vector2f new_relevance(transform_error.angle, transform_error.distance);
+				result.relevance = currentCalibration.relevance * (1 - fault_hysteresis_rate) + fault_hysteresis_rate * new_relevance;
+				FUSION_LOG(" Already calibrated - watching for faults - error = " 
+					+ std::to_string(result.relevance[0]) + ", " + std::to_string(result.relevance[1]) +
+					was here last: + std::to_string(result.relevance[0]) + ", " + std::to_string(result.relevance[1]) +
+					" vs. threshold = " + std::to_string(fault_angle_threshold) + ", " + std::to_string(fault_distance_threshold) + 
+					" result.weight = " + std::to_string(result.weight));
+				//Relevance represents the latest error from original transform, filtered with exponential filter
 				//If our quality varies from the expected too much, we need to recalibrate
-				if (result.relevance / currentCalibration.quality < fault_threshold) {
+				if (result.relevance[0] > fault_angle_threshold ||
+					result.relevance[1] > fault_distance_threshold) {
 					if (result.quality < initial_quality_threshold) {
 						//Start again
-						result.state = CalibrationResult::State::UNCALIBRATED;
 						FUSION_LOG("Starting over: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+						result.reset();
+						result.state = CalibrationResult::State::UNCALIBRATED;
 					} else {
 						//Try to improve the quality
 						//TODO: fix refinement
-						result.state = CalibrationResult::State::REFINING;
-						result.quality = result.relevance;
 						FUSION_LOG("Returning to refinement: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+						result.state = CalibrationResult::State::REFINING;
 					}
 				}
 				else {

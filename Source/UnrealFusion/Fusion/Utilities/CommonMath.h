@@ -437,6 +437,19 @@ namespace fusion{
 			transform.rotate(q);
 			return transform;
 		}
+
+		struct TransformNorm{
+			float distance = 0;
+			float angle = 0;
+		};
+
+		static inline TransformNorm transformNorm(const Eigen::Transform<float, 3, Eigen::Affine>& T) {
+			Eigen::Quaternionf q(T.rotation());
+			TransformNorm tnorm;
+			tnorm.angle = q.angularDistance(Eigen::Quaternionf::Identity());
+			tnorm.distance = T.translation().norm();
+			return tnorm;
+		}
 	
 	}
 }

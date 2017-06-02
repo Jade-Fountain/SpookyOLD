@@ -101,13 +101,16 @@ namespace fusion {
 		//Quality is a qualitative measure in [0,1] of the estimated accuracy of the result
 		float quality = 0;
 		//Relevance - parameter used to detect faults in the system
-		float relevance = 1;
+		Eigen::Vector2f relevance;
 		//Weight counts the number of samples incorporated into this calibration result
 		float weight = 0;
 
 		//Constructors
-		CalibrationResult(){}
+		CalibrationResult(){
+			reset();
+		}
 		CalibrationResult(const SystemDescriptor& s1, const SystemDescriptor& s2) {
+			reset();
 			systems = std::make_pair(s1, s2);
 		}
 
@@ -139,6 +142,7 @@ namespace fusion {
 			latency = new_cal.latency;
 			timestamp = new_cal.timestamp;
 			state = new_cal.state;
+			relevance = new_cal.relevance;
 
 			//Interpolate error and quality
 			//TODO: make this correct error/quality amount
@@ -146,7 +150,6 @@ namespace fusion {
 			if (sum_weight == 0) return; //Return if both are zero weight (aka uncomputed) results
 			error = (weight * error + new_cal.weight * new_cal.error) / sum_weight;
 			quality = (weight * quality + new_cal.weight * new_cal.quality) / sum_weight;
-			relevance = quality;
 
 			//Update weight to reflect new information integrated
 			weight += new_cal.weight;
@@ -155,7 +158,7 @@ namespace fusion {
 		void reset() {
 			error = 0;
 			quality = 0;
-			relevance = 0;
+			relevance = Eigen::Vector2f(0,0);
 			transform = Eigen::Matrix4f::Identity();
 			state = State::UNCALIBRATED;
 		}
