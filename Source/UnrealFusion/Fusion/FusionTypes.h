@@ -103,7 +103,7 @@ namespace fusion {
 		//Relevance - parameter used to detect faults in the system
 		float relevance = 1;
 		//Weight counts the number of samples incorporated into this calibration result
-		float weight = 1;
+		float weight = 0;
 
 		//Constructors
 		CalibrationResult(){}
@@ -123,15 +123,32 @@ namespace fusion {
 			return state != UNCALIBRATED;
 		}
 
-		void updateResult(const Transform3D& new_T, const float& new_weight) {
+		//Combines two calibration results associatively
+		void updateResult(const CalibrationResult& new_cal) {
+			assert(systems == new_cal.systems);
+			//Get mean transform
 			std::vector<Transform3D> trans(2);
 			std::vector<float> weights(2);
 			trans.push_back(transform);
 			weights.push_back(weight);
-			trans.push_back(new_T);
-			weights.push_back(new_weight);
+			trans.push_back(new_cal.transform);
+			weights.push_back(new_cal.weight);
 			transform = utility::getMeanTransform(trans, weights);
-			weight += new_weight;
+
+			//new timestamps
+			latency = new_cal.latency;
+			timestamp = new_cal.timestamp;
+
+			//Interpolate error and quality
+			//TODO: make this correct error/quality amount
+			float sum_weight = (weight + new_cal.weight);
+			if (sum_weight == 0) return; //Return if both are zero weight (aka uncomputed) results
+			error = (weight * error + new_cal.weight * new_cal.error) / sum_weight;
+			quality = (weight * quality + new_cal.weight * new_cal.quality) / sum_weight;
+			relevance = quality;
+
+			//Update weight to reflect new information integrated
+			weight += new_cal.weight;
 		}
 	};
 
