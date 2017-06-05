@@ -21,6 +21,7 @@
 #include "Fusion/Utilities/Conventions.h"
 
 namespace fusion {
+
 	CalibrationResult Calibrator::updateCalibration(const CalibrationResult& newCalibration, const CalibrationResult& currentCalibration) const{
 		//TODO: make these some logical values
 		float initial_quality_threshold = 0.5;
@@ -230,31 +231,13 @@ namespace fusion {
 		std::stringstream ss;
 		ss << "cal6Dof[" << m1.front()->getSensor()->system.name << ", " << m2.front()->getSensor()->system.name << "], samples =[" << m1.size() << ", " << m2.size() << "]" << std::endl;
 
-		//TODO: abstract this chunking algorithm and use elsewhere
-		//At least one node
-		std::vector<std::vector<Eigen::Matrix4f>> pos1(1);
-		std::vector<std::vector<Eigen::Matrix4f>> pos2(1);
-		std::map<NodeDescriptor, int> nodes;
-		nodes[m1.front()->getNode()] = 0;
-		FUSION_LOG("node 0 = " + m1.front()->getNode().name);
-		for (int i = 0; i < m1.size(); i++) {
-			const auto& currentNode = m1[i]->getNode();
-			FUSION_LOG("currentNode = " + currentNode.name);
-			
-			//If new node, create another list for that node
-			if (nodes.count(currentNode) == 0) {
-				pos1.push_back(std::vector<Eigen::Matrix4f>());
-				pos2.push_back(std::vector<Eigen::Matrix4f>());
-				nodes[currentNode] = pos1.size()-1;
-			}
-			//Push back data to correct list corresponding to its node
-			int index = nodes[currentNode];
-			pos1[index].push_back(utility::convention::unserialiseTo4x4f(m1[i]->getData()));
-			pos2[index].push_back(utility::convention::unserialiseTo4x4f(m2[i]->getData()));
+		//Chunk measurements based on node
+		std::vector<std::vector<Eigen::Vector3f>> pos1;
+		std::vector<std::vector<Eigen::Vector3f>> pos2;
 
-			//ss << "stream1, group " << index << " \n"<< pos1[index].back() << std::endl;
-			//ss << "stream2, group " << index << " \n"<< pos2[index].back() << std::endl;
-		}
+		chunkMeasurements<Eigen::Vector3f,&Measurement::getPosition>(m1,m2,&pos1,&pos2);
+
+		//Initialise new result metadata
 		CalibrationResult result;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
 		
