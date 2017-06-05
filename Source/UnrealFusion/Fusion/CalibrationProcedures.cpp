@@ -21,17 +21,103 @@
 #include "Fusion/Utilities/Conventions.h"
 
 namespace fusion {
-	//TODO: refactor this mess
-	CalibrationResult Calibrator::calPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& currentCalibration)	const
-	{
+	CalibrationResult Calibrator::updateCalibration(const CalibrationResult& newCalibration, const CalibrationResult& currentCalibration) const{
 		//TODO: make these some logical values
 		float initial_quality_threshold = 0.5;
 		float quality_convergence_threshold = 0.01;
-		float qualityScaleFactor = 0.05;
 		float fault_hysteresis_rate = 0.05;
 		float settle_threshold = 0.85;
 		float fault_angle_threshold = M_PI * 10 / 180;
 		float fault_distance_threshold = 0.1;
+
+		//Compute transform, error, quality, relevance and weight
+		CalibrationResult result = newCalibration;
+		switch (currentCalibration.state) {
+			case (CalibrationResult::State::UNCALIBRATED):
+			{
+				FUSION_LOG("CalibrationResult::State::UNCALIBRATED");
+				//DEBUG:: Straight to calibrated
+				if(result.quality > initial_quality_threshold){
+					result.state = CalibrationResult::State::REFINING;
+					FUSION_LOG("Calibration passed required threshold: " + std::to_string(initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
+				}
+				else {
+					result.reset();
+					FUSION_LOG("Calibration DID NOT PASS required threshold: " + std::to_string(initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
+				}	
+				break;
+			}
+			case (CalibrationResult::State::REFINING):
+			{
+				FUSION_LOG("CalibrationResult::State::REFINING");
+				//Combine calibrations
+				result.updateResult(currentCalibration);
+				//refinement calibration
+				float new_quality = result.quality;
+				if (new_quality - currentCalibration.quality > quality_convergence_threshold) {
+					//If large gains are being made keep going
+					FUSION_LOG("REFINING: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+					result.state = CalibrationResult::State::REFINING;
+				}
+				else if (new_quality > settle_threshold) {
+					//If change is a small improvement, we are done
+					FUSION_LOG("REFINEMENT FINISHED!!! new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+					result.state = CalibrationResult::State::CALIBRATED;
+				}
+				else {
+					//If we cant improve, then we probably started in a bad state, so start again
+					FUSION_LOG("Starting over: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+					result.state = CalibrationResult::State::UNCALIBRATED;
+				}
+				break;
+			}
+			case (CalibrationResult::State::CALIBRATED):
+			{
+				FUSION_LOG("CalibrationResult::State::CALIBRATED");
+				//TODO: distinguish noise vs. actual movement
+				//TODO: implement that fault decay detection thing
+				//TODO: fix fault detection for new model
+				//Track new transform and see how much it moves? (expensive)
+				auto transform_error = utility::transformNorm(result.transform.inverse() * currentCalibration.transform);
+				Eigen::Vector2f new_relevance(transform_error.angle, transform_error.distance);
+				result.relevance = currentCalibration.relevance * (1 - fault_hysteresis_rate) + fault_hysteresis_rate * new_relevance;
+				FUSION_LOG(" Already calibrated - watching for faults - error = " 
+					+ std::to_string(result.relevance[0]) + ", " + std::to_string(result.relevance[1]) +
+					" relevance = " + std::to_string(result.relevance[0]) + ", " + std::to_string(result.relevance[1]) +
+					" vs. threshold = " + std::to_string(fault_angle_threshold) + ", " + std::to_string(fault_distance_threshold) + 
+					" result.weight = " + std::to_string(result.weight));
+				//Relevance represents the latest error from original transform, filtered with exponential filter
+				//If our quality varies from the expected too much, we need to recalibrate
+				if (result.relevance[0] > fault_angle_threshold ||
+					result.relevance[1] > fault_distance_threshold) {
+					if (result.quality < initial_quality_threshold) {
+						//Start again
+						FUSION_LOG("Starting over: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+						result.reset();
+						result.state = CalibrationResult::State::UNCALIBRATED;
+					} else {
+						//Try to improve the quality
+						//TODO: fix refinement
+						FUSION_LOG("Returning to refinement: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+						result.state = CalibrationResult::State::REFINING;
+					}
+				}
+				else {
+					result = currentCalibration;
+					FUSION_LOG("No fault detected");
+					result.state = CalibrationResult::State::CALIBRATED;
+				}
+				break;
+			}
+		}
+		return result;
+	}
+
+	//TODO: refactor this mess
+	CalibrationResult Calibrator::calPos(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& currentCalibration)	const
+	{
+		float qualityScaleFactor = 0.05;
+
 
 		//Chunks corresponding to different sensor pairs
 		std::vector<int> chunks;
@@ -128,90 +214,11 @@ namespace fusion {
 		//Decide what to do with results
 		//--------------------------------------
 
-		//Compute transform, error, quality, relevance and weight
-		switch (currentCalibration.state) {
-			case (CalibrationResult::State::UNCALIBRATED):
-			{
-				FUSION_LOG("CalibrationResult::State::UNCALIBRATED");
-				//DEBUG:: Straight to calibrated
-				if(result.quality > initial_quality_threshold){
-					result.state = CalibrationResult::State::REFINING;
-					FUSION_LOG("Calibration passed required threshold: " + std::to_string(initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
-				}
-				else {
-					result.reset();
-					FUSION_LOG("Calibration DID NOT PASS required threshold: " + std::to_string(initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
-				}	
-				break;
-			}
-			case (CalibrationResult::State::REFINING):
-			{
-				FUSION_LOG("CalibrationResult::State::REFINING");
-				//Combine calibrations
-				result.updateResult(currentCalibration);
-				//refinement calibration
-				float new_quality = result.quality;
-				if (new_quality - currentCalibration.quality > quality_convergence_threshold) {
-					//If large gains are being made keep going
-					FUSION_LOG("REFINING: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
-					result.state = CalibrationResult::State::REFINING;
-				}
-				else if (new_quality > settle_threshold) {
-					//If change is a small improvement, we are done
-					FUSION_LOG("REFINEMENT FINISHED!!! new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
-					result.state = CalibrationResult::State::CALIBRATED;
-				}
-				else {
-					//If we cant improve, then we probably started in a bad state, so start again
-					FUSION_LOG("Starting over: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
-					result.state = CalibrationResult::State::UNCALIBRATED;
-				}
-				break;
-			}
-			case (CalibrationResult::State::CALIBRATED):
-			{
-				FUSION_LOG("CalibrationResult::State::CALIBRATED");
-				//TODO: distinguish noise vs. actual movement
-				//TODO: implement that fault decay detection thing
-				//TODO: fix fault detection for new model
-				//Track new transform and see how much it moves? (expensive)
-				auto transform_error = utility::transformNorm(result.transform.inverse() * currentCalibration.transform);
-				Eigen::Vector2f new_relevance(transform_error.angle, transform_error.distance);
-				result.relevance = currentCalibration.relevance * (1 - fault_hysteresis_rate) + fault_hysteresis_rate * new_relevance;
-				FUSION_LOG(" Already calibrated - watching for faults - error = " 
-					+ std::to_string(result.relevance[0]) + ", " + std::to_string(result.relevance[1]) +
-					was here last: + std::to_string(result.relevance[0]) + ", " + std::to_string(result.relevance[1]) +
-					" vs. threshold = " + std::to_string(fault_angle_threshold) + ", " + std::to_string(fault_distance_threshold) + 
-					" result.weight = " + std::to_string(result.weight));
-				//Relevance represents the latest error from original transform, filtered with exponential filter
-				//If our quality varies from the expected too much, we need to recalibrate
-				if (result.relevance[0] > fault_angle_threshold ||
-					result.relevance[1] > fault_distance_threshold) {
-					if (result.quality < initial_quality_threshold) {
-						//Start again
-						FUSION_LOG("Starting over: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
-						result.reset();
-						result.state = CalibrationResult::State::UNCALIBRATED;
-					} else {
-						//Try to improve the quality
-						//TODO: fix refinement
-						FUSION_LOG("Returning to refinement: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
-						result.state = CalibrationResult::State::REFINING;
-					}
-				}
-				else {
-					result = currentCalibration;
-					FUSION_LOG("No fault detected");
-					result.state = CalibrationResult::State::CALIBRATED;
-				}
-				break;
-			}
-		}
 		ss << "Result: transform[" << result.systems.first.name << "->" << result.systems.second.name << "] = " << std::endl << result.transform.matrix() << std::endl;
 		//FUSION_LOG(ss.str() + " result.weight = " + std::to_string(result.weight));
 		FUSION_LOG("|||||");
 		FUSION_LOG("|||||");
-		return result;
+		return updateCalibration(result, currentCalibration);
 	}
 
 	CalibrationResult Calibrator::cal6DoF(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& currentCalibration)const

@@ -130,9 +130,11 @@ namespace fusion {
 		//see CalibrationProcedures.cpp for definitions
 		//----------------
 
+		//Update state of calibration, filtering over time
+		CalibrationResult updateCalibration(const CalibrationResult& newCalibration,const CalibrationResult& currentCalibration) const;
+
 		//Calibrate two correlated positional measurements
 		CalibrationResult calPos(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2, const CalibrationResult& calib) const;
-
 
 		//Calibrate two rigidly linked 6DoF sensors
 		CalibrationResult cal6DoF(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult & currentCalibration) const;
