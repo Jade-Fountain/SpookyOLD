@@ -366,7 +366,6 @@ namespace fusion {
 			std::vector<std::vector<ReturnType>> * m1_out, std::vector<std::vector<ReturnType>> * m2_out)
 		{
 			std::map<NodeDescriptor, int> nodes;
-			nodes[m1.front()->getNode()] = 0;
 			FUSION_LOG("node 0 = " + m1.front()->getNode().name);
 			for (int i = 0; i < m1.size(); i++) {
 				const auto& currentNode = m1[i]->getNode();

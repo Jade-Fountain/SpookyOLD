@@ -140,7 +140,7 @@ namespace fusion {
 		std::vector<Measurement::Ptr> measurements1;
 		std::vector<Measurement::Ptr> measurements2;
 
-		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, count_threshold[getResultsFor(system1,system2).state], false);
+		getRelevantMeasurements(system1, system2, &measurements1, &measurements2, count_threshold[getResultsFor(system1,system2).state], true);
 
 		//Calibrate
 		if (measurements1.size() > 0) {
@@ -154,7 +154,7 @@ namespace fusion {
 			//FUSION_LOG("Estimated latency = " + std::to_string(latestResult.latency));
 
 			//Resynchronise measurements after latency estimation
-			getRelevantMeasurements(system1, system2, &measurements1, &measurements2, count_threshold[getResultsFor(system1, system2).state], true);
+			//getRelevantMeasurements(system1, system2, &measurements1, &measurements2, count_threshold[getResultsFor(system1, system2).state], true);
 			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2, latestResult);
 
 			//Debug
@@ -190,7 +190,7 @@ namespace fusion {
 				//Get maximum length of sensor stream
 				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount();
 				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount();
-
+				
 				//Streams of different length or not long enough- we cant use this data
 				if (count1 < minMeasurementCount || count2 < minMeasurementCount) {
 					continue; //cannot calibrate this pair of sensors yet
