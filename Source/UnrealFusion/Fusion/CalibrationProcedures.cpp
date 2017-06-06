@@ -232,10 +232,10 @@ namespace fusion {
 		ss << "cal6Dof[" << m1.front()->getSensor()->system.name << ", " << m2.front()->getSensor()->system.name << "], samples =[" << m1.size() << ", " << m2.size() << "]" << std::endl;
 
 		//Chunk measurements based on node
-		std::vector<std::vector<Eigen::Vector3f>> pos1;
-		std::vector<std::vector<Eigen::Vector3f>> pos2;
+		std::vector<std::vector<Eigen::Matrix4f>> pos1;
+		std::vector<std::vector<Eigen::Matrix4f>> pos2;
 
-		chunkMeasurements<Eigen::Vector3f,&Measurement::getPosition>(m1,m2,&pos1,&pos2);
+		Measurement::chunkMeasurements<Eigen::Matrix4f,&Measurement::getTransformMatrix>(m1,m2,&pos1,&pos2);
 
 		//Initialise new result metadata
 		CalibrationResult result;

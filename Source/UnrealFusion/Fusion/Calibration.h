@@ -129,40 +129,6 @@ namespace fusion {
 		//Different types of calibration procedures:
 		//see CalibrationProcedures.cpp for definitions
 		//----------------
-		
-		//Sort measurements based on the node of the measurements and return relevant data in one go
-		template <class ReturnType, ReturnType (Measurement::*Getter)()>
-		void Calibrator::chunkMeasurements(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, 
-										   std::vector<std::vector<ReturnType>> * m1_out, std::vector<std::vector<ReturnType>> * m2_out) const
-		{
-			std::map<NodeDescriptor, int> nodes;
-			nodes[m1.front()->getNode()] = 0;
-			FUSION_LOG("node 0 = " + m1.front()->getNode().name);
-			for (int i = 0; i < m1.size(); i++) {
-				const auto& currentNode = m1[i]->getNode();
-				assert(currentNode.name == m2[i]->getNode().name);
-
-				//If new node, create another list for that node
-				if (nodes.count(currentNode) == 0) {
-					m1_out->push_back(std::vector<ReturnType>());
-					m2_out->push_back(std::vector<ReturnType>());
-					nodes[currentNode] = m1_out->size() - 1;
-				}
-
-
-
-				FINISH THIS FUNCTION
-
-
-
-
-				//Push back data to correct list corresponding to its node
-				int index = nodes[currentNode];
-				(*m1_out)[index].push_back(m1[i]->Getter());
-				(*m2_out)[index].push_back(m2[i]->Getter());
-			}
-			//Return m1_out, m2_out
-		}
 
 		//Update state of calibration, filtering over time
 		CalibrationResult updateCalibration(const CalibrationResult& newCalibration,const CalibrationResult& currentCalibration) const;

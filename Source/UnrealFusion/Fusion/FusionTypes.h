@@ -330,6 +330,8 @@ namespace fusion {
 		Eigen::Matrix<float,7,7> getPosQuatVar();
 
 		Transform3D getTransform();
+		Eigen::Matrix4f getTransformMatrix() { return getTransform().matrix(); }
+
 
 		//=========================
 		//Data helpers
@@ -356,6 +358,34 @@ namespace fusion {
 		
 		//returns the vector corresponding to the transform T
 		static Eigen::Matrix<float, 7, 1> getPosQuatFromTransform(const Transform3D& T);
+
+
+		//Sort measurements based on the node of the measurements and return relevant data in one go
+		template <class ReturnType, ReturnType(Measurement::*Getter)()>
+		void static chunkMeasurements(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2,
+			std::vector<std::vector<ReturnType>> * m1_out, std::vector<std::vector<ReturnType>> * m2_out)
+		{
+			std::map<NodeDescriptor, int> nodes;
+			nodes[m1.front()->getNode()] = 0;
+			FUSION_LOG("node 0 = " + m1.front()->getNode().name);
+			for (int i = 0; i < m1.size(); i++) {
+				const auto& currentNode = m1[i]->getNode();
+				assert(currentNode.name == m2[i]->getNode().name);
+
+				//If new node, create another list for that node
+				if (nodes.count(currentNode) == 0) {
+					m1_out->push_back(std::vector<ReturnType>());
+					m2_out->push_back(std::vector<ReturnType>());
+					nodes[currentNode] = m1_out->size() - 1;
+				}
+
+				//Push back data to correct list corresponding to its node
+				int index = nodes[currentNode];
+				(*m1_out)[index].push_back((m1[i].get()->*Getter)());
+				(*m2_out)[index].push_back((m2[i].get()->*Getter)());
+			}
+			//Return m1_out, m2_out
+		}
 		//----------------------
 		//Accessors
 		//----------------------
@@ -408,8 +438,8 @@ namespace fusion {
 		float getLatency() {
 			return sensor->getLatency();
 		}
-	};
 
+	};
 
 
 }
