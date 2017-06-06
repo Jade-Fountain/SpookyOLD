@@ -386,6 +386,7 @@ namespace fusion {
 			}
 			//Return m1_out, m2_out
 		}
+
 		//----------------------
 		//Accessors
 		//----------------------

@@ -120,12 +120,6 @@ namespace fusion {
 		float qualityScaleFactor = 0.05;
 
 
-		//Chunks corresponding to different sensor pairs
-		std::vector<int> chunks;
-		chunks.push_back(0);
-		int last_id_1 = m1.front()->getSensorID();
-		int last_id_2 = m2.front()->getSensorID();
-
 		//Data for each stream
 		std::vector<Eigen::Vector3f> pos1(m1.size());
 		std::vector<Eigen::Vector3f> pos2(m2.size());
@@ -140,32 +134,15 @@ namespace fusion {
 			ss << pos1[i].transpose() << " " << pos2[i].transpose() << std::endl;
 			//TODO: Not strictly correct
 			inverse_variances[i] = (m1[i]->getPositionVar() + m2[i]->getPositionVar()).inverse();
-			
-			//If one of the sensor ids has changed, start new chunk
-			if (last_id_1 != m1[i]->getSensorID() || last_id_2 != m2[i]->getSensorID()) {
-				chunks.push_back(i);
-				last_id_1 = m1[i]->getSensorID();
-				last_id_2 = m2[i]->getSensorID();
-			}
 		}
-
-		//Last chunk ends here
-		chunks.push_back(m1.size());
-
-		ss << "Chunks: " << chunks.size() << std::endl;
 
 		//Build chunked lists for later:
-		//TODO: unhack this whole chunk thing
+		//Groups the measurement data by node
 		std::vector<std::vector<Eigen::Vector3f>> chunked_pos1;
 		std::vector<std::vector<Eigen::Vector3f>> chunked_pos2;
-		std::vector<std::vector<Eigen::Matrix3f>> chunked_inverse_variances;
-		for (int i = 0; i < chunks.size()-1; i++) {
-			chunked_pos1.push_back(std::vector<Eigen::Vector3f>(pos1.begin() + chunks[i], pos1.begin() + chunks[i + 1]));
-			chunked_pos2.push_back(std::vector<Eigen::Vector3f>(pos2.begin() + chunks[i], pos2.begin() + chunks[i + 1]));
-			chunked_inverse_variances.push_back(std::vector<Eigen::Matrix3f>(inverse_variances.begin()+chunks[i], inverse_variances.begin()+chunks[i+1]));
-		}
+		Measurement::chunkMeasurements<Eigen::Vector3f, &Measurement::getPosition>(m1,m2,&chunked_pos1,&chunked_pos2);
 
-
+		//Initialise current results
 		CalibrationResult result;
 		result.systems = SystemPair(m1.front()->getSystem(), m2.front()->getSystem());
 		result.latency = currentCalibration.latency;
@@ -177,15 +154,18 @@ namespace fusion {
 		//--------------------------------------
 		//Clear previous
 		result.transform.setIdentity();
+
+		//Compute point cloud results
 		//result.transform = utility::calibration::Position::calibrateWeightedIdenticalPair(pos1, pos2, inverse_variances, &result.error);
 		result.transform = utility::calibration::Position::calibrateIdenticalPairTransform_Arun(pos1, pos2, &result.error);
 
+		//Refine with rigid link model
 		for (int i = 0; i < 1; i++) {
 			//TODO:clean up
 			std::vector<Transform3D> transforms;
 			std::vector<float> weights;
 
-			for (int j = 0; j < chunks.size() - 1; j++) {
+			for (int j = 0; j < chunked_pos1.size() - 1; j++) {
 				weights.push_back(100000);
 				transforms.push_back(utility::calibration::Position::refineIdenticalPairPosition(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 				weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
@@ -196,7 +176,7 @@ namespace fusion {
 
 			transforms.clear();
 			weights.clear();
-			for (int j = 0; j < chunks.size() - 1; j++) {
+			for (int j = 0; j < chunked_pos1.size() - 1; j++) {
 				weights.push_back(100000);
 				transforms.push_back(utility::calibration::Position::refineIdenticalPairRotation(chunked_pos1[j], chunked_pos2[j], result.transform, &weights.back()));
 				weights.back() = utility::qualityFromError(weights.back(), qualityScaleFactor);
