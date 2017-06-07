@@ -100,8 +100,8 @@ namespace fusion {
 		float error = 0;
 		//Quality is a qualitative measure in [0,1] of the estimated accuracy of the result
 		float quality = 0;
-		//Relevance - parameter used to detect faults in the system
-		Eigen::Vector2f relevance;
+		//Relevance - filtered error result from current calibration
+		Transform3D relevance;
 		//Weight counts the number of samples incorporated into this calibration result
 		float weight = 0;
 
@@ -164,7 +164,7 @@ namespace fusion {
 		void reset() {
 			error = 0;
 			quality = 0;
-			relevance = Eigen::Vector2f(0,0);
+			relevance = Transform3D::Identity();
 			transform = Eigen::Matrix4f::Identity();
 			state = State::UNCALIBRATED;
 		}

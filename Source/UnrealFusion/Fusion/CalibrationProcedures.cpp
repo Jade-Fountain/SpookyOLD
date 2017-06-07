@@ -27,8 +27,9 @@ namespace fusion {
 		float initial_quality_threshold = 0.5;
 		float quality_convergence_threshold = 0.01;
 		float fault_hysteresis_rate = 0.25;
+		float relevance_decay_rate = 0.1;
 		float settle_threshold = 0.85;
-		float fault_angle_threshold = M_PI * 10 / 180;
+		float fault_angle_threshold = M_PI * 5 / 180;
 		float fault_distance_threshold = 0.1;
 
 		//Compute transform, error, quality, relevance and weight
@@ -78,13 +79,19 @@ namespace fusion {
 				//TODO: distinguish noise vs. actual movement
 				//TODO: implement that fault decay detection thing
 				//TODO: fix fault detection for new model
-				//Track new transform and see how much it moves
-				auto transform_error = utility::transformNorm(result.transform.inverse() * currentCalibration.transform);
-				Eigen::Vector2f new_relevance(transform_error.angle, transform_error.distance);
-				Eigen::Vector2f filtered_relevance = currentCalibration.relevance * (1 - fault_hysteresis_rate) + fault_hysteresis_rate * new_relevance;
-				FUSION_LOG(" Already calibrated - watching for faults - error = " 
-					+ std::to_string(transform_error.angle) + ", " + std::to_string(transform_error.angle) +
-					" filtered relevance = " + std::to_string(filtered_relevance[0]) + ", " + std::to_string(filtered_relevance[1]) +
+				//Track new transform and see how much it moves compared to accepted result
+				Transform3D transform_error = result.transform.inverse() * currentCalibration.transform;
+				Transform3D decayed_relevance = utility::slerpTransform3D(currentCalibration.relevance, Transform3D::Identity(), relevance_decay_rate);
+				Transform3D filtered_relevance =  utility::slerpTransform3D(decayed_relevance, transform_error, fault_hysteresis_rate);
+				auto relevance_norm = utility::transformNorm(filtered_relevance);
+
+				//Debug
+				std::stringstream relss;
+				relss << filtered_relevance.matrix();
+				FUSION_LOG("Filtered relevance = ");
+				FUSION_LOG(relss.str());
+				FUSION_LOG(" Already calibrated - watching for faults (" + currentCalibration.systems.first.name + ", " + currentCalibration.systems.second.name + ") - filtered relevance error = "
+					+ std::to_string(relevance_norm.angle) + ", " + std::to_string(relevance_norm.distance) +
 					" vs. threshold = " + std::to_string(fault_angle_threshold) + ", " + std::to_string(fault_distance_threshold) + 
 					" result.weight = " + std::to_string(result.weight));
 
@@ -93,8 +100,8 @@ namespace fusion {
 				result.relevance = filtered_relevance;
 				//Relevance represents the latest error from original transform, filtered with exponential filter
 				//If our quality varies from the expected too much, we need to recalibrate
-				if (filtered_relevance[0] > fault_angle_threshold ||
-					filtered_relevance[1] > fault_distance_threshold) {
+				if (relevance_norm.angle > fault_angle_threshold ||
+					relevance_norm.distance > fault_distance_threshold) {
 					//Always start again if faulted
 					//if (result.quality < initial_quality_threshold) {
 						//Start again
@@ -190,7 +197,7 @@ namespace fusion {
 			//TODO:clean up
 		}
 		result.quality = utility::qualityFromError(result.error, qualityScaleFactor);
-		result.relevance = Eigen::Vector2f(0,0);
+		result.relevance = Transform3D::Identity();
 		result.weight = m1.size();
 
 		FUSION_LOG("Performed calibration on new data. error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
