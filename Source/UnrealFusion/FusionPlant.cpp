@@ -206,6 +206,7 @@ FCalibrationResult UFusionPlant::getCalibrationResult(FString s1, FString s2)
 	result.transform.SetRotation(fq);
 	result.transform.SetTranslation(FVector(v[0], v[1], v[2]));
 	result.calibrated = T.calibrated();
+	result.refining = T.refining();
 	result.quality = T.quality;
 	result.system1 = FString(T.systems.first.name.c_str());
 	result.system2 = FString(T.systems.second.name.c_str());

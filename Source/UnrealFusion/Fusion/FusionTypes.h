@@ -126,6 +126,12 @@ namespace fusion {
 			return state != UNCALIBRATED;
 		}
 
+		//Checks if sensor is calibrated
+		bool refining() {
+			return state != CALIBRATED;
+		}
+
+
 		//Combines two calibration results associatively
 		void updateResult(const CalibrationResult& new_cal) {
 			assert(systems == new_cal.systems);

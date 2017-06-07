@@ -35,6 +35,7 @@ struct FCalibrationResult {
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FTransform transform;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") bool calibrated = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") bool refining = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") float quality = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FString system1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FString system2;
