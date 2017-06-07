@@ -83,13 +83,16 @@ namespace fusion {
 		//	{ CalibrationResult::State::CALIBRATED, 0.5 }
 		//};
 
+		//Smallest allowed count for a single node before it can be included in calibration
+		//Hard minimum = 4
+		int min_count_per_node = 4; //>=5
+
 		//Count Threshold: Calibrate when this many samples acquired
-		//TODO: make this determine total samples across all systems / nodes
 		std::map<CalibrationResult::State, int> count_threshold = 
 		{	
-			{CalibrationResult::State::UNCALIBRATED,25},
-			{CalibrationResult::State::REFINING,25},
-			{CalibrationResult::State::CALIBRATED,25}
+			{CalibrationResult::State::UNCALIBRATED,75},
+			{CalibrationResult::State::REFINING,75},
+			{CalibrationResult::State::CALIBRATED,75}
 		};
 
 		//Table for looking up data relevant to determining transforms
@@ -106,19 +109,29 @@ namespace fusion {
 		std::vector<Measurement::Ptr> filterLonelyData(const std::vector<Measurement::Ptr>& measurementQueue);
 
 		//Returns true if sufficient movement has occurred to warrant recording of data
-		bool checkChanges(const std::vector<Measurement::Ptr>& measurements);
+		std::map<NodeDescriptor, bool> checkChanges(const std::vector<Measurement::Ptr>& measurements);
 
 		//Calibrate two systems with respect to one another
 		void calibrateSystems(SystemDescriptor system1, SystemDescriptor system2);
 
 		//Gets the measurements relevant to calibration of system1 and system2
 		//Returns an empty list if calibration not ready yet
-		void getRelevantMeasurements(SystemDescriptor system1, 
-									 SystemDescriptor system2, 
-									 std::vector<Measurement::Ptr>* measurements1, 
-									 std::vector<Measurement::Ptr>* measurements2, 
-									 int minMeasurementCount,
-									 bool clearMeasurementsWhenDone = true);
+		void getRelevantMeasurements(SystemDescriptor system1,
+									SystemDescriptor system2, 
+									std::vector<Measurement::Ptr>* measurements1, 
+									std::vector<Measurement::Ptr>* measurements2, 
+									int minCountPerNode,
+									bool clearMeasurementsWhenDone = true);
+
+		//Counts the number of measurements that will be returned by getRelevantMeasurements
+		std::pair<int, int> Calibrator::countRelevantSynchronisedMeasurements(SystemDescriptor system1,
+																				SystemDescriptor system2,
+																				int minCountPerNode);		
+		
+		//Approximates the number of measurements that will be returned by getRelevantMeasurements
+		std::pair<int, int> Calibrator::countRelevantMeasurements(SystemDescriptor system1,
+																	SystemDescriptor system2,
+																	int minCountPerNode);
 
 		//Calibrate two particular data streams
 		CalibrationResult calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib);

@@ -164,10 +164,10 @@ namespace fusion {
 		std::vector<Measurement::Ptr>& target
 		//std::vector<Measurement::Ptr>& target_out
 	){
-		/*std::stringstream ss;
-		ss << "Source = " << source.front()->getSensor()->system.name << std::endl;
-		ss << "Target = " << target.front()->getSensor()->system.name << std::endl;
-*/
+		std::stringstream ss;
+		ss << "Source = " << source.front()->getSensor()->system.name << " count = " << source.size() << std::endl;
+		ss << "Target = " << target.front()->getSensor()->system.name << " count = " << target.size() << std::endl;
+
 		std::vector<Measurement::Ptr> result;
 		std::vector<Measurement::Ptr> target_out;
 
@@ -191,7 +191,7 @@ namespace fusion {
 			//If we ran out of target measurements
 			if(target_it == target.end()) break;
 
-			//Increase source iterator until the next measurement is after the current target
+			//Increase source iterator until the next measurement is after or equal to the new target
 			while(
 				std::next(source_it) != source.end() && 
 				(*std::next(source_it))->getTimestamp() < (*target_it)->getTimestamp()
@@ -207,8 +207,7 @@ namespace fusion {
 			std::vector<Measurement::Ptr>::const_iterator upper_source_it = std::next(source_it);
 
 			//Avoid interpolating if possible
-			//TODO: add small threshold?
-			if ((*lower_source_it)->getTimestamp() == (*target_it)->getTimestamp()) {
+			if (std::fabs((*lower_source_it)->getTimestamp() - (*target_it)->getTimestamp()) < 1e-6) {
 				result.push_back(*lower_source_it);
 				target_out.push_back(*target_it);
 			} else {
@@ -233,7 +232,9 @@ namespace fusion {
 			//Place source_it after/equal to current target_it
 			source_it++;
 		}
-		//FUSION_LOG(ss.str());
+		ss << "Source = " << source.front()->getSensor()->system.name << ", " << source.front()->getSensor()->getNode().name << " final count = " << result.size() << std::endl;
+		ss << "Target = " << target.front()->getSensor()->system.name << ", " << target.front()->getSensor()->getNode().name << " final count = " << target_out.size() << std::endl;
+		FUSION_LOG(ss.str());
 
 		source = result;
 		target = target_out;
