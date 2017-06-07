@@ -102,6 +102,9 @@ namespace fusion {
 		//Called by owner of the Core object to set a measurement sensor pointer
 		void setMeasurementSensorInfo(Measurement::Ptr& m, SystemDescriptor system, SensorID id);
 
+		//Returns a string summarising the state of calibration in the system
+		std::string getCalibratorStateSummary();
+
 	};
 
 }

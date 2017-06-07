@@ -64,6 +64,7 @@ namespace fusion {
 		//Helper methods
 		void addMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
 		float compareMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
+		std::string getStateSummary();
 
 	};
 
@@ -175,6 +176,10 @@ namespace fusion {
 
 		//Searches for calibration results and returns them for use in fusion
 		CalibrationResult getResultsFor(SystemDescriptor s1, SystemDescriptor s2);
+
+		//Gets string summarising state of calibrator
+		std::string getStateSummary();
+
 	};
 
 }

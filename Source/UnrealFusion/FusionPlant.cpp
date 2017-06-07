@@ -401,3 +401,10 @@ FVector4 UFusionPlant::GetTestPosition() {
 	//UE_LOG(LogTemp, Warning, TEXT("Left hand Pose = %s"), *v.ToString());
 	return v;
 }
+
+//For testing blueprints: TODO delete
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+FString UFusionPlant::GetCalibrationStateSummary() {
+	std::string s = plant.getCalibratorStateSummary();
+	return s.c_str();
+}

@@ -202,5 +202,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	FVector4 GetTestPosition();
 
-	
+	//For testing blueprints: TODO delete
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	FString GetCalibrationStateSummary();
+
+
 };

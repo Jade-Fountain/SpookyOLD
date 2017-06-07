@@ -156,4 +156,8 @@ namespace fusion {
 		m->setSensor(sensors[system][id]);
 	}
 
+	std::string Core::getCalibratorStateSummary() {
+		return calibrator.getStateSummary();
+	}
+
 }
