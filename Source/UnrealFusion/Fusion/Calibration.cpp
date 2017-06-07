@@ -18,6 +18,7 @@
 #include "Logging.h"
 #include "Fusion/Utilities/Conventions.h"
 #include "Fusion/Utilities/TimeProfiling.h"
+#include <math.h>
 
 namespace fusion {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +84,39 @@ namespace fusion {
 		return stream.back()->compare(m);
 	}
 
-
+	std::string CalibrationDataSet::getStateSummary() {
+		std::stringstream ss;
+		std::string spacer = "               ";
+		auto spaceString = [spacer](const std::string& s){
+			std::string new_s = s + spacer.substr(0, std::max(int(spacer.size() - s.size()), 0)) + "|";
+			return new_s;
+		};
+		//Initial newline and gap for columns
+		ss << spacer << "|";
+		//Column labels
+		for (auto & sys : systems) {
+			ss << spaceString(sys.name);
+		}
+		ss << std::endl;
+		//Rows
+		for (auto & node : nodes) {
+			//Node name
+			ss << spaceString(node.name);
+			//For each col
+			for (auto & sys : systems) {
+				SystemNodePair sysNode(sys, node);
+				//Create entry containing each sensor count
+				std::stringstream entry;
+				for (auto& sensor : systemNodeTable[sysNode].sensors) {
+					entry << sensor.first << ":" << sensor.second.size() << ",";
+				}
+				ss << spaceString(entry.str());
+			}
+			ss << std::endl;
+		}
+		ss << "Key: (x:n) = sensor x has n stored measurements" << std::endl;
+		return ss.str();
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//									Calibrator:Private
@@ -444,5 +477,8 @@ namespace fusion {
 		return cr;
 	}
 
-	std::string getSystem
+	std::string Calibrator::getStateSummary() {
+		return calibrationSet.getStateSummary();
+	}
+
 }
