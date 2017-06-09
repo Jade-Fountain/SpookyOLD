@@ -175,7 +175,7 @@ namespace fusion {
 		void setResults(const CalibrationResult & r);
 
 		//Searches for calibration results and returns them for use in fusion
-		CalibrationResult getResultsFor(SystemDescriptor s1, SystemDescriptor s2);
+		CalibrationResult getResultsFor(SystemDescriptor s1, SystemDescriptor s2) const;
 
 		//Gets string summarising state of calibrator
 		std::string getStateSummary();

@@ -110,6 +110,12 @@ void UFusionPlant::FinaliseSetup() {
 	plant.finaliseSetup();
 }
 
+//Set the reference frame for the skeleton
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::SetReferenceFrame(FString system_name) {
+	plant.setReferenceSystem(fusion::SystemDescriptor(TCHAR_TO_UTF8(*system_name)));
+}
+
 //===========================
 //Update functions
 //===========================

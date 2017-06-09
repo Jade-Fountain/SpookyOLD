@@ -109,6 +109,7 @@ namespace fusion {
 		CalibrationResult(){
 			reset();
 		}
+
 		CalibrationResult(const SystemDescriptor& s1, const SystemDescriptor& s2) {
 			reset();
 			systems = std::make_pair(s1, s2);
@@ -122,12 +123,12 @@ namespace fusion {
 		}
 
 		//Checks if sensor is calibrated
-		bool calibrated() {
+		bool calibrated() const{
 			return state != UNCALIBRATED;
 		}
 
 		//Checks if sensor is calibrated
-		bool refining() {
+		bool refining() const{
 			return state != CALIBRATED;
 		}
 

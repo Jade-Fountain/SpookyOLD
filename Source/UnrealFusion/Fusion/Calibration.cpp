@@ -462,15 +462,20 @@ namespace fusion {
 		calibrationResults[reverse] = r.inverse();
 	}
 
-	CalibrationResult Calibrator::getResultsFor(SystemDescriptor s1, SystemDescriptor s2)
+	CalibrationResult Calibrator::getResultsFor(SystemDescriptor s1, SystemDescriptor s2) const
 	{
 		SystemPair forward(s1, s2);
-		SystemPair reverse(s2, s1);
-		if (calibrationResults.count(forward) > 0) {
-			return calibrationResults[forward];
+		if (s1 == s2) {
+			CalibrationResult cr = CalibrationResult();
+			cr.systems = forward;
+			return cr;
 		}
+		if (calibrationResults.count(forward) > 0) {
+			return calibrationResults.at(forward);
+		}
+		SystemPair reverse(s2, s1);
 		if(calibrationResults.count(reverse) > 0) {
-			return calibrationResults[reverse].inverse();
+			return calibrationResults.at(reverse).inverse();
 		}
 		CalibrationResult cr = CalibrationResult();
 		cr.systems = forward;

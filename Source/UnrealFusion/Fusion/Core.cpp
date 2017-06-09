@@ -31,6 +31,10 @@ namespace fusion {
 		skeleton.setPoseNode(node, poseInitial);
 	}
 
+	void Core::setReferenceSystem(const SystemDescriptor & system) {
+		skeleton.setReferenceSystem(system);
+	}
+
 	// =================
 	//Saving and loading
 	// =================
@@ -110,7 +114,7 @@ namespace fusion {
 			if(calibrator.isStable() || true){
 				// utility::profiler.startTimer("Fuse");
 				skeleton.addMeasurementGroup(measurement_buffer);
-				skeleton.fuse();
+				skeleton.fuse(calibrator);
 				// utility::profiler.endTimer("Fuse");
 			}
 		}	

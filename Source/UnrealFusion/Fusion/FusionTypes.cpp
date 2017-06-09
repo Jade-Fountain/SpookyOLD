@@ -164,9 +164,9 @@ namespace fusion {
 		std::vector<Measurement::Ptr>& target
 		//std::vector<Measurement::Ptr>& target_out
 	){
-		std::stringstream ss;
-		ss << "Source = " << source.front()->getSensor()->system.name << " count = " << source.size() << std::endl;
-		ss << "Target = " << target.front()->getSensor()->system.name << " count = " << target.size() << std::endl;
+		//std::stringstream ss;
+		//ss << "Source = " << source.front()->getSensor()->system.name << " count = " << source.size() << std::endl;
+		//ss << "Target = " << target.front()->getSensor()->system.name << " count = " << target.size() << std::endl;
 
 		std::vector<Measurement::Ptr> result;
 		std::vector<Measurement::Ptr> target_out;
@@ -232,9 +232,9 @@ namespace fusion {
 			//Place source_it after/equal to current target_it
 			source_it++;
 		}
-		ss << "Source = " << source.front()->getSensor()->system.name << ", " << source.front()->getSensor()->getNode().name << " final count = " << result.size() << std::endl;
-		ss << "Target = " << target.front()->getSensor()->system.name << ", " << target.front()->getSensor()->getNode().name << " final count = " << target_out.size() << std::endl;
-		FUSION_LOG(ss.str());
+		//ss << "Source = " << source.front()->getSensor()->system.name << ", " << source.front()->getSensor()->getNode().name << " final count = " << result.size() << std::endl;
+		//ss << "Target = " << target.front()->getSensor()->system.name << ", " << target.front()->getSensor()->getNode().name << " final count = " << target_out.size() << std::endl;
+		//FUSION_LOG(ss.str());
 
 		source = result;
 		target = target_out;

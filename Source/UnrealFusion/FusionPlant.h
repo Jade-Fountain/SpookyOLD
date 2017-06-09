@@ -99,6 +99,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void FinaliseSetup();
 
+	//Set the reference frame for the skeleton
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void SetReferenceFrame(FString system_name);
+
+
+
 //TODO: Contruction of sensor nodes
 
 	////Add a new sensor node model
