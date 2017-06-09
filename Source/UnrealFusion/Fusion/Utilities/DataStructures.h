@@ -58,5 +58,66 @@ namespace fusion {
 		    return diff;
 		}
 
+		//A vector that takes multiple clears
+		template <class T>
+		class MultiStream {
+			//Number of uses for each piece of data
+			int initial_uses = 1;
+			//Data
+			std::vector<T> data;
+			//Individual uses for each piece of data
+			std::vector<int> clears_remaining;
+		public:
+			
+			void push_back(const T& x){
+				data.push_back(x);
+				uses_remaining.push_back(initial_uses);
+			}
+
+			T& operator[] (const size_t& i) {
+				return data[i];
+			}
+
+			//On nth clear, the vector will actually be emptied
+			void setNumberOfUses(const int& n){
+				initial_uses = n;
+			}
+
+			//Clears when 0 clears remaining (or less)
+			void clear() {
+				
+				std::vector<T>::iterator data_it = data.begin();
+				std::vector<int>::iterator count_it = clears_remaining.begin();
+
+				while(data_it != data.end()) {
+
+				    if(--(*count_it) < 1) {
+				    	//If cleared enough times, erase the data
+				        data_it = data.erase(it);
+				        count_it = clears_remaining.erase(it);
+				    }
+				    else {
+				    	//Otherwise, move to next element
+				    	++data_it;
+				    	++count_it;
+				    }
+				}
+			}
+
+			int size(){
+				return data.size();
+			}
+		
+			void erase(std::vector<T>::iterator it){
+				data.erase(it);
+			}
+
+			T& back(){
+				return data.back();
+			}
+			
+		};
+
+
 	}
 }

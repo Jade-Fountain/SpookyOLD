@@ -37,11 +37,10 @@ namespace fusion {
 			//Ideally shouldnt reach this, but included as safety
 			int max_samples = 1000;
 			//Stores sensor samples per ID
-			std::map<SensorID, std::vector<Measurement::Ptr>> sensors;
+			std::map<SensorID, MultiStream> sensors;
+			
 			//Adds a measurement to the stream
 			void addMeasurement(const Measurement::Ptr& m);
-			//Gets the size of the largest sensor stream and the corresponding sensor ID
-			std::pair<SensorID, size_t> maxCount();
 			//Gets total sensor measurement count for this node and sensor
 			int totalCount();
 		};

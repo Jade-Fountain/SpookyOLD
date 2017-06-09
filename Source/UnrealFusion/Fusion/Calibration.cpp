@@ -37,18 +37,6 @@ namespace fusion {
 		}
 	}
 
-	std::pair<SensorID, size_t> CalibrationDataSet::Stream::maxCount()
-	{
-		std::pair<SensorID, size_t> result(0, 0);
-		for (auto& sensor : sensors) {
-			size_t s = sensor.second.size();
-			if (result.second < s) {
-				result.second = s;
-				result.first = sensor.first;
-			}
-		}
-		return result;
-	}
 
 	int CalibrationDataSet::Stream::totalCount()
 	{
@@ -75,7 +63,7 @@ namespace fusion {
 	float CalibrationDataSet::compareMeasurement(const Measurement::Ptr & m, const SystemDescriptor & system, const NodeDescriptor & node)
 	{
 		SystemNodePair sysNode = SystemNodePair(system, node);
-		std::vector<Measurement::Ptr>& stream = utility::safeAccess(systemNodeTable[sysNode].sensors, m->getSensorID());
+		utility::MultiStream<Measurement::Ptr>& stream = utility::safeAccess(systemNodeTable[sysNode].sensors, m->getSensorID());
 		//If no previous recorded data, return max difference
 		if (stream.size() == 0) {
 			return float(std::numeric_limits<float>::max());
@@ -232,14 +220,14 @@ namespace fusion {
 				//Calibrate with complete bipartite graph of relationships
 				for (auto& pair1 : calibrationSet.systemNodeTable[sysNode1].sensors) {
 					SensorID id1 = pair1.first;
-					std::vector<Measurement::Ptr>& m1_ = pair1.second;
+					utility::MultiStream<Measurement::Ptr>& m1_ = pair1.second;
 					//Get measurements
 					for (auto& pair2 : calibrationSet.systemNodeTable[sysNode2].sensors) {
-						std::vector<Measurement::Ptr>& m2_ = pair2.second;
+						utility::MultiStream<Measurement::Ptr>& m2_ = pair2.second;
 
 						//Synchronise the two streams
-						std::vector<Measurement::Ptr> m1 = m1_;
-						std::vector<Measurement::Ptr> m2 = m2_;
+						std::vector<Measurement::Ptr> m1 = m1_.data;
+						std::vector<Measurement::Ptr> m2 = m2_.data;
 						//TODO: retarget high noise measurements, not high latency - I no longer know what I meant by this
 						if (m1.size() < m2.size()) {
 							Measurement::synchronise(m2, m1);
@@ -300,14 +288,14 @@ namespace fusion {
 				//Calibrate with complete bipartite graph of relationships
 				for (auto& pair1 : calibrationSet.systemNodeTable[sysNode1].sensors) {
 					SensorID id1 = pair1.first;
-					std::vector<Measurement::Ptr>& m1_ = pair1.second;
+					utility::MultiStream<Measurement::Ptr>& m1_ = pair1.second;
 					//Get measurements
 					for (auto& pair2 : calibrationSet.systemNodeTable[sysNode2].sensors) {
-						std::vector<Measurement::Ptr>& m2_ = pair2.second;
+						utility::MultiStream<Measurement::Ptr>& m2_ = pair2.second;
 
 						//Synchronise the two streams
-						std::vector<Measurement::Ptr> m1 = m1_;
-						std::vector<Measurement::Ptr> m2 = m2_;
+						std::vector<Measurement::Ptr> m1 = m1_.data;
+						std::vector<Measurement::Ptr> m2 = m2_.data;
 
 						if (m1.size() < m2.size()) {
 							Measurement::synchronise(m2, m1);
