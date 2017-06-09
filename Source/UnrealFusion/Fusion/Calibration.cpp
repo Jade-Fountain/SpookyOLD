@@ -254,14 +254,6 @@ namespace fusion {
 							measurements2->insert(measurements2->end(), m2.begin(), m2.end());
 						}
 
-					/*	std::stringstream ss;
-						ss << "M1 = " << m1_.front()->getSensor()->system.name << " count = " << m1_.size() << std::endl;
-						ss << "M2 = " << m2_.front()->getSensor()->system.name << " count = " << m2_.size() << std::endl;
-
-						ss << "M1 retargeted = " << m1.front()->getSensor()->system.name << ", " << m1.front()->getSensor()->getNode().name << " final count = " << m1.size() << std::endl;
-						ss << "M2 retargeted = " << m2.front()->getSensor()->system.name << ", " << m2.front()->getSensor()->getNode().name << " final count = " << m2.size() << std::endl;
-						FUSION_LOG(ss.str());*/
-
 						//Clear the data used for calibration
 						//Clear data even if it isnt used because it is not synchronised
 						if (clearMeasurementsWhenDone) {

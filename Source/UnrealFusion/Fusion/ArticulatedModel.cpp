@@ -128,9 +128,9 @@ namespace fusion {
 					updateState(new_state, m->getTimestamp(), m->getLatency());
 				}
 			}
-			//Dont use data twice
-			measurements.clear();
 		}
+		//Dont use data twice
+		measurements.clear();
 	}
 
 	//-------------------------------------------------------------------------------------------------------

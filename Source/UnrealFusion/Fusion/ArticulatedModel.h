@@ -84,7 +84,7 @@ namespace fusion {
 		Transform3D getLocalPose();
 
 		//Updates the state of this node (e.g. angle, quaternion, etc.)
-		void Node::updateState(const State& new_state, const float& timestamp, const float& latency);
+		void updateState(const State& new_state, const float& timestamp, const float& latency);
 		//Sets the model for the articulations associated with this node
 		void setModel(std::vector<Articulation> art);
 		//Local fusion of buffered measurements
@@ -126,16 +126,6 @@ namespace fusion {
 
 			//Compute best model for given data and prior
 			void fuse(const Calibrator& calib);
-
-			//WorldState getWorldState(NodeDescriptor node) {
-			//	//TODO: check for cached state
-			//	if (nodes.count(node) == 0) {
-			//		return WorldState();
-			//	}
-			//	const auto& n = nodes[node];
-			//	return TwistModel::worldStateFunc(n.state,getWorldState(n.parent_desc))
-			//}
-
 
 			//Sets the structure parameters for the specified articulation as a bone according to the boneVec
 			void setBoneForNode(const NodeDescriptor & node, const Transform3D& boneTransform);
