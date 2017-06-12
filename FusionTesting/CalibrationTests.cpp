@@ -2,6 +2,7 @@
 #include "CppUnitTest.h"
 #include <vector>
 #include "../Source/UnrealFusion/Fusion/Utilities/CalibrationUtilities.h"
+#include "../Source/UnrealFusion/Fusion/Utilities/DataStructures.h"
 #include "../Source/UnrealFusion/Fusion/Utilities/CommonMath.h"
 #include <Windows.h>
 
@@ -252,6 +253,36 @@ namespace FusionTesting
 			Assert::AreEqual(success, true, widestr2.c_str());
 		}
 
+		TEST_METHOD(MultiUseStream) {
+			fusion::utility::MultiUseStream<int, std::string> stream;
+			std::vector<std::string> names;
+			names.push_back("A");
+			names.push_back("B");
+			names.push_back("C");
+			for (auto& name : names) {
+				stream.addInitialCounter(name);
+			}
+			for (int i = 0; i < 100; i++) {
+				stream.push_back(i);
+			}
+			stream.clear(names[0]);
+			for (int i = 0; i < 100; i++) {
+				stream.push_back(i);
+			}
+			stream.clear(names[1]);
+			for (int i = 0; i < 100; i++) {
+				stream.push_back(i);
+			}
+			stream.clear(names[2]);
+			bool success = stream.raw_size() == 200;
+
+			std::stringstream ss2;
+			ss2 << "size = \n" << stream.raw_size() << std::endl;
+			std::wstring widestr2 = utf8_decode(ss2.str());
+
+			Assert::AreEqual(success, true, widestr2.c_str());
+
+		}
 
 	};
 }

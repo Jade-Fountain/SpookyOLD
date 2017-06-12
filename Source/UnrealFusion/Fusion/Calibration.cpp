@@ -31,21 +31,28 @@ namespace fusion {
 
 	void CalibrationDataSet::Stream::addMeasurement(const Measurement::Ptr& m) {
 		utility::safeAccess(sensors, m->getSensorID()).push_back(m);
-		while (sensors[m->getSensorID()].size() > max_samples) {
+		while (sensors[m->getSensorID()].raw_size() > max_samples) {
 			//Erase oldest data
-			sensors[m->getSensorID()].erase(sensors[m->getSensorID()].begin());
+			sensors[m->getSensorID()].eraseFront();
 		}
 	}
 
 
-	int CalibrationDataSet::Stream::totalCount()
+	int CalibrationDataSet::Stream::totalCount(const SystemDescriptor& system1, const SystemDescriptor& system2)
 	{
 		int result = 0;
 		for (auto& sensor : sensors) {
-			result += sensor.second.size();
+			result += sensor.second.size(system1.name + system2.name);
 		}
 		return result;
 	}
+
+	void CalibrationDataSet::Stream::addCalibrationJob(const SystemDescriptor& system1, const SystemDescriptor& system2){
+		for(auto& sensor : sensors){
+			sensor.second.addInitialCounter(system1.name + system2.name);
+		}
+	}
+
 
 	//-------------------------------------------------------------------------------------------------------
 	//									CalibrationDataSet Members
@@ -63,9 +70,10 @@ namespace fusion {
 	float CalibrationDataSet::compareMeasurement(const Measurement::Ptr & m, const SystemDescriptor & system, const NodeDescriptor & node)
 	{
 		SystemNodePair sysNode = SystemNodePair(system, node);
-		utility::MultiStream<Measurement::Ptr>& stream = utility::safeAccess(systemNodeTable[sysNode].sensors, m->getSensorID());
+		//utility::MultiStream<Measurement::Ptr,std::string>&
+		auto& stream = utility::safeAccess(systemNodeTable[sysNode].sensors, m->getSensorID());
 		//If no previous recorded data, return max difference
-		if (stream.size() == 0) {
+		if (stream.raw_size() == 0) {
 			return float(std::numeric_limits<float>::max());
 		}
 		//Otherwise compare the measurements
@@ -96,7 +104,7 @@ namespace fusion {
 				//Create entry containing each sensor count
 				std::stringstream entry;
 				for (auto& sensor : systemNodeTable[sysNode].sensors) {
-					entry << sensor.first << ":" << sensor.second.size() << ",";
+					entry << sensor.first << ":" << sensor.second.raw_size() << ",";
 				}
 				ss << spaceString(entry.str());
 			}
@@ -105,6 +113,8 @@ namespace fusion {
 		ss << "Key: (x:n) = sensor x has n stored measurements" << std::endl;
 		return ss.str();
 	}
+
+
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//									Calibrator:Private
@@ -208,9 +218,12 @@ namespace fusion {
 				calibrationSet.systemNodeTable.count(sysNode2) > 0)
 			{
 				//Get maximum length of sensor stream
-				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount();
-				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount();
-				
+				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount(system1, system2);
+				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount(system1, system2);
+
+				//Add job for this system pair
+				calibrationSet.systemNodeTable[sysNode1].addCalibrationJob(system1,system2);
+				calibrationSet.systemNodeTable[sysNode2].addCalibrationJob(system1,system2);
 
 				//Streams of different length or not long enough- we cant use this data
 				if (count1 < minCountPerNode || count2 < minCountPerNode) {
@@ -220,10 +233,12 @@ namespace fusion {
 				//Calibrate with complete bipartite graph of relationships
 				for (auto& pair1 : calibrationSet.systemNodeTable[sysNode1].sensors) {
 					SensorID id1 = pair1.first;
-					utility::MultiStream<Measurement::Ptr>& m1_ = pair1.second;
+					//utility::MultiStream<Measurement::Ptr,std::string>&
+					auto& m1_ = pair1.second;
 					//Get measurements
 					for (auto& pair2 : calibrationSet.systemNodeTable[sysNode2].sensors) {
-						utility::MultiStream<Measurement::Ptr>& m2_ = pair2.second;
+						//utility::MultiStream<Measurement::Ptr,std::string>&
+						auto& m2_ = pair2.second;
 
 						//Synchronise the two streams
 						std::vector<Measurement::Ptr> m1 = m1_.data;
@@ -245,8 +260,8 @@ namespace fusion {
 						//Clear the data used for calibration
 						//Clear data even if it isnt used because it is not synchronised
 						if (clearMeasurementsWhenDone) {
-							m1_.clear();
-							m2_.clear();
+							m1_.clear(system1.name + system2.name);
+							m2_.clear(system1.name + system2.name);
 						}
 					}
 				}
@@ -277,8 +292,12 @@ namespace fusion {
 				calibrationSet.systemNodeTable.count(sysNode2) > 0)
 			{
 				//Get maximum length of sensor stream
-				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount();
-				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount();
+				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount(system1, system2);
+				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount(system1, system2);
+
+				//Add job for this system pair
+				calibrationSet.systemNodeTable[sysNode1].addCalibrationJob(system1, system2);
+				calibrationSet.systemNodeTable[sysNode2].addCalibrationJob(system1, system2);
 
 				//Streams of different length or not long enough- we cant use this data
 				if (count1 < minCountPerNode || count2 < minCountPerNode) {
@@ -288,10 +307,12 @@ namespace fusion {
 				//Calibrate with complete bipartite graph of relationships
 				for (auto& pair1 : calibrationSet.systemNodeTable[sysNode1].sensors) {
 					SensorID id1 = pair1.first;
-					utility::MultiStream<Measurement::Ptr>& m1_ = pair1.second;
+					//utility::MultiStream<Measurement::Ptr,std::string>&
+					auto& m1_ = pair1.second;
 					//Get measurements
 					for (auto& pair2 : calibrationSet.systemNodeTable[sysNode2].sensors) {
-						utility::MultiStream<Measurement::Ptr>& m2_ = pair2.second;
+						//utility::MultiStream<Measurement::Ptr,std::string>&
+						auto& m2_ = pair2.second;
 
 						//Synchronise the two streams
 						std::vector<Measurement::Ptr> m1 = m1_.data;
@@ -340,9 +361,13 @@ namespace fusion {
 				calibrationSet.systemNodeTable.count(sysNode2) > 0)
 			{
 				//Get maximum length of sensor stream
-				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount();
-				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount();
+				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount(system1, system2);
+				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount(system1, system2);
 
+				//Add job for this system pair
+				calibrationSet.systemNodeTable[sysNode1].addCalibrationJob(system1,system2);
+				calibrationSet.systemNodeTable[sysNode2].addCalibrationJob(system1, system2);
+				
 				//Streams of different length or not long enough- we cant use this data
 				if (count1 < minCountPerNode || count2 < minCountPerNode) {
 					continue; //cannot calibrate this pair of sensors yet

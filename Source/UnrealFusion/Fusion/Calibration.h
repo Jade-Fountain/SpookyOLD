@@ -37,12 +37,15 @@ namespace fusion {
 			//Ideally shouldnt reach this, but included as safety
 			int max_samples = 1000;
 			//Stores sensor samples per ID
-			std::map<SensorID, MultiStream> sensors;
+			std::map<SensorID, utility::MultiUseStream<Measurement::Ptr,std::string>> sensors;
 			
 			//Adds a measurement to the stream
 			void addMeasurement(const Measurement::Ptr& m);
 			//Gets total sensor measurement count for this node and sensor
-			int totalCount();
+			int totalCount(const SystemDescriptor& system1, const SystemDescriptor& system2);
+			//Add job to streams
+			void addCalibrationJob(const SystemDescriptor& system1, const SystemDescriptor& system2);
+
 		};
 
 
@@ -64,6 +67,8 @@ namespace fusion {
 		void addMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
 		float compareMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
 		std::string getStateSummary();
+
+
 
 	};
 

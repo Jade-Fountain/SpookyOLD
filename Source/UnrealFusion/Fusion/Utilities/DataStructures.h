@@ -18,6 +18,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <iterator>
 
@@ -58,43 +59,46 @@ namespace fusion {
 		    return diff;
 		}
 
+
 		//A vector that takes multiple clears
-		template <class T>
-		class MultiStream {
+		template <class T,class Counter>
+		class MultiUseStream {
+		public:
+			typedef std::set<Counter> CounterSet;
+
 			//Number of uses for each piece of data
-			int initial_uses = 1;
+			CounterSet initial;
 			//Data
 			std::vector<T> data;
 			//Individual uses for each piece of data
-			std::vector<int> clears_remaining;
-		public:
+			std::vector<CounterSet> counters;
 			
 			void push_back(const T& x){
 				data.push_back(x);
-				uses_remaining.push_back(initial_uses);
+				counters.push_back(initial);
+			}
+
+			//On nth clear, the vector will actually be emptied
+			void addInitialCounter(const Counter& n){
+				initial.insert(n);
 			}
 
 			T& operator[] (const size_t& i) {
 				return data[i];
 			}
 
-			//On nth clear, the vector will actually be emptied
-			void setNumberOfUses(const int& n){
-				initial_uses = n;
-			}
-
 			//Clears when 0 clears remaining (or less)
-			void clear() {
+			void clear(const Counter& counter) {
 				
 				std::vector<T>::iterator data_it = data.begin();
-				std::vector<int>::iterator count_it = clears_remaining.begin();
+				std::vector<CounterSet>::iterator count_it = counters.begin();
 
 				while(data_it != data.end()) {
-
-				    if(--(*count_it) < 1) {
+					count_it->erase(counter);
+				    if(count_it->empty()) {
 				    	//If cleared enough times, erase the data
-				        data_it = data.erase(it);
-				        count_it = clears_remaining.erase(it);
+				        data_it = data.erase(data_it);
+				        count_it = counters.erase(count_it);
 				    }
 				    else {
 				    	//Otherwise, move to next element
@@ -104,20 +108,39 @@ namespace fusion {
 				}
 			}
 
-			int size(){
+			int raw_size() {
 				return data.size();
 			}
-		
-			void erase(std::vector<T>::iterator it){
-				data.erase(it);
-			}
 
+			int size(const Counter& c){
+				int result = 0;
+				std::vector<T>::iterator data_it = data.begin();
+				std::vector<CounterSet>::iterator count_it = counters.begin();
+
+				while (data_it != data.end()) {
+					
+					//If we havent cleared this counter yet, add it to the results
+					if (count_it->count(c) > 0) {
+						result++;
+					}
+					// move to next element
+					++data_it;
+					++count_it;
+					
+				}
+				return result;
+			}
+			
+			void eraseFront()
+			{
+				data.erase(data.begin());
+				counters.erase(counters.begin());
+			}
 			T& back(){
 				return data.back();
 			}
 			
 		};
-
 
 	}
 }
