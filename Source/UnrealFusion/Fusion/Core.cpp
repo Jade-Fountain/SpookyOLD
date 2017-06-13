@@ -31,6 +31,10 @@ namespace fusion {
 		skeleton.setPoseNode(node, poseInitial);
 	}
 
+	void Core::setReferenceSystem(const SystemDescriptor & system) {
+		skeleton.setReferenceSystem(system);
+	}
+
 	// =================
 	//Saving and loading
 	// =================
@@ -44,7 +48,7 @@ namespace fusion {
 		bool success = saveManager.load(&cal);
 		if (success) {
 			calibrator.setResults(cal);
-			FUSION_LOG("Loaded Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
+			//FUSION_LOG("Loaded Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
 		}
 		else {
 			FUSION_LOG("Loading Calibration[" + s1.name + ", " + s2.name + "] FAILED");
@@ -57,7 +61,7 @@ namespace fusion {
 	void Core::saveCalibration(const SystemDescriptor& s1, const SystemDescriptor& s2) {
 		bool success = saveManager.save(calibrator.getResultsFor(s1, s2));
 		if (success) {
-			FUSION_LOG("Saved Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
+			//FUSION_LOG("Saved Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
 		}
 		else {
 			FUSION_LOG("Saving Calibration[" + s1.name + ", " + s2.name + "] FAILED");
@@ -93,31 +97,33 @@ namespace fusion {
 	void Core::fuse() {
 		//TODO: add ifdefs for profiling
 		//Add new data to calibration, with checking for usefulness
-		//utility::profiler.startTimer("Correlator");
+		// utility::profiler.startTimer("Correlator");
+		// utility::profiler.startTimer("All");
 		//FUSION_LOG("Fusing: " + std::to_string(measurement_buffer.size()) + "measurements");
 
 		correlator.addMeasurementGroup(measurement_buffer);
 		correlator.identify();
-		//utility::profiler.endTimer("Correlator");
+		// utility::profiler.endTimer("Correlator");
 		if(correlator.isStable() || true){
-			//utility::profiler.startTimer("Calibrator add");
+			// utility::profiler.startTimer("Calibrator add");
 			calibrator.addMeasurementGroup(measurement_buffer);
-			//utility::profiler.endTimer("Calibrator add");
-			//utility::profiler.startTimer("Calibrate");
+			// utility::profiler.endTimer("Calibrator add");
+			// utility::profiler.startTimer("Calibrate");
 			calibrator.calibrate();
-			//utility::profiler.endTimer("Calibrate");
+			// utility::profiler.endTimer("Calibrate");
 			if(calibrator.isStable() || true){
-				//utility::profiler.startTimer("Fuse");
+				// utility::profiler.startTimer("Fuse");
 				skeleton.addMeasurementGroup(measurement_buffer);
-				skeleton.fuse();
-				//utility::profiler.endTimer("Fuse");
+				skeleton.fuse(calibrator);
+				// utility::profiler.endTimer("Fuse");
 			}
 		}	
-		//utility::profiler.startTimer("ClearMeasurements");
+		// utility::profiler.startTimer("ClearMeasurements");
 		measurement_buffer.clear();
-		//utility::profiler.endTimer("ClearMeasurements");
+		// utility::profiler.endTimer("ClearMeasurements");
 		//TODO: do this less often
-		//FUSION_LOG(utility::profiler.getReport());
+		// utility::profiler.endTimer("All");
+		// FUSION_LOG(utility::profiler.getReport());
 	}
 
 	CalibrationResult Core::getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2) {
@@ -154,6 +160,10 @@ namespace fusion {
 		}
 		//Set pointer in measurement
 		m->setSensor(sensors[system][id]);
+	}
+
+	std::string Core::getCalibratorStateSummary() {
+		return calibrator.getStateSummary();
 	}
 
 }

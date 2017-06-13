@@ -76,12 +76,12 @@ namespace fusion {
 		local_state.variance = initial_covariance * Eigen::MatrixXf::Identity(max_n_rows*state.size(), max_n_rows*state.size());
 	}
 
-	void Node::fuse(){
+	void Node::fuse(const Calibrator& calib, const SystemDescriptor& referenceSystem){
 		Transform3D parent_pose = Transform3D::Identity();
 		
 		//If this node has a parent, recursively fuse until we know its transform
 		if (parent != NULL) {
-			parent->fuse();
+			parent->fuse(calib, referenceSystem);
 			parent_pose = parent->getGlobalPose();
 		}
 
@@ -95,6 +95,12 @@ namespace fusion {
 				//Throwout bad measurements
 				if (m->confidence < 0.75) {
 					continue;
+				}
+
+				//Optimise this access somehow?
+				CalibrationResult calibResult = calib.getResultsFor(referenceSystem, m->getSystem());
+				if (calibResult.calibrated()) {
+					parent_pose = calibResult.transform * parent_pose;
 				}
 
 				//If measurement is rotation
@@ -122,9 +128,9 @@ namespace fusion {
 					updateState(new_state, m->getTimestamp(), m->getLatency());
 				}
 			}
-			//Dont use data twice
-			measurements.clear();
 		}
+		//Dont use data twice
+		measurements.clear();
 	}
 
 	//-------------------------------------------------------------------------------------------------------
@@ -151,6 +157,10 @@ namespace fusion {
 	//-------------------------------------------------------------------------------------------------------
 	//									Public
 	//-------------------------------------------------------------------------------------------------------
+
+	void ArticulatedModel::setReferenceSystem(const SystemDescriptor& s) {
+		reference_system = s;
+	}
 
 	void ArticulatedModel::addNode(const NodeDescriptor & node, const NodeDescriptor & parent) {
 		//This line initialises the node entry if not already initialised
@@ -190,10 +200,10 @@ namespace fusion {
 		}
 	}
 
-	void ArticulatedModel::fuse() {
+	void ArticulatedModel::fuse(const Calibrator& calib) {
 		for(auto& node : nodes){
 			//TODO: support other fusion methods
-			node.second->fuse();
+			node.second->fuse(calib, reference_system);
 		}
 		clearMeasurements();
 	}

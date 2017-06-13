@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Eigen/Core"
 #include "Articulation.h"
 #include "FusionTypes.h"
+#include "Calibration.h"
 #include "Utilities/DataStructures.h"
 
 namespace fusion {
@@ -75,6 +76,7 @@ namespace fusion {
 		//TODO: ensure ordered by timestamp
 		std::vector<Measurement::Ptr> measurements;
 
+
 	public:
 		//Returns the final pose of this node in global space based on pose of all parents
 		Transform3D getFinalGlobalPose();
@@ -82,11 +84,11 @@ namespace fusion {
 		Transform3D getLocalPose();
 
 		//Updates the state of this node (e.g. angle, quaternion, etc.)
-		void Node::updateState(const State& new_state, const float& timestamp, const float& latency);
+		void updateState(const State& new_state, const float& timestamp, const float& latency);
 		//Sets the model for the articulations associated with this node
 		void setModel(std::vector<Articulation> art);
 		//Local fusion of buffered measurements
-		void fuse();
+		void fuse(const Calibrator& calib, const SystemDescriptor& referenceSystem);
 	
 	private:
 		Transform3D getGlobalPose();
@@ -103,6 +105,8 @@ namespace fusion {
 		*				Public methods
 		*//////////////////////////////////////////////////////////////////
 		public:
+			//Sets reference system
+			void setReferenceSystem(const SystemDescriptor& s);
 			//Adds node to the skeleton
 			void addNode(const NodeDescriptor & node, const NodeDescriptor & parent);
 			//Adds a generic node if necessary
@@ -121,17 +125,7 @@ namespace fusion {
 			void addMeasurementGroup(const std::vector<Measurement::Ptr>& m);
 
 			//Compute best model for given data and prior
-			void fuse();
-
-			//WorldState getWorldState(NodeDescriptor node) {
-			//	//TODO: check for cached state
-			//	if (nodes.count(node) == 0) {
-			//		return WorldState();
-			//	}
-			//	const auto& n = nodes[node];
-			//	return TwistModel::worldStateFunc(n.state,getWorldState(n.parent_desc))
-			//}
-
+			void fuse(const Calibrator& calib);
 
 			//Sets the structure parameters for the specified articulation as a bone according to the boneVec
 			void setBoneForNode(const NodeDescriptor & node, const Transform3D& boneTransform);
@@ -154,6 +148,8 @@ namespace fusion {
 			//SkeletonData
 			std::map<NodeDescriptor,Node::Ptr> nodes;
 
+			//Reference coordinate system
+			SystemDescriptor reference_system = "";
 		
 			//Clears measurements in graph
 			void clearMeasurements();

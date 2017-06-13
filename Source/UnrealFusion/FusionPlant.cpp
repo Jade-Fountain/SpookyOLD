@@ -110,6 +110,12 @@ void UFusionPlant::FinaliseSetup() {
 	plant.finaliseSetup();
 }
 
+//Set the reference frame for the skeleton
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+void UFusionPlant::SetReferenceFrame(FString system_name) {
+	plant.setReferenceSystem(fusion::SystemDescriptor(TCHAR_TO_UTF8(*system_name)));
+}
+
 //===========================
 //Update functions
 //===========================
@@ -206,6 +212,7 @@ FCalibrationResult UFusionPlant::getCalibrationResult(FString s1, FString s2)
 	result.transform.SetRotation(fq);
 	result.transform.SetTranslation(FVector(v[0], v[1], v[2]));
 	result.calibrated = T.calibrated();
+	result.refining = T.refining();
 	result.quality = T.quality;
 	result.system1 = FString(T.systems.first.name.c_str());
 	result.system2 = FString(T.systems.second.name.c_str());
@@ -399,4 +406,11 @@ FVector4 UFusionPlant::GetTestPosition() {
 	FVector4 v = fusedSkeleton->GetBoneTransformByName("hand_l",EBoneSpaces::WorldSpace).GetLocation();
 	//UE_LOG(LogTemp, Warning, TEXT("Left hand Pose = %s"), *v.ToString());
 	return v;
+}
+
+//For testing blueprints: TODO delete
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+FString UFusionPlant::GetCalibrationStateSummary() {
+	std::string s = plant.getCalibratorStateSummary();
+	return s.c_str();
 }

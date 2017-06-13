@@ -37,13 +37,17 @@ namespace fusion {
 			//Ideally shouldnt reach this, but included as safety
 			int max_samples = 1000;
 			//Stores sensor samples per ID
-			std::map<SensorID, std::vector<Measurement::Ptr>> sensors;
+			std::map<SensorID, utility::MultiUseStream<Measurement::Ptr,std::string>> sensors;
+			
 			//Adds a measurement to the stream
 			void addMeasurement(const Measurement::Ptr& m);
-			//Gets the size of the largest sensor stream and the corresponding sensor ID
-			std::pair<SensorID, size_t> maxCount();
 			//Gets total sensor measurement count for this node and sensor
-			int totalCount();
+			int totalCount(const SystemDescriptor& system1, const SystemDescriptor& system2);
+			//Counts measurements independent of their use
+			int rawCount();
+			//Add job to streams
+			void addCalibrationJob(const SystemDescriptor& system1, const SystemDescriptor& system2);
+
 		};
 
 
@@ -64,6 +68,9 @@ namespace fusion {
 		//Helper methods
 		void addMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
 		float compareMeasurement(const Measurement::Ptr& m, const SystemDescriptor& system, const NodeDescriptor& node);
+		std::string getStateSummary();
+
+
 
 	};
 
@@ -75,7 +82,7 @@ namespace fusion {
 		//----------------
 
 		//Difference threshold: store new measurement if difference to last measurement is larger than this
-		float diff_threshold = 0.1f;
+		float diff_threshold = 0.3f;
 		//TODO: change diff threshold for different calibration stages
 		//{
 		//	{ CalibrationResult::State::UNCALIBRATED, 0.1 },
@@ -83,13 +90,16 @@ namespace fusion {
 		//	{ CalibrationResult::State::CALIBRATED, 0.5 }
 		//};
 
+		//Smallest allowed count for a single node before it can be included in calibration
+		//Hard minimum = 4
+		int min_count_per_node = 4; //>=5
+
 		//Count Threshold: Calibrate when this many samples acquired
-		//TODO: make this determine total samples across all systems / nodes
 		std::map<CalibrationResult::State, int> count_threshold = 
 		{	
-			{CalibrationResult::State::UNCALIBRATED,150},
-			{CalibrationResult::State::REFINING,50},
-			{CalibrationResult::State::CALIBRATED,50} 
+			{CalibrationResult::State::UNCALIBRATED,75},
+			{CalibrationResult::State::REFINING,75},
+			{CalibrationResult::State::CALIBRATED,75}
 		};
 
 		//Table for looking up data relevant to determining transforms
@@ -106,19 +116,29 @@ namespace fusion {
 		std::vector<Measurement::Ptr> filterLonelyData(const std::vector<Measurement::Ptr>& measurementQueue);
 
 		//Returns true if sufficient movement has occurred to warrant recording of data
-		bool checkChanges(const std::vector<Measurement::Ptr>& measurements);
+		std::map<NodeDescriptor, bool> checkChanges(const std::vector<Measurement::Ptr>& measurements);
 
 		//Calibrate two systems with respect to one another
 		void calibrateSystems(SystemDescriptor system1, SystemDescriptor system2);
 
 		//Gets the measurements relevant to calibration of system1 and system2
 		//Returns an empty list if calibration not ready yet
-		void getRelevantMeasurements(SystemDescriptor system1, 
-									 SystemDescriptor system2, 
-									 std::vector<Measurement::Ptr>* measurements1, 
-									 std::vector<Measurement::Ptr>* measurements2, 
-									 int minMeasurementCount,
-									 bool clearMeasurementsWhenDone = true);
+		void getRelevantMeasurements(SystemDescriptor system1,
+									SystemDescriptor system2, 
+									std::vector<Measurement::Ptr>* measurements1, 
+									std::vector<Measurement::Ptr>* measurements2, 
+									int minCountPerNode,
+									bool clearMeasurementsWhenDone = true);
+
+		//Counts the number of measurements that will be returned by getRelevantMeasurements
+		std::pair<int, int> Calibrator::countRelevantSynchronisedMeasurements(SystemDescriptor system1,
+																				SystemDescriptor system2,
+																				int minCountPerNode);		
+		
+		//Determines what sensors are available to perform calibrations
+		void Calibrator::determineCalibrationsRequired(SystemDescriptor system1,
+																	SystemDescriptor system2,
+																	int minCountPerNode);
 
 		//Calibrate two particular data streams
 		CalibrationResult calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib);
@@ -130,9 +150,11 @@ namespace fusion {
 		//see CalibrationProcedures.cpp for definitions
 		//----------------
 
+		//Update state of calibration, filtering over time
+		CalibrationResult updateCalibration(const CalibrationResult& newCalibration,const CalibrationResult& currentCalibration) const;
+
 		//Calibrate two correlated positional measurements
 		CalibrationResult calPos(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2, const CalibrationResult& calib) const;
-
 
 		//Calibrate two rigidly linked 6DoF sensors
 		CalibrationResult cal6DoF(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult & currentCalibration) const;
@@ -159,7 +181,11 @@ namespace fusion {
 		void setResults(const CalibrationResult & r);
 
 		//Searches for calibration results and returns them for use in fusion
-		CalibrationResult getResultsFor(SystemDescriptor s1, SystemDescriptor s2);
+		CalibrationResult getResultsFor(SystemDescriptor s1, SystemDescriptor s2) const;
+
+		//Gets string summarising state of calibrator
+		std::string getStateSummary();
+
 	};
 
 }

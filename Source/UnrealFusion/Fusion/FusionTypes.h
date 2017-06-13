@@ -100,14 +100,18 @@ namespace fusion {
 		float error = 0;
 		//Quality is a qualitative measure in [0,1] of the estimated accuracy of the result
 		float quality = 0;
-		//Relevance - parameter used to detect faults in the system
-		float relevance = 1;
+		//Relevance - filtered error result from current calibration
+		Transform3D relevance;
 		//Weight counts the number of samples incorporated into this calibration result
 		float weight = 0;
 
 		//Constructors
-		CalibrationResult(){}
+		CalibrationResult(){
+			reset();
+		}
+
 		CalibrationResult(const SystemDescriptor& s1, const SystemDescriptor& s2) {
+			reset();
 			systems = std::make_pair(s1, s2);
 		}
 
@@ -119,9 +123,15 @@ namespace fusion {
 		}
 
 		//Checks if sensor is calibrated
-		bool calibrated() {
+		bool calibrated() const{
 			return state != UNCALIBRATED;
 		}
+
+		//Checks if sensor is calibrated
+		bool refining() const{
+			return state != CALIBRATED;
+		}
+
 
 		//Combines two calibration results associatively
 		void updateResult(const CalibrationResult& new_cal) {
@@ -138,6 +148,8 @@ namespace fusion {
 			//new timestamps
 			latency = new_cal.latency;
 			timestamp = new_cal.timestamp;
+			state = new_cal.state;
+			relevance = new_cal.relevance;
 
 			//Interpolate error and quality
 			//TODO: make this correct error/quality amount
@@ -145,10 +157,17 @@ namespace fusion {
 			if (sum_weight == 0) return; //Return if both are zero weight (aka uncomputed) results
 			error = (weight * error + new_cal.weight * new_cal.error) / sum_weight;
 			quality = (weight * quality + new_cal.weight * new_cal.quality) / sum_weight;
-			relevance = quality;
 
 			//Update weight to reflect new information integrated
 			weight += new_cal.weight;
+		}
+
+		void reset() {
+			error = 0;
+			quality = 0;
+			relevance = Transform3D::Identity();
+			transform = Eigen::Matrix4f::Identity();
+			state = State::UNCALIBRATED;
 		}
 	};
 
@@ -318,6 +337,8 @@ namespace fusion {
 		Eigen::Matrix<float,7,7> getPosQuatVar();
 
 		Transform3D getTransform();
+		Eigen::Matrix4f getTransformMatrix() { return getTransform().matrix(); }
+
 
 		//=========================
 		//Data helpers
@@ -344,6 +365,34 @@ namespace fusion {
 		
 		//returns the vector corresponding to the transform T
 		static Eigen::Matrix<float, 7, 1> getPosQuatFromTransform(const Transform3D& T);
+
+
+		//Sort measurements based on the node of the measurements and return relevant data in one go
+		template <class ReturnType, ReturnType(Measurement::*Getter)()>
+		void static chunkMeasurements(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2,
+			std::vector<std::vector<ReturnType>> * m1_out, std::vector<std::vector<ReturnType>> * m2_out)
+		{
+			std::map<NodeDescriptor, int> nodes;
+			FUSION_LOG("node 0 = " + m1.front()->getNode().name);
+			for (int i = 0; i < m1.size(); i++) {
+				const auto& currentNode = m1[i]->getNode();
+				assert(currentNode.name == m2[i]->getNode().name);
+
+				//If new node, create another list for that node
+				if (nodes.count(currentNode) == 0) {
+					m1_out->push_back(std::vector<ReturnType>());
+					m2_out->push_back(std::vector<ReturnType>());
+					nodes[currentNode] = m1_out->size() - 1;
+				}
+
+				//Push back data to correct list corresponding to its node
+				int index = nodes[currentNode];
+				(*m1_out)[index].push_back((m1[i].get()->*Getter)());
+				(*m2_out)[index].push_back((m2[i].get()->*Getter)());
+			}
+			//Return m1_out, m2_out
+		}
+
 		//----------------------
 		//Accessors
 		//----------------------
@@ -396,8 +445,8 @@ namespace fusion {
 		float getLatency() {
 			return sensor->getLatency();
 		}
-	};
 
+	};
 
 
 }

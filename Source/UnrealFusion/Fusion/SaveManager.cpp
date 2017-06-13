@@ -59,7 +59,6 @@ namespace fusion {
 		s >> dummy; s >> r.timestamp;	FUSION_LOG(dummy + " " + std::to_string(r.timestamp));
 		s >> dummy; s >> r.error;		FUSION_LOG(dummy + " " + std::to_string(r.error));
 		s >> dummy; s >> r.quality;		FUSION_LOG(dummy + " " + std::to_string(r.quality));
-		s >> dummy; s >> r.relevance;	FUSION_LOG(dummy + " " + std::to_string(r.relevance));
 
 		return r;
 	}
@@ -76,7 +75,6 @@ namespace fusion {
 		ss << "timestamp: " << r.timestamp << std::endl;
 		ss << "error: " << r.error << std::endl;
 		ss << "quality: " << r.quality << std::endl;
-		ss << "relevance: " << r.relevance << std::endl;
 		return ss.str();
 	}
 

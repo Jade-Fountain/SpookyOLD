@@ -418,6 +418,8 @@ namespace fusion{
 		static inline Eigen::Transform<float, 3, Eigen::Affine> 
 			getMeanTransform(const std::vector<Eigen::Transform<float, 3, Eigen::Affine>>& T, const std::vector<float>& weights)
 		{
+			assert(T.size() > 0 && weights.size() > 0);
+			if (T.size() == 1) return T[0];
 			Eigen::MatrixXf wQ = Eigen::MatrixXf::Zero(4, T.size());
 			Eigen::Vector3f t_sum(0, 0, 0);
 			float sum_weights = 0;
@@ -436,6 +438,19 @@ namespace fusion{
 			Eigen::Transform<float, 3, Eigen::Affine> transform(t);
 			transform.rotate(q);
 			return transform;
+		}
+
+		struct TransformNorm{
+			float distance = 0;
+			float angle = 0;
+		};
+
+		static inline TransformNorm transformNorm(const Eigen::Transform<float, 3, Eigen::Affine>& T) {
+			Eigen::Quaternionf q(T.rotation());
+			TransformNorm tnorm;
+			tnorm.angle = q.angularDistance(Eigen::Quaternionf::Identity());
+			tnorm.distance = T.translation().norm();
+			return tnorm;
 		}
 	
 	}

@@ -59,6 +59,10 @@ namespace fusion {
 		//Adds a node to the fusion graph model
 		void addBoneNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Transform3D& boneTransform);
 		void addPoseNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Transform3D& poseInitial);
+		
+		//Sets the reference system for the fused skeleton
+		//Joint values will be reported relative to this system
+		void setReferenceSystem(const SystemDescriptor & system);
 
 		//Sets saveManager's save directory where calibration results will be saved and loaded
 		void setSaveDirectory(const std::string & dir);
@@ -101,6 +105,9 @@ namespace fusion {
 
 		//Called by owner of the Core object to set a measurement sensor pointer
 		void setMeasurementSensorInfo(Measurement::Ptr& m, SystemDescriptor system, SensorID id);
+
+		//Returns a string summarising the state of calibration in the system
+		std::string getCalibratorStateSummary();
 
 	};
 

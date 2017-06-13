@@ -321,6 +321,9 @@ namespace fusion{
 					const Eigen::Transform<float, 3, Eigen::Affine>& X,
 					float* error = NULL
 				) {
+					assert(samplesA.size() >= 4);
+					assert(samplesA.size() == samplesB.size());
+
 					float learning_rate = 1;
 					
 					Eigen::MatrixXf A(4, samplesA.size());
@@ -337,6 +340,7 @@ namespace fusion{
 
 					//Be careful of sphere error
 					utility::Sphere sphere = fitSphere(E.topLeftCorner(3,E.cols()));
+
 					Eigen::Vector3f centerError = sphere.center;
 
 					//std::stringstream ss;

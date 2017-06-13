@@ -35,6 +35,7 @@ struct FCalibrationResult {
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FTransform transform;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") bool calibrated = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") bool refining = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") float quality = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FString system1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FString system2;
@@ -97,6 +98,12 @@ public:
 	//Perform some setup postprocessing
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void FinaliseSetup();
+
+	//Set the reference frame for the skeleton
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	void SetReferenceFrame(FString system_name);
+
+
 
 //TODO: Contruction of sensor nodes
 
@@ -201,5 +208,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	FVector4 GetTestPosition();
 
-	
+	//For testing blueprints: TODO delete
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	FString GetCalibrationStateSummary();
+
+
 };
