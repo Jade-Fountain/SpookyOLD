@@ -47,6 +47,16 @@ namespace fusion {
 		return result;
 	}
 
+
+	int CalibrationDataSet::Stream::rawCount()
+	{
+		int result = 0;
+		for (auto& sensor : sensors) {
+			result += sensor.second.raw_size();
+		}
+		return result;
+	}
+
 	void CalibrationDataSet::Stream::addCalibrationJob(const SystemDescriptor& system1, const SystemDescriptor& system2){
 		for(auto& sensor : sensors){
 			sensor.second.addInitialCounter(system1.name + system2.name);
@@ -82,7 +92,7 @@ namespace fusion {
 
 	std::string CalibrationDataSet::getStateSummary() {
 		std::stringstream ss;
-		std::string spacer = "               ";
+		std::string spacer = "                     ";
 		auto spaceString = [spacer](const std::string& s){
 			std::string new_s = s + spacer.substr(0, std::max(int(spacer.size() - s.size()), 0)) + "|";
 			return new_s;
@@ -104,7 +114,10 @@ namespace fusion {
 				//Create entry containing each sensor count
 				std::stringstream entry;
 				for (auto& sensor : systemNodeTable[sysNode].sensors) {
-					entry << sensor.first << ":" << sensor.second.raw_size() << ",";
+					entry << sensor.first << ":" << sensor.second.raw_size();
+					for (auto& i : sensor.second.sizes()) {
+						entry << "(" << i << ")";
+					}
 				}
 				ss << spaceString(entry.str());
 			}
@@ -221,10 +234,6 @@ namespace fusion {
 				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount(system1, system2);
 				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount(system1, system2);
 
-				//Add job for this system pair
-				calibrationSet.systemNodeTable[sysNode1].addCalibrationJob(system1,system2);
-				calibrationSet.systemNodeTable[sysNode2].addCalibrationJob(system1,system2);
-
 				//Streams of different length or not long enough- we cant use this data
 				if (count1 < minCountPerNode || count2 < minCountPerNode) {
 					continue; //cannot calibrate this pair of sensors yet
@@ -295,10 +304,6 @@ namespace fusion {
 				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount(system1, system2);
 				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount(system1, system2);
 
-				//Add job for this system pair
-				calibrationSet.systemNodeTable[sysNode1].addCalibrationJob(system1, system2);
-				calibrationSet.systemNodeTable[sysNode2].addCalibrationJob(system1, system2);
-
 				//Streams of different length or not long enough- we cant use this data
 				if (count1 < minCountPerNode || count2 < minCountPerNode) {
 					continue; //cannot calibrate this pair of sensors yet
@@ -339,15 +344,11 @@ namespace fusion {
 		return count;
 	}
 
-	std::pair<int, int> Calibrator::countRelevantMeasurements(
+	void Calibrator::determineCalibrationsRequired(
 		SystemDescriptor system1,
 		SystemDescriptor system2,
 		int minCountPerNode
 	) {
-		//TODO:
-		// - incorporate latency 
-		std::pair<int, int> count = std::make_pair(0, 0);
-
 		//Loop through nodes and build up relevant measurements
 		for (auto& node : calibrationSet.nodes) {
 
@@ -361,23 +362,20 @@ namespace fusion {
 				calibrationSet.systemNodeTable.count(sysNode2) > 0)
 			{
 				//Get maximum length of sensor stream
-				int count1 = calibrationSet.systemNodeTable[sysNode1].totalCount(system1, system2);
-				int count2 = calibrationSet.systemNodeTable[sysNode2].totalCount(system1, system2);
+				int count1 = calibrationSet.systemNodeTable[sysNode1].rawCount();
+				int count2 = calibrationSet.systemNodeTable[sysNode2].rawCount();
 
-				//Add job for this system pair
-				calibrationSet.systemNodeTable[sysNode1].addCalibrationJob(system1,system2);
-				calibrationSet.systemNodeTable[sysNode2].addCalibrationJob(system1, system2);
-				
 				//Streams of different length or not long enough- we cant use this data
 				if (count1 < minCountPerNode || count2 < minCountPerNode) {
 					continue; //cannot calibrate this pair of sensors yet
 				}
 
-				count.first += count1;
-				count.second += count2;
+				//Add job for this system pair
+				calibrationSet.systemNodeTable[sysNode1].addCalibrationJob(system1, system2);
+				calibrationSet.systemNodeTable[sysNode2].addCalibrationJob(system1, system2);
+
 			}
 		}
-		return count;
 	}
 
 	CalibrationResult Calibrator::calibrateStreams(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2, const CalibrationResult& calib)
@@ -445,7 +443,8 @@ namespace fusion {
 		//For each unordered pairing of systems, check if there are common nodes
 		for (std::set<SystemDescriptor>::iterator system1 = calibrationSet.systems.begin(); system1 != calibrationSet.systems.end(); system1++) {
 			for (std::set<SystemDescriptor>::iterator system2 = std::next(system1); system2 != calibrationSet.systems.end(); system2++) {
-
+				
+				determineCalibrationsRequired(*system1, *system2, min_count_per_node);
 				calibrateSystems(*system1, *system2);
 				
 			}

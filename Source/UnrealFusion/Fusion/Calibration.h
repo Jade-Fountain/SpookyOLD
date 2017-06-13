@@ -43,6 +43,8 @@ namespace fusion {
 			void addMeasurement(const Measurement::Ptr& m);
 			//Gets total sensor measurement count for this node and sensor
 			int totalCount(const SystemDescriptor& system1, const SystemDescriptor& system2);
+			//Counts measurements independent of their use
+			int rawCount();
 			//Add job to streams
 			void addCalibrationJob(const SystemDescriptor& system1, const SystemDescriptor& system2);
 
@@ -133,8 +135,8 @@ namespace fusion {
 																				SystemDescriptor system2,
 																				int minCountPerNode);		
 		
-		//Approximates the number of measurements that will be returned by getRelevantMeasurements
-		std::pair<int, int> Calibrator::countRelevantMeasurements(SystemDescriptor system1,
+		//Determines what sensors are available to perform calibrations
+		void Calibrator::determineCalibrationsRequired(SystemDescriptor system1,
 																	SystemDescriptor system2,
 																	int minCountPerNode);
 

@@ -130,7 +130,26 @@ namespace fusion {
 				}
 				return result;
 			}
-			
+
+			std::vector<int> sizes() {
+				std::vector<int> result;
+				//TODO: optimise
+				for (const Counter& c : initial) {
+					result.push_back(size(c));
+				}
+				return result;
+			}
+
+			std::vector<std::string> debug_sizes_str() {
+				std::vector<std::string> result;
+				//TODO: optimise and make work for not strings
+				for (const Counter& c : initial) {
+					result.push_back(c + ":" + std::to_string(size(c)));
+				}
+				return result;
+			}
+
+
 			void eraseFront()
 			{
 				data.erase(data.begin());
