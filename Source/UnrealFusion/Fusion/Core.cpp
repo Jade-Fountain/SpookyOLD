@@ -31,6 +31,13 @@ namespace fusion {
 		skeleton.setPoseNode(node, poseInitial);
 	}
 
+	void Core::addScalePoseNode(const NodeDescriptor & node, const NodeDescriptor & parent, const Transform3D& poseInitial, const Eigen::Vector3f& scaleInitial)
+	{
+		skeleton.addNode(node, parent);
+		skeleton.setScalePoseNode(node, poseInitial, scaleInitial);
+	}
+
+
 	void Core::setReferenceSystem(const SystemDescriptor & system) {
 		skeleton.setReferenceSystem(system);
 	}

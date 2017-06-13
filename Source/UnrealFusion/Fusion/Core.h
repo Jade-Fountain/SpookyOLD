@@ -59,6 +59,7 @@ namespace fusion {
 		//Adds a node to the fusion graph model
 		void addBoneNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Transform3D& boneTransform);
 		void addPoseNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Transform3D& poseInitial);
+		void addScalePoseNode(const NodeDescriptor& node, const NodeDescriptor& parent, const Transform3D& poseInitial, const Eigen::Vector3f& scaleInitial);
 		
 		//Sets the reference system for the fused skeleton
 		//Joint values will be reported relative to this system

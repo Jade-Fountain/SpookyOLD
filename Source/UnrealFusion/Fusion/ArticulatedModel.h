@@ -130,6 +130,7 @@ namespace fusion {
 			//Sets the structure parameters for the specified articulation as a bone according to the boneVec
 			void setBoneForNode(const NodeDescriptor & node, const Transform3D& boneTransform);
 			void setPoseNode(const NodeDescriptor & node, const Transform3D& poseTransform);
+			void setScalePoseNode(const NodeDescriptor & node, const Transform3D& poseTransform, const Eigen::Vector3f& scaleInitial);
 
 
 			////////////////////////////////////////////////////

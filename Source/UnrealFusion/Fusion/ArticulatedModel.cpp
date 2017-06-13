@@ -222,6 +222,17 @@ namespace fusion {
 		nodes[node]->setModel(art);
 		nodes[node]->local_state.expectation = Measurement::getPosQuatFromTransform(poseTransform);
 	}
+	
+	void ArticulatedModel::setScalePoseNode(const NodeDescriptor & node, const Transform3D& poseTransform, const Eigen::Vector3f& scaleInitial) {
+		std::vector<Articulation> art;
+		art.push_back(Articulation::createPose());
+		//Scale in local space x'=T*S*x
+		art.push_back(Articulation::createScale());
+		nodes[node]->setModel(art);
+		nodes[node]->local_state.expectation.col(0) = Measurement::getPosQuatFromTransform(poseTransform);
+		nodes[node]->local_state.expectation.col(1) = scaleInitial;
+	}
+
 
 	void ArticulatedModel::addGenericNode(const NodeDescriptor & node) {
 		if (nodes.count(node) == 0) {
