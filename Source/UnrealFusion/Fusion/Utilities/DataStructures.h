@@ -149,6 +149,19 @@ namespace fusion {
 				return result;
 			}
 
+			std::vector<T> get(const Counter& c) {
+				//Avoid repeated reallocations
+				std::vector<T> result(data.size());
+				int result_size = 0;
+				for (int i = 0; i < data.size(); i++) {
+					if (counters[i].count(c) > 0) {
+						result[result_size++] = data[i];
+					}
+				}
+				result.resize(result_size);
+				return result;
+			}
+
 
 			void eraseFront()
 			{

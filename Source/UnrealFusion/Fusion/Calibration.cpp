@@ -250,8 +250,9 @@ namespace fusion {
 						auto& m2_ = pair2.second;
 
 						//Synchronise the two streams
-						std::vector<Measurement::Ptr> m1 = m1_.data;
-						std::vector<Measurement::Ptr> m2 = m2_.data;
+						std::vector<Measurement::Ptr> m1 = m1_.get(system1.name + system2.name);
+						std::vector<Measurement::Ptr> m2 = m2_.get(system1.name + system2.name);
+
 						//TODO: retarget high noise measurements, not high latency - I no longer know what I meant by this
 						if (m1.size() < m2.size()) {
 							Measurement::synchronise(m2, m1);
@@ -320,8 +321,8 @@ namespace fusion {
 						auto& m2_ = pair2.second;
 
 						//Synchronise the two streams
-						std::vector<Measurement::Ptr> m1 = m1_.data;
-						std::vector<Measurement::Ptr> m2 = m2_.data;
+						std::vector<Measurement::Ptr> m1 = m1_.get(system1.name + system2.name);
+						std::vector<Measurement::Ptr> m2 = m2_.get(system1.name + system2.name);
 
 						if (m1.size() < m2.size()) {
 							Measurement::synchronise(m2, m1);

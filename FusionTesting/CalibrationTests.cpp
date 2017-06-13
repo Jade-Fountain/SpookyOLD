@@ -277,12 +277,16 @@ namespace FusionTesting
 			bool success = stream.raw_size() == 200
 				&& stream.size("A") == 200
 				&& stream.size("B") == 100
-				&& stream.size("C") == 0;
+				&& stream.size("C") == 0
+				&& stream.get("A").size() == 200
+				&& stream.get("B").size() == 100
+				&& stream.get("C").size() == 0;
 				
 
 			std::stringstream ss2;
 			ss2 << "size = \n" << stream.raw_size() << std::endl;
 			ss2 << "sizes = \n" << stream.size("A") << ", " << stream.size("B") << ", " << stream.size("C") << std::endl;
+			ss2 << "get results = \n" << stream.get("A").size() << ", " << stream.get("B").size() << ", " << stream.get("C").size() << std::endl;
 			std::wstring widestr2 = utf8_decode(ss2.str());
 
 			Assert::AreEqual(success, true, widestr2.c_str());
