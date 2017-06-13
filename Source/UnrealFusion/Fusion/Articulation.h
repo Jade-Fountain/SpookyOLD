@@ -26,7 +26,8 @@ namespace fusion{
 			CARTESIAN = 0,
 			TWIST = 1,
 			BONE = 2,
-			POSE = 3
+			POSE = 3,
+			SCALE = 4
 		};
 	private:
 
@@ -51,6 +52,7 @@ namespace fusion{
 		static Articulation createTwist(const Eigen::Vector3f & axis, const Eigen::Vector3f & position);
 		static Articulation createCartesian(const Eigen::Vector3f & axis, const Eigen::Vector3f & position);
 		static Articulation createPose();
+		static Articulation createScale();
 
 		//Returns the initial state vector to operate this articulation
 		static Eigen::VectorXf getInitialState(const Articulation::Type & type);

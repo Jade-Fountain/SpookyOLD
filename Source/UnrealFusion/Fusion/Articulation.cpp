@@ -66,6 +66,12 @@ namespace fusion{
 				T.rotate(q);
 				break;
 			}
+			case(SCALE):
+			{
+				//Theta is a scale vector
+				T.scale(Eigen::Vector3f(theta.head(3)));
+				break;
+			}
         }
 		return T;
     }
@@ -105,6 +111,12 @@ namespace fusion{
 				result.w = Eigen::Vector3f::Zero();
 				break;
 			}
+			case(SCALE):
+			{
+				//Scales have no internal structure
+				result.v = Eigen::Vector3f::Zero();
+				result.w = Eigen::Vector3f::Zero();
+			}
 		}
         return result;
     }
@@ -140,6 +152,14 @@ namespace fusion{
 		return result;
 	}
 
+	Articulation Articulation::createScale() {
+		Articulation result;
+		result.type = SCALE;
+		result.w = Eigen::Vector3f::Identity();
+		result.v = Eigen::Vector3f::Identity();
+		return result;
+	}
+
     Eigen::VectorXf Articulation::getInitialState(const Articulation::Type& type){
         switch (type) {
             case(CARTESIAN):
@@ -166,6 +186,11 @@ namespace fusion{
 				Eigen::VectorXf vec = Eigen::Matrix<float,7,1>::Zero();
 				vec << 0, 0, 0, 0, 0, 0, 1;
 				return vec;
+				break;
+			}
+			case(SCALE):
+			{
+				return Eigen::Vector3f(1,1,1);
 				break;
 			}
         }
