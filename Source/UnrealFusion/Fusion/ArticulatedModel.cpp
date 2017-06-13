@@ -85,6 +85,7 @@ namespace fusion {
 			parent_pose = parent->getGlobalPose();
 		}
 
+		//TODO: support multiple articulations for scale
 		Articulation::Type articulationType = articulations[0].getType();
 		//If pose node or bone node
 		if(articulationType == Articulation::Type::BONE || articulationType == Articulation::Type::POSE){
