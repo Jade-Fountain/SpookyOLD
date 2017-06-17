@@ -92,7 +92,7 @@ namespace fusion {
 
 		//Smallest allowed count for a single node before it can be included in calibration
 		//Hard minimum = 4
-		int min_count_per_node = 4; //>=5
+		int min_count_per_node = 4; //>=4
 
 		//Count Threshold: Calibrate when this many samples acquired
 		std::map<CalibrationResult::State, int> count_threshold = 

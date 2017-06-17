@@ -24,6 +24,7 @@ namespace fusion {
 
 	CalibrationResult Calibrator::updateCalibration(const CalibrationResult& newCalibration, const CalibrationResult& currentCalibration) const{
 		//TODO: make these some logical values
+		//TODO: make this different for each system pair
 		float initial_quality_threshold = 0.5;
 		float quality_convergence_threshold = 0.01;
 		float fault_hysteresis_rate = 0.25;
