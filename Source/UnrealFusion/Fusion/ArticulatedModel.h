@@ -97,7 +97,10 @@ namespace fusion {
 
 		//Cached transforms
 		bool rechacheRequired = true;
+		//TODO: optimise traversal and caching
 		Transform3D cachedPose;
+		Transform3D lastParentCache;
+		Transform3D getCachedPose();
 	};
 
 	class ArticulatedModel{

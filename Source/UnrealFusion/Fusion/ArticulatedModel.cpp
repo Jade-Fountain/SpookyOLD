@@ -27,6 +27,9 @@ namespace fusion {
 	//-------------------------------------------------------------------------------------------------------
 	Node::Node() {
 		homePose = Transform3D::Identity();
+		cachedPose = Transform3D::Identity();
+		lastParentCache = Transform3D::Identity();
+		 
 	}
 
 	Transform3D Node::getFinalGlobalPose(){
@@ -140,15 +143,24 @@ namespace fusion {
 	Transform3D Node::getGlobalPose() {
 		//Check if cached
 		//If we need to recache, concatenate articulations
-		if(rechacheRequired){
+		//TODO: optimise caching
+		bool parentChanged = (parent != NULL) ? !parent->getCachedPose().isApprox(lastParentCache) : false;
+		if(rechacheRequired || parentChanged){
 			//If root node, return identity
 			Transform3D parent_pose = (parent != NULL) ? (parent->getGlobalPose()) : (Transform3D::Identity());
 			//Save cache
 			cachedPose = parent_pose * getLocalPose();
 			rechacheRequired = false;
+			//The latest transform of our parent
+			lastParentCache = parent_pose;
 		}
 		return cachedPose;
 	}
+
+	Transform3D Node::getCachedPose() {
+		return cachedPose;
+	}
+
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//									ArticulatedModel
