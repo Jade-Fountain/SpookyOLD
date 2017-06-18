@@ -338,11 +338,18 @@ namespace fusion{
 
 					Eigen::Vector3f meanError = E.rowwise().mean();
 
+					if (meanError.hasNaN()) {
+						meanError = Eigen::Vector3f::Zero();
+					}
 					//Be careful of sphere error
 					utility::Sphere sphere = fitSphere(E.topLeftCorner(3,E.cols()));
 
 					Eigen::Vector3f centerError = sphere.center;
 
+
+					if (meanError.hasNaN()) {
+						centerError = Eigen::Vector3f::Zero();
+					}
 					//std::stringstream ss;
 					//ss << "errorMat = " << E.transpose() << std::endl;
 					//ss << "average error = " << meanError.transpose() << std::endl;
