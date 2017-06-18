@@ -97,9 +97,9 @@ namespace fusion {
 		//Count Threshold: Calibrate when this many samples acquired
 		std::map<CalibrationResult::State, int> count_threshold = 
 		{	
-			{CalibrationResult::State::UNCALIBRATED,200},
-			{CalibrationResult::State::REFINING,200 },
-			{CalibrationResult::State::CALIBRATED,200}
+			{CalibrationResult::State::UNCALIBRATED,100},
+			{CalibrationResult::State::REFINING,100 },
+			{CalibrationResult::State::CALIBRATED,100}
 		};
 
 		//Table for looking up data relevant to determining transforms
