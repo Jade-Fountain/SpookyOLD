@@ -29,7 +29,7 @@ namespace fusion {
 		float quality_convergence_threshold = 0.01;
 		float fault_hysteresis_rate = 0.25;
 		float relevance_decay_rate = 0.1;
-		float settle_threshold = 0.85;
+		float settle_threshold = 0.90;
 		float fault_angle_threshold = M_PI * 5 / 180;
 		float fault_distance_threshold = 0.1;
 

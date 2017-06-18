@@ -411,3 +411,9 @@ FString UFusionPlant::GetCalibrationStateSummary() {
 	std::string s = plant.getCalibratorStateSummary();
 	return s.c_str();
 }
+//For testing blueprints: TODO delete
+UFUNCTION(BlueprintCallable, Category = "Fusion")
+FString UFusionPlant::GetCalibrationTimingSummary() {
+	std::string s = plant.getTimingSummary();
+	return s.c_str();
+}

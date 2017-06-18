@@ -97,33 +97,30 @@ namespace fusion {
 	void Core::fuse() {
 		//TODO: add ifdefs for profiling
 		//Add new data to calibration, with checking for usefulness
-		// utility::profiler.startTimer("Correlator");
-		// utility::profiler.startTimer("All");
+		utility::profiler.startTimer("Correlator");
+		utility::profiler.startTimer("All");
 		//FUSION_LOG("Fusing: " + std::to_string(measurement_buffer.size()) + "measurements");
 
 		correlator.addMeasurementGroup(measurement_buffer);
 		correlator.identify();
-		// utility::profiler.endTimer("Correlator");
+		utility::profiler.endTimer("Correlator");
 		if(correlator.isStable() || true){
-			// utility::profiler.startTimer("Calibrator add");
+			utility::profiler.startTimer("Calibrator add");
 			calibrator.addMeasurementGroup(measurement_buffer);
-			// utility::profiler.endTimer("Calibrator add");
-			// utility::profiler.startTimer("Calibrate");
+			utility::profiler.endTimer("Calibrator add");
+			utility::profiler.startTimer("Calibrate");
 			calibrator.calibrate();
-			// utility::profiler.endTimer("Calibrate");
+			utility::profiler.endTimer("Calibrate");
 			if(calibrator.isStable() || true){
-				// utility::profiler.startTimer("Fuse");
+				utility::profiler.startTimer("Fuse");
 				skeleton.addMeasurementGroup(measurement_buffer);
 				skeleton.fuse(calibrator);
-				// utility::profiler.endTimer("Fuse");
+				utility::profiler.endTimer("Fuse");
 			}
 		}	
-		// utility::profiler.startTimer("ClearMeasurements");
 		measurement_buffer.clear();
-		// utility::profiler.endTimer("ClearMeasurements");
 		//TODO: do this less often
-		// utility::profiler.endTimer("All");
-		// FUSION_LOG(utility::profiler.getReport());
+		utility::profiler.endTimer("All");
 	}
 
 	CalibrationResult Core::getCalibrationResult(SystemDescriptor s1, SystemDescriptor s2) {
@@ -166,4 +163,7 @@ namespace fusion {
 		return calibrator.getStateSummary();
 	}
 
+	std::string Core::getTimingSummary() {
+		return utility::profiler.getReport();
+	}
 }

@@ -82,7 +82,7 @@ namespace fusion {
 		//----------------
 
 		//Difference threshold: store new measurement if difference to last measurement is larger than this
-		float diff_threshold = 0.3f;
+		float diff_threshold = 0.075f;
 		//TODO: change diff threshold for different calibration stages
 		//{
 		//	{ CalibrationResult::State::UNCALIBRATED, 0.1 },
@@ -97,9 +97,9 @@ namespace fusion {
 		//Count Threshold: Calibrate when this many samples acquired
 		std::map<CalibrationResult::State, int> count_threshold = 
 		{	
-			{CalibrationResult::State::UNCALIBRATED,75},
-			{CalibrationResult::State::REFINING,75},
-			{CalibrationResult::State::CALIBRATED,75}
+			{CalibrationResult::State::UNCALIBRATED,200},
+			{CalibrationResult::State::REFINING,200 },
+			{CalibrationResult::State::CALIBRATED,200}
 		};
 
 		//Table for looking up data relevant to determining transforms

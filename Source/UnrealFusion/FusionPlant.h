@@ -212,5 +212,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	FString GetCalibrationStateSummary();
 
+	//For testing blueprints: TODO delete
+	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	FString GetCalibrationTimingSummary();
 
 };

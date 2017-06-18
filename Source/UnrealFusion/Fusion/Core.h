@@ -108,6 +108,8 @@ namespace fusion {
 
 		//Returns a string summarising the state of calibration in the system
 		std::string getCalibratorStateSummary();
+		//Returns info on compute time
+		std::string getTimingSummary();
 
 	};
 

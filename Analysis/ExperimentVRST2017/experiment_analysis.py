@@ -47,11 +47,13 @@ def plotDataUnified(folderName, N, point_spec, ellipse_color):
 	
 	plot_point_cov(errors,color=ellipse_color)
 	plt.plot(errors[:,0], errors[:,1], point_spec)
-	plt.axis([0,30,0,8])
+	
 	plt.plot(mean[0],mean[1], 'rx')
 
 
 plotData('CustomMovementVive1',10,point_spec = 'g.', ellipse_color='blue')
-plotDataUnified('CustomMovementViveLitMethod1',1, point_spec = 'k.', ellipse_color='grey')
+# plotDataUnified('CustomMovementViveLitMethod1',1, point_spec = 'k.', ellipse_color='grey')
+plotDataUnified('SortingTaskVive1',1, point_spec = 'k.', ellipse_color='grey')
+plt.axis([0,100,0,14])
 plt.show()
 

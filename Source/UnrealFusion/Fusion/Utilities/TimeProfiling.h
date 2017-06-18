@@ -39,7 +39,7 @@ namespace fusion {
 			struct TimeData {
 				TimePoint start;
 				TimePoint end;
-				const static int max_count = 100;
+				const static int max_count = 1000;
 				Eigen::Matrix<float, max_count, 1> durations;
 				int timer_count = 0;
 				int ringbuffer_index = 0;
