@@ -113,6 +113,13 @@ plotDataSeparatedWithTime('Experiment2/Rift/Shooting',1, point_color = 'blue', e
 plt.axis([0,50,0,10])
 plt.title('Rift ')
 
+plt.figure()
+plotDataSeparatedWithTime('Experiment2/Vive/FreeMovement',N=1, point_color = 'red', ellipse_color=(0.9,0.5,0.5))
+plotDataSeparatedWithTime('Experiment2/Vive/Sorting',1, point_color = 'green', ellipse_color=(0.5,0.9,0.5))
+plotDataSeparatedWithTime('Experiment2/Vive/Shooting',1, point_color = 'blue', ellipse_color=(0.5,0.5,0.9))
+plt.axis([0,50,0,10])
+plt.title('Vive ')
+
 plt.show()
 
 # plotDataUnified('CustomMovementViveLitMethod1',1, point_spec = 'k.', ellipse_color='grey')
