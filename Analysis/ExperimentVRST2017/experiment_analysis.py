@@ -114,9 +114,9 @@ plt.axis([0,50,0,10])
 plt.title('Rift ')
 
 plt.figure()
-plotDataSeparatedWithTime('Experiment2/Vive/FreeMovement',N=1, point_color = 'red', ellipse_color=(0.9,0.5,0.5))
-plotDataSeparatedWithTime('Experiment2/Vive/Sorting',1, point_color = 'green', ellipse_color=(0.5,0.9,0.5))
-plotDataSeparatedWithTime('Experiment2/Vive/Shooting',1, point_color = 'blue', ellipse_color=(0.5,0.5,0.9))
+plotDataSeparatedWithTime('Experiment3/Vive/FreeMovement',N=1, point_color = 'red', ellipse_color=(0.9,0.5,0.5))
+plotDataSeparatedWithTime('Experiment3/Vive/Sorting',1, point_color = 'green', ellipse_color=(0.5,0.9,0.5))
+plotDataSeparatedWithTime('Experiment3/Vive/Shooting',1, point_color = 'blue', ellipse_color=(0.5,0.5,0.9))
 plt.axis([0,50,0,10])
 plt.title('Vive ')
 
