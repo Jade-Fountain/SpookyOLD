@@ -157,24 +157,22 @@ namespace fusion {
 		return result;
 	}
 
-	std::map<NodeDescriptor, bool> Calibrator::checkChanges(const std::vector<Measurement::Ptr>& measurements) {
+	std::vector<Measurement::Ptr> Calibrator::filterChanges(const std::vector<Measurement::Ptr>& measurements) {
 		//TODO: need to check that measurements aren't missing to:
 		//	-Store sensors for each node. or sensors for each node. 
 
-
-		//Check change for each measurement
-		std::map<NodeDescriptor,bool> results;
+		std::vector<Measurement::Ptr> results;
 		for (auto& mes : measurements) {
 			NodeDescriptor node = mes->getNode();
 			float diff = calibrationSet.compareMeasurement(mes, mes->getSystem(), node);
 
 			//Result is true if all sensors on the given node exceed the threshold
-			results[node] = utility::safeAccess(results, node, true) && (diff > diff_threshold);
+			bool changed = (diff > diff_threshold);
+			if (changed) {
+				results.push_back(mes);
+			}
 		}
-		//bool final_result = false;
-		//for(auto& r : results){
-		//	final_result = final_result || r.second;
-		//}
+
 		//If any nodes move then change has occured
 		return results;
 	}
@@ -413,30 +411,18 @@ namespace fusion {
 	}
 
 	void Calibrator::addMeasurementGroup(const std::vector<Measurement::Ptr>& measurementQueue) {
-		//utility::profiler.startTimer("Calibration: 1");
+		
+		//Decide if data is new and useful
+		std::vector<Measurement::Ptr> measurements = filterChanges(measurementQueue);
+		
 		//Check there is data corresponding to more than one system for a given node, otherwise useless
 		//TODO: optimise this filterLonelyData - currently takes way too long
-		auto measurements = filterLonelyData(measurementQueue);
-		//utility::profiler.endTimer("Calibration: 1");
-
-		//Decide if data is useful
-		//(if at least one stream has changed relative to previous measurements)
-		//utility::profiler.startTimer("Calibration: 2");
-		std::map<NodeDescriptor, bool> dataNovel = checkChanges(measurements);
-		//utility::profiler.endTimer("Calibration: 2");
+		measurements = filterLonelyData(measurements);
 
 		//Store the (refs to) the relevant measurements
-		//FUSION_LOG("Adding calibration measurments!! " + std::to_string(measurements.size()));
-		//utility::profiler.startTimer("Calibration: 3");
 		for (auto& m : measurements) {
-			if (dataNovel[m->getNode()]) {
-				addMeasurement(m);
-			}
+			addMeasurement(m);
 		}
-		//utility::profiler.startTimer("Calibration: 3");
-
-		//FUSION_LOG(utility::profiler.getReport());
-
 	}
 
 	void Calibrator::calibrate()

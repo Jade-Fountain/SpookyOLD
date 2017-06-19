@@ -116,7 +116,7 @@ namespace fusion {
 		std::vector<Measurement::Ptr> filterLonelyData(const std::vector<Measurement::Ptr>& measurementQueue);
 
 		//Returns true if sufficient movement has occurred to warrant recording of data
-		std::map<NodeDescriptor, bool> checkChanges(const std::vector<Measurement::Ptr>& measurements);
+		std::vector<Measurement::Ptr> filterChanges(const std::vector<Measurement::Ptr>& measurements);
 
 		//Calibrate two systems with respect to one another
 		void calibrateSystems(SystemDescriptor system1, SystemDescriptor system2);
