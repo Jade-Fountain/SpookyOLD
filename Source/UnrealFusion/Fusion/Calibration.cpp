@@ -193,10 +193,11 @@ namespace fusion {
 		//Calibrate
 		if (count.first > thres && count.second > thres) {
 			//TODO:latency estimation
-
+			utility::profiler.startTimer("Calibrator Calibrate Systems " + system1.name + ", " + system2.name);
 			CalibrationResult latestResult = getResultsFor(system1, system2);
 			getRelevantMeasurements(system1, system2, &measurements1, &measurements2, min_count_per_node, true);
 			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2, latestResult);
+			utility::profiler.endTimer("Calibrator Calibrate Systems " + system1.name + ", " + system2.name);
 
 			//Debug
 			//std::stringstream ss;
