@@ -23,15 +23,6 @@
 namespace fusion {
 
 	CalibrationResult Calibrator::updateCalibration(const CalibrationResult& newCalibration, const CalibrationResult& currentCalibration) const{
-		//TODO: make these some logical values
-		//TODO: make this different for each system pair
-		float initial_quality_threshold = 0.5;
-		float quality_convergence_threshold = 0.01;
-		float fault_hysteresis_rate = 0.25;
-		float relevance_decay_rate = 0.1;
-		float settle_threshold = 0.90;
-		float fault_angle_threshold = M_PI * 5 / 180;
-		float fault_distance_threshold = 0.1;
 
 		//Compute transform, error, quality, relevance and weight
 		CalibrationResult result = newCalibration;
@@ -40,13 +31,13 @@ namespace fusion {
 			{
 				FUSION_LOG("CalibrationResult::State::UNCALIBRATED");
 				//DEBUG:: Straight to calibrated
-				if(result.quality > initial_quality_threshold){
+				if(result.quality > config.initial_quality_threshold){
 					result.state = CalibrationResult::State::REFINING;
-					FUSION_LOG("Calibration passed required threshold: " + std::to_string(initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
+					FUSION_LOG("Calibration passed required threshold: " + std::to_string(config.initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
 				}
 				else {
 					result.reset();
-					FUSION_LOG("Calibration DID NOT PASS required threshold: " + std::to_string(initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
+					FUSION_LOG("Calibration DID NOT PASS required threshold: " + std::to_string(config.initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
 				}	
 				break;
 			}
@@ -57,12 +48,12 @@ namespace fusion {
 				result.updateResult(currentCalibration);
 				//refinement calibration
 				float new_quality = result.quality;
-				if (new_quality - currentCalibration.quality > quality_convergence_threshold) {
+				if (new_quality - currentCalibration.quality > config.quality_convergence_threshold) {
 					//If large gains are being made keep going
 					FUSION_LOG("REFINING: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
 					result.state = CalibrationResult::State::REFINING;
 				}
-				else if (new_quality > settle_threshold) {
+				else if (new_quality > config.settle_threshold) {
 					//If change is a small improvement, we are done
 					FUSION_LOG("REFINEMENT FINISHED!!! new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
 					result.state = CalibrationResult::State::CALIBRATED;
@@ -82,8 +73,8 @@ namespace fusion {
 				//TODO: fix fault detection for new model
 				//Track new transform and see how much it moves compared to accepted result
 				Transform3D transform_error = result.transform.inverse() * currentCalibration.transform;
-				Transform3D decayed_relevance = utility::slerpTransform3D(currentCalibration.relevance, Transform3D::Identity(), relevance_decay_rate);
-				Transform3D filtered_relevance =  utility::slerpTransform3D(decayed_relevance, transform_error, fault_hysteresis_rate);
+				Transform3D decayed_relevance = utility::slerpTransform3D(currentCalibration.relevance, Transform3D::Identity(), config.relevance_decay_rate);
+				Transform3D filtered_relevance =  utility::slerpTransform3D(decayed_relevance, transform_error, config.fault_hysteresis_rate);
 				auto relevance_norm = utility::transformNorm(filtered_relevance);
 
 				//Debug
@@ -93,7 +84,7 @@ namespace fusion {
 				FUSION_LOG(relss.str());
 				FUSION_LOG(" Already calibrated - watching for faults (" + currentCalibration.systems.first.name + ", " + currentCalibration.systems.second.name + ") - filtered relevance error = "
 					+ std::to_string(relevance_norm.angle) + ", " + std::to_string(relevance_norm.distance) +
-					" vs. threshold = " + std::to_string(fault_angle_threshold) + ", " + std::to_string(fault_distance_threshold) + 
+					" vs. threshold = " + std::to_string(config.fault_angle_threshold) + ", " + std::to_string(config.fault_distance_threshold) + 
 					" result.weight = " + std::to_string(result.weight));
 
 				//Regardless, dont change calibration
@@ -101,10 +92,10 @@ namespace fusion {
 				result.relevance = filtered_relevance;
 				//Relevance represents the latest error from original transform, filtered with exponential filter
 				//If our quality varies from the expected too much, we need to recalibrate
-				if (relevance_norm.angle > fault_angle_threshold ||
-					relevance_norm.distance > fault_distance_threshold) {
+				if (relevance_norm.angle > config.fault_angle_threshold ||
+					relevance_norm.distance > config.fault_distance_threshold) {
 					//Always start again if faulted
-					//if (result.quality < initial_quality_threshold) {
+					//if (result.quality < config.initial_quality_threshold) {
 						//Start again
 						FUSION_LOG("Starting over: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
 						result.reset();

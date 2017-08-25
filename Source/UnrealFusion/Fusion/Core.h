@@ -53,15 +53,16 @@ namespace fusion {
 	public:
 
 		struct SpookyConfig{
-
-			struct General{
-
-			} general;
-
+			//Units config
+			struct {
+				float input_m = 1;
+				float output_m = 1;
+			} units;
+			//Correlator config
 			Correlator::Config correlator;
+			//Calibrator config
 			Calibrator::Config calibrator;
-			ArticulatedModel::Config Skeleton;
-		};
+		} config;
 
 
 		////////////////////////////////////////////////////

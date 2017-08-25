@@ -167,7 +167,7 @@ namespace fusion {
 			float diff = calibrationSet.compareMeasurement(mes, mes->getSystem(), node);
 
 			//Result is true if all sensors on the given node exceed the threshold
-			bool changed = (diff > diff_threshold);
+			bool changed = (diff > config.diff_threshold);
 			if (changed) {
 				results.push_back(mes);
 			}
@@ -186,16 +186,16 @@ namespace fusion {
 		std::vector<Measurement::Ptr> measurements1;
 		std::vector<Measurement::Ptr> measurements2;
 
-		int thres = count_threshold[getResultsFor(system1, system2).state];
+		int thres = config.count_threshold[getResultsFor(system1, system2).state];
 
-		std::pair<int,int> count = countRelevantSynchronisedMeasurements(system1, system2, min_count_per_node);
+		std::pair<int,int> count = countRelevantSynchronisedMeasurements(system1, system2, config.min_count_per_node);
 
 		//Calibrate
 		if (count.first > thres && count.second > thres) {
 			//TODO:latency estimation
 			utility::profiler.startTimer("Calibrator Calibrate Systems " + system1.name + ", " + system2.name);
 			CalibrationResult latestResult = getResultsFor(system1, system2);
-			getRelevantMeasurements(system1, system2, &measurements1, &measurements2, min_count_per_node, true);
+			getRelevantMeasurements(system1, system2, &measurements1, &measurements2, config.min_count_per_node, true);
 			calibrationResults[sysPair] = calibrateStreams(measurements1, measurements2, latestResult);
 			utility::profiler.endTimer("Calibrator Calibrate Systems " + system1.name + ", " + system2.name);
 
@@ -432,7 +432,7 @@ namespace fusion {
 		for (std::set<SystemDescriptor>::iterator system1 = calibrationSet.systems.begin(); system1 != calibrationSet.systems.end(); system1++) {
 			for (std::set<SystemDescriptor>::iterator system2 = std::next(system1); system2 != calibrationSet.systems.end(); system2++) {
 				
-				determineCalibrationsRequired(*system1, *system2, min_count_per_node);
+				determineCalibrationsRequired(*system1, *system2, config.min_count_per_node);
 				calibrateSystems(*system1, *system2);
 				
 			}

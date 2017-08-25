@@ -54,14 +54,6 @@ class UNREALFUSION_API UFusionPlant : public UActorComponent
 	std::vector<UPoseableMeshComponent*> skeletons;
 	std::vector<Eigen::Matrix<float, 7, 1>> skeletonCovariances;
 
-	//Configuration
-	struct {
-		struct {
-			float input_m = 1;
-			float output_m = 1;
-		} units;
-	} config;
-
 protected:
 	//Fusion result
 	UPROPERTY(BlueprintReadOnly)

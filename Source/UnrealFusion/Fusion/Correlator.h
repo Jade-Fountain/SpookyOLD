@@ -80,6 +80,11 @@ namespace fusion {
 		//Data structure for organising and filtering measurements
 		Data data;
 
+
+	public:
+		//---------------------------------------------------------------------------------
+		//FUNCTION INTERFACE
+		//---------------------------------------------------------------------------------
 		//Config
 		struct Config{
 			int ambiguous_threshold = 10;
@@ -87,13 +92,8 @@ namespace fusion {
 			float diff_threshold = 0.1;
 		} config;
 
-
-	public:
-		//---------------------------------------------------------------------------------
-		//FUNCTION INTERFACE
-		//---------------------------------------------------------------------------------
-		//Config
-		void configure(const SpookyConfig::Correlator& config);
+		//Set config method
+		void configure(const Config& cfg){config=cfg;}
 		
 		//Add data for later calibration
 		void addMeasurement(const Measurement::Ptr& m);
