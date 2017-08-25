@@ -52,6 +52,18 @@ namespace fusion {
 		
 	public:
 
+		struct SpookyConfig{
+
+			struct General{
+
+			} general;
+
+			Correlator::Config correlator;
+			Calibrator::Config calibrator;
+			ArticulatedModel::Config Skeleton;
+		};
+
+
 		////////////////////////////////////////////////////
 		//					Initialisation
 		////////////////////////////////////////////////////
