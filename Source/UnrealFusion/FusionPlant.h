@@ -78,7 +78,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void Configure(float input_units_m = 1, float output_units_m = 1);
 
-
 	//Add complete skeleton to list of fusion objects
 	UFUNCTION(BlueprintCallable, Category = "Fusion")
 	void AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var);

@@ -58,6 +58,26 @@ UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::Configure(f
 {
 	plant.config.units.input_m = input_units_m;
 	plant.config.units.output_m = output_units_m;
+
+	plant.config.correlator.ambiguous_threshold = correlator_ambiguous_threshold;
+	plant.config.correlator.elimination_threshold = correlator_elimination_threshold;
+	plant.config.correlator.diff_threshold = correlator_diff_threshold;
+
+	plant.config.calibrator.diff_threshold = calibration_diff_threshold;
+	plant.config.calibrator.min_count_per_node = calibration_min_count_per_node;
+	plant.config.calibrator.count_threshold = 
+		{	
+			{fusion::CalibrationResult::State::UNCALIBRATED,100},
+			{fusion::CalibrationResult::State::REFINING,100 },
+			{fusion::CalibrationResult::State::CALIBRATED,100}
+		};
+	plant.config.calibrator.initial_quality_threshold = calibration_initial_quality_threshold;
+	plant.config.calibrator.quality_convergence_threshold = calibration_quality_convergence_threshold;
+	plant.config.calibrator.fault_hysteresis_rate = calibration_fault_hysteresis_rate;
+	plant.config.calibrator.relevance_decay_rate = calibration_relevance_decay_rate;
+	plant.config.calibrator.settle_threshold = calibration_settle_threshold;
+	plant.config.calibrator.fault_angle_threshold = calibration_fault_angle_threshold;
+	plant.config.calibrator.fault_distance_threshold = calibration_fault_distance_threshold;
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var)
