@@ -58,7 +58,7 @@ UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::Configure(f
 {
 	plant.config.units.input_m = input_units_m;
 	plant.config.units.output_m = output_units_m;
-
+	/*
 	plant.config.correlator.ambiguous_threshold = correlator_ambiguous_threshold;
 	plant.config.correlator.elimination_threshold = correlator_elimination_threshold;
 	plant.config.correlator.diff_threshold = correlator_diff_threshold;
@@ -77,7 +77,7 @@ UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::Configure(f
 	plant.config.calibrator.relevance_decay_rate = calibration_relevance_decay_rate;
 	plant.config.calibrator.settle_threshold = calibration_settle_threshold;
 	plant.config.calibrator.fault_angle_threshold = calibration_fault_angle_threshold;
-	plant.config.calibrator.fault_distance_threshold = calibration_fault_distance_threshold;
+	plant.config.calibrator.fault_distance_threshold = calibration_fault_distance_threshold;*/
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var)
