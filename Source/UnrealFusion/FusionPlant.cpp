@@ -56,8 +56,28 @@ void UFusionPlant::TickComponent( float DeltaTime, ELevelTick TickType, FActorCo
 
 UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::Configure(float input_units_m, float output_units_m)
 {
-	config.units.input_m = input_units_m;
-	config.units.output_m = output_units_m;
+	plant.config.units.input_m = input_units_m;
+	plant.config.units.output_m = output_units_m;
+	/*
+	plant.config.correlator.ambiguous_threshold = correlator_ambiguous_threshold;
+	plant.config.correlator.elimination_threshold = correlator_elimination_threshold;
+	plant.config.correlator.diff_threshold = correlator_diff_threshold;
+
+	plant.config.calibrator.diff_threshold = calibration_diff_threshold;
+	plant.config.calibrator.min_count_per_node = calibration_min_count_per_node;
+	plant.config.calibrator.count_threshold = 
+		{	
+			{fusion::CalibrationResult::State::UNCALIBRATED,100},
+			{fusion::CalibrationResult::State::REFINING,100 },
+			{fusion::CalibrationResult::State::CALIBRATED,100}
+		};
+	plant.config.calibrator.initial_quality_threshold = calibration_initial_quality_threshold;
+	plant.config.calibrator.quality_convergence_threshold = calibration_quality_convergence_threshold;
+	plant.config.calibrator.fault_hysteresis_rate = calibration_fault_hysteresis_rate;
+	plant.config.calibrator.relevance_decay_rate = calibration_relevance_decay_rate;
+	plant.config.calibrator.settle_threshold = calibration_settle_threshold;
+	plant.config.calibrator.fault_angle_threshold = calibration_fault_angle_threshold;
+	plant.config.calibrator.fault_distance_threshold = calibration_fault_distance_threshold;*/
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var)
@@ -84,7 +104,7 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 		FMeshBoneInfo& bone = boneInfo[i];
 		//TODO: make more efficient
 		FTransform b = FTransform(fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i));
-		b.SetTranslation(b.GetTranslation() * config.units.input_m);
+		b.SetTranslation(b.GetTranslation() * plant.config.units.input_m);
 		fusion::Transform3D bonePoseLocal = convert(b.ToMatrixNoScale());
 		fusion::NodeDescriptor parent_desc = (bone.ParentIndex >= 0) ?
 			fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[bone.ParentIndex].Name.GetPlainNameString()))) :
@@ -186,7 +206,7 @@ void UFusionPlant::UpdateSkeletonOutput() {
 
 		fusion::Transform3D T = plant.getNodeLocalPose(bone_name);
 		fusedSkeleton->BoneSpaceTransforms[i] = FTransform(convert(T));
-		fusedSkeleton->BoneSpaceTransforms[i].SetTranslation(fusedSkeleton->BoneSpaceTransforms[i].GetTranslation() / config.units.output_m);
+		fusedSkeleton->BoneSpaceTransforms[i].SetTranslation(fusedSkeleton->BoneSpaceTransforms[i].GetTranslation() / plant.config.units.output_m);
 		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
 		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
 
@@ -202,7 +222,7 @@ FCalibrationResult UFusionPlant::getCalibrationResult(FString s1, FString s2)
 {
 	fusion::CalibrationResult T = plant.getCalibrationResult(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)),fusion::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
 	Eigen::Quaternionf q(T.transform.matrix().block<3,3>(0,0));
-	Eigen::Vector3f v(T.transform.matrix().block<3, 1>(0, 3) / config.units.output_m);
+	Eigen::Vector3f v(T.transform.matrix().block<3, 1>(0, 3) / plant.config.units.output_m);
 	FQuat fq(q.x(), q.y(), q.z(), q.w());
 	
 	FCalibrationResult result;
@@ -225,7 +245,7 @@ FTransform UFusionPlant::getNodeGlobalPose(FString node)
 {
 	fusion::Transform3D result = plant.getNodeGlobalPose(fusion::NodeDescriptor(TCHAR_TO_UTF8(*node)));
 	FMatrix unrealMatrix = convert(result);
-	unrealMatrix.ScaleTranslation(FVector(1,1,1) * 1 / config.units.output_m);
+	unrealMatrix.ScaleTranslation(FVector(1,1,1) * 1 / plant.config.units.output_m);
 	//UE_LOG(LogTemp, Warning, TEXT("getNodePose : %s"), *(unrealMatrix.ToString()));
 	return FTransform(unrealMatrix);
 }
@@ -304,7 +324,7 @@ Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, in
 {
 	//Create basic measurement
 	Eigen::Vector3f meas(position[0],position[1],position[2]);
-	meas = meas * config.units.input_m;
+	meas = meas * plant.config.units.input_m;
 
 	Eigen::Matrix<float, 3, 3> un = Eigen::Matrix<float,3,3>::Identity();
 	un.diagonal() = Eigen::Vector3f(uncertainty[0], uncertainty[1], uncertainty[2]);
@@ -335,7 +355,7 @@ Measurement::Ptr UFusionPlant::CreateScaleMeasurement(FString system_name, int s
 {
 	//Create basic measurement
 	Eigen::Vector3f meas(&scale[0]);
-	meas = meas * config.units.input_m;
+	meas = meas * plant.config.units.input_m;
 	Eigen::Matrix<float, 3, 3> un = Eigen::Matrix<float, 3, 3>::Identity();
 	un.diagonal() = Eigen::Vector3f(&uncertainty[0]);
 	Measurement::Ptr result = Measurement::createScaleMeasurement(meas, un);
@@ -350,7 +370,7 @@ Measurement::Ptr UFusionPlant::CreatePoseMeasurement(FString system_name, int se
 {
 	//Convert transform to state vector (v,q)
 	Eigen::Vector3f ev(&v[0]);
-	ev = ev * config.units.input_m;
+	ev = ev * plant.config.units.input_m;
 	//BEWARE: dumb format mismatch:
 	Eigen::Quaternionf eq(q.W,q.X,q.Y,q.Z);
 	//Create basic measurement

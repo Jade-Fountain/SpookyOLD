@@ -123,7 +123,7 @@ namespace fusion {
 
 			//bool dataSuff = dataSufficient(sensor);
 			//WHY DOESNT THE ABOVE FUNCTION RUN??
-			bool dataSuff = utility::safeAccess(data.ambiguous_measurements.sensors, sensor).size() > ambiguous_threshold;
+			bool dataSuff = utility::safeAccess(data.ambiguous_measurements.sensors, sensor).size() > config.ambiguous_threshold;
 			if(!dataSuff) continue;
 
 			//get sensor node info
@@ -150,7 +150,7 @@ namespace fusion {
 			sensor->meanScore = (n_scores > 1) ? (totalScore / n_scores) : (sensor->meanScore);
 			//TODO: this means no reset state
 			for (auto& node : possible_nodes) {
-				if (score[node] / sensor->meanScore < elimination_threshold) {
+				if (score[node] / sensor->meanScore < config.elimination_threshold) {
 					sensor->eliminateNode(node);
 				}
 			}
@@ -195,7 +195,7 @@ namespace fusion {
 	bool Correlator::dataSufficient(const Sensor::Ptr& sensor)
 	{
 		//THIS IS NOT RUNNING - WHY?!?!
-		return data.ambiguousCount(sensor) > ambiguous_threshold;
+		return data.ambiguousCount(sensor) > config.ambiguous_threshold;
 	}
 
 
@@ -235,7 +235,7 @@ namespace fusion {
 			//TODO:Perform next check over each node individually
 			//If any of the measurements are new then return true
 
-			result = result || (diff > diff_threshold);
+			result = result || (diff > config.diff_threshold);
 		}
 		return result;
 	}

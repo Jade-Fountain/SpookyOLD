@@ -81,26 +81,6 @@ namespace fusion {
 		//PRIVATE MEMBERS
 		//----------------
 
-		//Difference threshold: store new measurement if difference to last measurement is larger than this
-		float diff_threshold = 0.075f;
-		//TODO: change diff threshold for different calibration stages
-		//{
-		//	{ CalibrationResult::State::UNCALIBRATED, 0.1 },
-		//	{ CalibrationResult::State::REFINING, 0.5 },
-		//	{ CalibrationResult::State::CALIBRATED, 0.5 }
-		//};
-
-		//Smallest allowed count for a single node before it can be included in calibration
-		//Hard minimum = 4
-		int min_count_per_node = 4; //>=4
-
-		//Count Threshold: Calibrate when this many samples acquired
-		std::map<CalibrationResult::State, int> count_threshold = 
-		{	
-			{CalibrationResult::State::UNCALIBRATED,100},
-			{CalibrationResult::State::REFINING,100 },
-			{CalibrationResult::State::CALIBRATED,100}
-		};
 
 		//Table for looking up data relevant to determining transforms
 		CalibrationDataSet calibrationSet;
@@ -167,6 +147,45 @@ namespace fusion {
 		float estimateLatency(const std::vector<Measurement::Ptr>& m1, const std::vector<Measurement::Ptr>& m2);
 
 	public:
+		//Config		
+		struct Config{
+			//Difference threshold: store new measurement if difference to last measurement is larger than this
+			float diff_threshold = 0.075f;
+			//TODO: change diff threshold for different calibration stages
+			//{
+			//	{ CalibrationResult::State::UNCALIBRATED, 0.1 },
+			//	{ CalibrationResult::State::REFINING, 0.5 },
+			//	{ CalibrationResult::State::CALIBRATED, 0.5 }
+			//};
+
+			//Smallest allowed count for a single node before it can be included in calibration
+			//Hard minimum = 4
+			int min_count_per_node = 4; //>=4
+
+			//Count Threshold: Calibrate when this many samples acquired
+			std::map<CalibrationResult::State, int> count_threshold = 
+			{	
+				{CalibrationResult::State::UNCALIBRATED,100},
+				{CalibrationResult::State::REFINING,100 },
+				{CalibrationResult::State::CALIBRATED,100}
+			};			
+
+			//CalibrationProcedures parameters
+			// CalibrationResult Calibrator::updateCalibration(const CalibrationResult& newCalibration, const CalibrationResult& currentCalibration) const{
+			//TODO: make these some logical values
+			//TODO: make this different for each system pair
+			float initial_quality_threshold = 0.5;
+			float quality_convergence_threshold = 0.01;
+			float fault_hysteresis_rate = 0.25;
+			float relevance_decay_rate = 0.1;
+			float settle_threshold = 0.90;
+			float fault_angle_threshold = M_PI * 5 / 180;
+			float fault_distance_threshold = 0.1;
+		} config;
+
+		//Set config method
+		void configure(const Config& cfg){config=cfg;}
+
 		//Add data for later calibration
 		void addMeasurement(const Measurement::Ptr& m);
 		void addMeasurementGroup(const std::vector<Measurement::Ptr>& measurementQueue);

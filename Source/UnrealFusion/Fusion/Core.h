@@ -52,6 +52,19 @@ namespace fusion {
 		
 	public:
 
+		struct SpookyConfig{
+			//Units config
+			struct {
+				float input_m = 1;
+				float output_m = 1;
+			} units;
+			//Correlator config
+			Correlator::Config correlator;
+			//Calibrator config
+			Calibrator::Config calibrator;
+		} config;
+
+
 		////////////////////////////////////////////////////
 		//					Initialisation
 		////////////////////////////////////////////////////

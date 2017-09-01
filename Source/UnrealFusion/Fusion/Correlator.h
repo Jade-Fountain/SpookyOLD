@@ -80,19 +80,21 @@ namespace fusion {
 		//Data structure for organising and filtering measurements
 		Data data;
 
-		//Config
-		int ambiguous_threshold = 10;
-		float elimination_threshold = 1;
-
-		float diff_threshold = 0.1;
-
-
 
 	public:
 		//---------------------------------------------------------------------------------
 		//FUNCTION INTERFACE
 		//---------------------------------------------------------------------------------
-		//TODO: refactor into parent class for calibrator and correlator
+		//Config
+		struct Config{
+			int ambiguous_threshold = 10;
+			float elimination_threshold = 1;
+			float diff_threshold = 0.1;
+		} config;
+
+		//Set config method
+		void configure(const Config& cfg){config=cfg;}
+		
 		//Add data for later calibration
 		void addMeasurement(const Measurement::Ptr& m);
 		void addMeasurementGroup(const std::vector<Measurement::Ptr>& measurementQueue);

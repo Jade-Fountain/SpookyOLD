@@ -17,3 +17,5 @@ FusionTesting/x64
 *.xcodeproj
 *.xcworkspace
 Content/StarterContent/
+Plugins/
+Content/PerceptionNeuronOfficial/

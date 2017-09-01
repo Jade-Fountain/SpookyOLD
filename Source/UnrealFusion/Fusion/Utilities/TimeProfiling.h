@@ -64,7 +64,7 @@ namespace fusion {
 			};
 
 			std::map<std::string, TimeData> timers;
-
+			
 		public:
 			void startTimer(std::string s) {
 				safeAccess(timers,s).start = Clock::now();
