@@ -1,5 +1,6 @@
 // Created by Chance_07 2014
 #include "UnrealFusion.h"
+#include "Runtime/Engine/Classes/Animation/AnimInstance.h"
 #include "AnimNode_TranslateWith.h"
 
 FAnimNode_TranslateWith::FAnimNode_TranslateWith()
@@ -63,7 +64,7 @@ void FAnimNode_TranslateWith::EvaluateComponentSpace(FComponentSpacePoseContext&
 	{
 		USkeletalMeshComponent* Component = Output.AnimInstance->GetSkelMeshComponent();
 		TArray<FBoneTransform> BoneTransforms;
-		EvaluateBoneTransforms(Component, Output.AnimInstance->RequiredBones, Output.Pose, BoneTransforms);
+		//EvaluateBoneTransforms(Component, Output.AnimInstance->RequiredBones, Output.Pose, BoneTransforms);
 
 		checkSlow(!ContainsNaN(BoneTransforms));
 
@@ -127,7 +128,7 @@ void FAnimNode_TranslateWith::EvaluateBoneTransforms(USkeletalMeshComponent* Ske
 	TargetBoneTM.SetTranslation(ModTargetLocationInCompSpace);
 
 	// Returns to caller with new location
-	OutBoneTransforms.Add(FBoneTransform(TargetBone.BoneIndex, TargetBoneTM));
+	//OutBoneTransforms.Add(FBoneTransform(TargetBone.BoneIndex, TargetBoneTM));
 }
 
 // Makes sure that both bones are valid
