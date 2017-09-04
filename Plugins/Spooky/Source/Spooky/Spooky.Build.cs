@@ -10,7 +10,7 @@ public class Spooky : ModuleRules
 		PublicIncludePaths.AddRange(
 			new string[] {
 				"Spooky/Public",
-                "Spooky/Spooky"
+               // "Spooky/Spooky"
 				// ... add public include paths required here ...
 			}
 			);
@@ -19,7 +19,7 @@ public class Spooky : ModuleRules
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				"Spooky/Private",
-				"Spooky/Spooky",
+				//"Spooky/Spooky",
 				// ... add other private include paths required here ...
 			}
 			);

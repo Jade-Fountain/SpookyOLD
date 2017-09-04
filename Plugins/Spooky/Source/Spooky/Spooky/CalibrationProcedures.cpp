@@ -16,9 +16,9 @@
 #include "Spooky.h"
 #include "Calibration.h"
 #include "FusionTypes.h"
-#include "Fusion/Utilities/CalibrationUtilities.h"
+#include "Utilities/CalibrationUtilities.h"
 #include "Logging.h"
-#include "Fusion/Utilities/Conventions.h"
+#include "Utilities/Conventions.h"
 
 namespace fusion {
 

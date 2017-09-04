@@ -16,8 +16,8 @@
 #include "Spooky.h"
 #include "Calibration.h"
 #include "Logging.h"
-#include "Fusion/Utilities/Conventions.h"
-#include "Fusion/Utilities/TimeProfiling.h"
+#include "Utilities/Conventions.h"
+#include "Utilities/TimeProfiling.h"
 #include <math.h>
 
 namespace fusion {

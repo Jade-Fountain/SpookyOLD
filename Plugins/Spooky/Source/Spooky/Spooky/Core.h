@@ -22,7 +22,7 @@
 #include "Calibration.h"
 #include "Correlator.h"
 #include "ArticulatedModel.h"
-#include "Fusion/Utilities/DataStructures.h"
+#include "Utilities/DataStructures.h"
 #include "Utilities/TimeProfiling.h"
 #include "SaveManager.h"
 namespace fusion {

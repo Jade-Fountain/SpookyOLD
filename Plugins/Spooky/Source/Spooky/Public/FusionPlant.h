@@ -15,11 +15,13 @@
 */
 #pragma once
 
+#include "Spooky.h"
+
 #include "Components/ActorComponent.h"
 #include "Components/PoseableMeshComponent.h"
 
-#include "Fusion/Core.h"
-#include "Fusion/FusionTypes.h"
+#include "Spooky/Core.h"
+#include "Spooky/FusionTypes.h"
 
 #include <iostream>
 #include <vector>
@@ -43,7 +45,7 @@ struct FCalibrationResult {
 
 //Unreal engine interface layer linking to generic code from the fusion module
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class UNREALFUSION_API UFusionPlant : public UActorComponent
+class UFusionPlant : public UActorComponent
 {
 	GENERATED_BODY()
 

@@ -13,11 +13,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-//#include "UnrealFusion.h"
+#pragma once
+
+#include "Spooky.h"
 #include <EngineGlobals.h>
 #include <Runtime/Engine/Classes/Engine/Engine.h>
 #include <string>
-#pragma once
 
 //Unreal Engine specific log method. Would need replacement for use in other systems
 inline void FUSION_LOG(std::string s){
