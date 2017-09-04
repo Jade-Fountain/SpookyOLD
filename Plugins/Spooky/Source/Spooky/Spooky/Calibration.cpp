@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "UnrealFusion.h"
+#include "Spooky.h"
 #include "Calibration.h"
 #include "Logging.h"
 #include "Fusion/Utilities/Conventions.h"
