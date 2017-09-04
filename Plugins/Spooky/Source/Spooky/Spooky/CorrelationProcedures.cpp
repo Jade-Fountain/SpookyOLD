@@ -3,7 +3,7 @@
 #include "Correlator.h"
 #include "Utilities/CorrelationUtilities.h"
 
-namespace fusion {
+namespace spooky {
 
 	float Correlator::getCorrelationScore(const std::vector<Measurement::Ptr>& measurements1, const std::vector<Measurement::Ptr>& measurements2)
 	{

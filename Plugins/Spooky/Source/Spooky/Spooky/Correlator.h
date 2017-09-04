@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Eigen/Core"
 #include "FusionTypes.h"
 #include "Utilities/DataStructures.h"
-namespace fusion {
+namespace spooky {
 
 
 	//Centre of a fusion plant

@@ -25,7 +25,7 @@
 #include "Utilities/DataStructures.h"
 #include "Utilities/TimeProfiling.h"
 #include "SaveManager.h"
-namespace fusion {
+namespace spooky {
 
 
 	//Centre of a fusion plant

@@ -15,19 +15,19 @@
 */
 
 #include "Spooky.h"
-#include "FusionPlant.h"
+#include "SpookyFusionPlant.h"
 #include "Spooky/Utilities/TimeProfiling.h"
 #include <iostream>
 
 
-using fusion::Measurement;
+using spooky::Measurement;
 //===========================
 //Setup and initialisation
 //===========================
 
 
 // Sets default values for this component's properties
-UFusionPlant::UFusionPlant()
+USpookyFusionPlant::USpookyFusionPlant()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -37,7 +37,7 @@ UFusionPlant::UFusionPlant()
 
 
 // Called when the game starts
-void UFusionPlant::BeginPlay()
+void USpookyFusionPlant::BeginPlay()
 {
 	Super::BeginPlay();
 	// ...
@@ -46,7 +46,7 @@ void UFusionPlant::BeginPlay()
 
 
 // Called every frame
-void UFusionPlant::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+void USpookyFusionPlant::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 	if (fusedSkeleton != NULL) {
@@ -55,7 +55,7 @@ void UFusionPlant::TickComponent( float DeltaTime, ELevelTick TickType, FActorCo
 }
 
 
-UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::Configure(float input_units_m, float output_units_m)
+UFUNCTION(BlueprintCallable, Category = "Fusion") void USpookyFusionPlant::Configure(float input_units_m, float output_units_m)
 {
 	plant.config.units.input_m = input_units_m;
 	plant.config.units.output_m = output_units_m;
@@ -68,9 +68,9 @@ UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::Configure(f
 	plant.config.calibrator.min_count_per_node = calibration_min_count_per_node;
 	plant.config.calibrator.count_threshold = 
 		{	
-			{fusion::CalibrationResult::State::UNCALIBRATED,100},
-			{fusion::CalibrationResult::State::REFINING,100 },
-			{fusion::CalibrationResult::State::CALIBRATED,100}
+			{spooky::CalibrationResult::State::UNCALIBRATED,100},
+			{spooky::CalibrationResult::State::REFINING,100 },
+			{spooky::CalibrationResult::State::CALIBRATED,100}
 		};
 	plant.config.calibrator.initial_quality_threshold = calibration_initial_quality_threshold;
 	plant.config.calibrator.quality_convergence_threshold = calibration_quality_convergence_threshold;
@@ -81,7 +81,7 @@ UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::Configure(f
 	plant.config.calibrator.fault_distance_threshold = calibration_fault_distance_threshold;*/
 }
 
-UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var)
+UFUNCTION(BlueprintCallable, Category = "Fusion") void USpookyFusionPlant::AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var)
 {
 	//Add skeleton reference
 	skeletons.push_back(poseable_mesh);
@@ -97,7 +97,7 @@ UFUNCTION(BlueprintCallable, Category = "Fusion") void UFusionPlant::AddSkeleton
 
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
+void USpookyFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 {
 	fusedSkeleton = poseable_mesh;
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
@@ -106,11 +106,11 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 		//TODO: make more efficient
 		FTransform b = FTransform(fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i));
 		b.SetTranslation(b.GetTranslation() * plant.config.units.input_m);
-		fusion::Transform3D bonePoseLocal = convert(b.ToMatrixNoScale());
-		fusion::NodeDescriptor parent_desc = (bone.ParentIndex >= 0) ?
-			fusion::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[bone.ParentIndex].Name.GetPlainNameString()))) :
-			fusion::NodeDescriptor();
-		fusion::NodeDescriptor bone_desc = fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
+		spooky::Transform3D bonePoseLocal = convert(b.ToMatrixNoScale());
+		spooky::NodeDescriptor parent_desc = (bone.ParentIndex >= 0) ?
+			spooky::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[bone.ParentIndex].Name.GetPlainNameString()))) :
+			spooky::NodeDescriptor();
+		spooky::NodeDescriptor bone_desc = spooky::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
 		//TODO: find better way to do this check for pose nodes
 		if (bone.Name.GetPlainNameString() == "pelvis") {
 			plant.addPoseNode(bone_desc, parent_desc, bonePoseLocal);
@@ -124,14 +124,14 @@ void UFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::FinaliseSetup() {
+void USpookyFusionPlant::FinaliseSetup() {
 	plant.finaliseSetup();
 }
 
 //Set the reference frame for the skeleton
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::SetReferenceFrame(FString system_name) {
-	plant.setReferenceSystem(fusion::SystemDescriptor(TCHAR_TO_UTF8(*system_name)));
+void USpookyFusionPlant::SetReferenceFrame(FString system_name) {
+	plant.setReferenceSystem(spooky::SystemDescriptor(TCHAR_TO_UTF8(*system_name)));
 }
 
 //===========================
@@ -140,7 +140,7 @@ void UFusionPlant::SetReferenceFrame(FString system_name) {
 
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::AddPositionMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, bool globalSpace, float confidence)
+void USpookyFusionPlant::AddPositionMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, bool globalSpace, float confidence)
 {
 	Measurement::Ptr m = CreatePositionMeasurement(systemName, sensorID, timestamp_sec, measurement, covariance, confidence);
 	m->globalSpace = globalSpace;
@@ -148,7 +148,7 @@ void UFusionPlant::AddPositionMeasurement(TArray<FString> nodeNames, FString sys
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FRotator measurement, FVector4 covariance, bool globalSpace, float confidence)
+void USpookyFusionPlant::AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FRotator measurement, FVector4 covariance, bool globalSpace, float confidence)
 {
 	Measurement::Ptr m = CreateRotationMeasurement(systemName,sensorID,timestamp_sec, measurement.Quaternion(),covariance,confidence);
 	m->globalSpace = globalSpace;
@@ -156,7 +156,7 @@ void UFusionPlant::AddRotationMeasurement(TArray<FString> nodeNames, FString sys
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::AddPoseMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FTransform measurement, FVector position_var, FVector4 quaternion_var, bool globalSpace, float confidence)
+void USpookyFusionPlant::AddPoseMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FTransform measurement, FVector position_var, FVector4 quaternion_var, bool globalSpace, float confidence)
 {
 	Eigen::Vector3f vv(&position_var[0]);
 	Eigen::Vector4f vq(&quaternion_var[0]);
@@ -168,13 +168,13 @@ void UFusionPlant::AddPoseMeasurement(TArray<FString> nodeNames, FString systemN
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::addSkeletonMeasurement(int skel_index, float timestamp_sec) {
+void USpookyFusionPlant::addSkeletonMeasurement(int skel_index, float timestamp_sec) {
 	//For each bone
 	auto& skeleton = skeletons[skel_index];
 	TArray<FMeshBoneInfo> boneInfo = skeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
 	for (int i = 0; i < boneInfo.Num(); i++) {
 		FMeshBoneInfo& bone = boneInfo[i];
-		fusion::NodeDescriptor bone_name = fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
+		spooky::NodeDescriptor bone_name = spooky::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
 		FTransform measurement = skeleton->BoneSpaceTransforms[i];
 		//TODO: support confidences
 		//TODO: doesnt seem like the best way to do this!
@@ -185,27 +185,27 @@ void UFusionPlant::addSkeletonMeasurement(int skel_index, float timestamp_sec) {
 	}
 }
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::Fuse(float timestamp_sec)
+void USpookyFusionPlant::Fuse(float timestamp_sec)
 {
-	fusion::utility::profiler.startTimer("AAA FUSION TIME");
+	spooky::utility::profiler.startTimer("AAA FUSION TIME");
 	for (int i = 0; i < skeletons.size(); i++) {
 		addSkeletonMeasurement(i, timestamp_sec);
 	}
 	plant.fuse();
-	fusion::utility::profiler.endTimer("AAA FUSION TIME");
-	//FUSION_LOG(fusion::utility::profiler.getReport());
+	spooky::utility::profiler.endTimer("AAA FUSION TIME");
+	//FUSION_LOG(spooky::utility::profiler.getReport());
 }
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::UpdateSkeletonOutput() {
+void USpookyFusionPlant::UpdateSkeletonOutput() {
 	//For each bone
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
 	//FUSION_LOG("\n\n\n\n Skeleton Poses = \n\n\n\n");
 	for (int i = 0; i < boneInfo.Num(); i++) {
 		FMeshBoneInfo& bone = boneInfo[i];
-		fusion::NodeDescriptor bone_name = fusion::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
+		spooky::NodeDescriptor bone_name = spooky::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
 
-		fusion::Transform3D T = plant.getNodeLocalPose(bone_name);
+		spooky::Transform3D T = plant.getNodeLocalPose(bone_name);
 		fusedSkeleton->BoneSpaceTransforms[i] = FTransform(convert(T));
 		fusedSkeleton->BoneSpaceTransforms[i].SetTranslation(fusedSkeleton->BoneSpaceTransforms[i].GetTranslation() / plant.config.units.output_m);
 		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
@@ -219,9 +219,9 @@ void UFusionPlant::UpdateSkeletonOutput() {
 //Data retrieval functions
 //===========================
 
-FCalibrationResult UFusionPlant::getCalibrationResult(FString s1, FString s2)
+FCalibrationResult USpookyFusionPlant::getCalibrationResult(FString s1, FString s2)
 {
-	fusion::CalibrationResult T = plant.getCalibrationResult(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)),fusion::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
+	spooky::CalibrationResult T = plant.getCalibrationResult(spooky::SystemDescriptor(TCHAR_TO_UTF8(*s1)),spooky::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
 	Eigen::Quaternionf q(T.transform.matrix().block<3,3>(0,0));
 	Eigen::Vector3f v(T.transform.matrix().block<3, 1>(0, 3) / plant.config.units.output_m);
 	FQuat fq(q.x(), q.y(), q.z(), q.w());
@@ -237,14 +237,14 @@ FCalibrationResult UFusionPlant::getCalibrationResult(FString s1, FString s2)
 	return result;
 }
 
-FString UFusionPlant::getCorrelationResult(FString s1, int sensorID)
+FString USpookyFusionPlant::getCorrelationResult(FString s1, int sensorID)
 {
-	return plant.getCorrelationResult(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)),sensorID).name.c_str();
+	return plant.getCorrelationResult(spooky::SystemDescriptor(TCHAR_TO_UTF8(*s1)),sensorID).name.c_str();
 }
 
-FTransform UFusionPlant::getNodeGlobalPose(FString node)
+FTransform USpookyFusionPlant::getNodeGlobalPose(FString node)
 {
-	fusion::Transform3D result = plant.getNodeGlobalPose(fusion::NodeDescriptor(TCHAR_TO_UTF8(*node)));
+	spooky::Transform3D result = plant.getNodeGlobalPose(spooky::NodeDescriptor(TCHAR_TO_UTF8(*node)));
 	FMatrix unrealMatrix = convert(result);
 	unrealMatrix.ScaleTranslation(FVector(1,1,1) * 1 / plant.config.units.output_m);
 	//UE_LOG(LogTemp, Warning, TEXT("getNodePose : %s"), *(unrealMatrix.ToString()));
@@ -256,20 +256,20 @@ FTransform UFusionPlant::getNodeGlobalPose(FString node)
 
 //Sets save/load location	
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::setSaveDirectory(FString dir) {
+void USpookyFusionPlant::setSaveDirectory(FString dir) {
 	plant.setSaveDirectory(TCHAR_TO_UTF8(*dir));
 }
 
 //Saves the calibration result mapping T:s1->s2
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::saveCalibrationResult(FString s1, FString s2){
-	plant.saveCalibration(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)),fusion::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
+void USpookyFusionPlant::saveCalibrationResult(FString s1, FString s2){
+	plant.saveCalibration(spooky::SystemDescriptor(TCHAR_TO_UTF8(*s1)),spooky::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
 }
 
 //Loads the calibration result mapping T:s1->s2
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-void UFusionPlant::loadCalibrationResult(FString s1, FString s2){
-	plant.loadCalibration(fusion::SystemDescriptor(TCHAR_TO_UTF8(*s1)), fusion::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
+void USpookyFusionPlant::loadCalibrationResult(FString s1, FString s2){
+	plant.loadCalibration(spooky::SystemDescriptor(TCHAR_TO_UTF8(*s1)), spooky::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
 }
 
 //===========================
@@ -278,14 +278,14 @@ void UFusionPlant::loadCalibrationResult(FString s1, FString s2){
 
 //Compute axis angle representation (x,y,z,alpha)
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-FVector4 UFusionPlant::getRotatorAxisAngle(FRotator R) {
+FVector4 USpookyFusionPlant::getRotatorAxisAngle(FRotator R) {
 	float angle;
 	FVector axis;
 	R.Quaternion().ToAxisAndAngle(axis,angle);
 	return FVector4(axis[0], axis[1], axis[2], angle * 180 / M_PI);
 }
 
-void UFusionPlant::CopyPose(UPoseableMeshComponent* target, const UPoseableMeshComponent* input)
+void USpookyFusionPlant::CopyPose(UPoseableMeshComponent* target, const UPoseableMeshComponent* input)
 {
 	if (target->RequiredBones.IsValid())
 	{
@@ -321,7 +321,7 @@ void UFusionPlant::CopyPose(UPoseableMeshComponent* target, const UPoseableMeshC
 	}
 }
 //TODO: optimise with const ref
-Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence)
+Measurement::Ptr USpookyFusionPlant::CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence)
 {
 	//Create basic measurement
 	Eigen::Vector3f meas(position[0],position[1],position[2]);
@@ -337,7 +337,7 @@ Measurement::Ptr UFusionPlant::CreatePositionMeasurement(FString system_name, in
 	return std::move(result);
 }
 
-Measurement::Ptr UFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector4 uncertainty, float confidence)
+Measurement::Ptr USpookyFusionPlant::CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector4 uncertainty, float confidence)
 {
 	//Create basic measurement
 	//BEWARE: dumb format mismatch:
@@ -352,7 +352,7 @@ Measurement::Ptr UFusionPlant::CreateRotationMeasurement(FString system_name, in
 	return std::move(result);
 }
 
-Measurement::Ptr UFusionPlant::CreateScaleMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector scale, FVector uncertainty, float confidence)
+Measurement::Ptr USpookyFusionPlant::CreateScaleMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector scale, FVector uncertainty, float confidence)
 {
 	//Create basic measurement
 	Eigen::Vector3f meas(&scale[0]);
@@ -367,7 +367,7 @@ Measurement::Ptr UFusionPlant::CreateScaleMeasurement(FString system_name, int s
 	return std::move(result);
 }
 
-Measurement::Ptr UFusionPlant::CreatePoseMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector v, FQuat q, Eigen::Matrix<float, 7, 1> uncertainty, float confidence)
+Measurement::Ptr USpookyFusionPlant::CreatePoseMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector v, FQuat q, Eigen::Matrix<float, 7, 1> uncertainty, float confidence)
 {
 	//Convert transform to state vector (v,q)
 	Eigen::Vector3f ev(&v[0]);
@@ -385,31 +385,31 @@ Measurement::Ptr UFusionPlant::CreatePoseMeasurement(FString system_name, int se
 	return std::move(result);
 }
 
-void UFusionPlant::SetCommonMeasurementData(Measurement::Ptr& m, FString system_name, int sensorID, float timestamp_sec, float confidence){
+void USpookyFusionPlant::SetCommonMeasurementData(Measurement::Ptr& m, FString system_name, int sensorID, float timestamp_sec, float confidence){
 	//Add metadata
-	plant.setMeasurementSensorInfo(m, fusion::SystemDescriptor(TCHAR_TO_UTF8(*system_name)), fusion::SensorID(sensorID));
+	plant.setMeasurementSensorInfo(m, spooky::SystemDescriptor(TCHAR_TO_UTF8(*system_name)), spooky::SensorID(sensorID));
 	bool measurementConsistent = m->setMetaData(timestamp_sec, confidence);
 	if (!measurementConsistent) {
 		std::cout << "WARNING - Measurement not created correctly - " << __LINE__ << std::endl;
 	}
 }
 
-std::vector<fusion::NodeDescriptor> UFusionPlant::convertToNodeDescriptors(const TArray<FString>& names){
-	std::vector<fusion::NodeDescriptor> result;
+std::vector<spooky::NodeDescriptor> USpookyFusionPlant::convertToNodeDescriptors(const TArray<FString>& names){
+	std::vector<spooky::NodeDescriptor> result;
 	for(auto& name : names){
-		result.push_back(fusion::NodeDescriptor(TCHAR_TO_UTF8(*name)));
+		result.push_back(spooky::NodeDescriptor(TCHAR_TO_UTF8(*name)));
 	}
 	return result;
 }
 
-FMatrix UFusionPlant::convert(const fusion::Transform3D& T) {
+FMatrix USpookyFusionPlant::convert(const spooky::Transform3D& T) {
 	FMatrix unrealMatrix;
 	memcpy(&(unrealMatrix.M[0][0]), T.data(), sizeof(float) * 16);
 	return unrealMatrix;
 }
 
-fusion::Transform3D UFusionPlant::convert(const FMatrix& T) {
-	fusion::Transform3D matrix;
+spooky::Transform3D USpookyFusionPlant::convert(const FMatrix& T) {
+	spooky::Transform3D matrix;
 	memcpy(matrix.data(), &(T.M[0][0]), sizeof(float) * 16);
 	return matrix;
 }
@@ -420,7 +420,7 @@ fusion::Transform3D UFusionPlant::convert(const FMatrix& T) {
 
 
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-FVector4 UFusionPlant::GetTestPosition() {
+FVector4 USpookyFusionPlant::GetTestPosition() {
 	FVector4 v = fusedSkeleton->GetBoneTransformByName("hand_l",EBoneSpaces::WorldSpace).GetLocation();
 	//UE_LOG(LogTemp, Warning, TEXT("Left hand Pose = %s"), *v.ToString());
 	return v;
@@ -428,13 +428,13 @@ FVector4 UFusionPlant::GetTestPosition() {
 
 //For testing blueprints: TODO delete
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-FString UFusionPlant::GetCalibrationStateSummary() {
+FString USpookyFusionPlant::GetCalibrationStateSummary() {
 	std::string s = plant.getCalibratorStateSummary();
 	return s.c_str();
 }
 //For testing blueprints: TODO delete
 UFUNCTION(BlueprintCallable, Category = "Fusion")
-FString UFusionPlant::GetCalibrationTimingSummary() {
+FString USpookyFusionPlant::GetCalibrationTimingSummary() {
 	std::string s = plant.getTimingSummary();
 	return s.c_str();
 }

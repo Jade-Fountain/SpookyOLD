@@ -28,7 +28,7 @@
 #include <string>
 
 //Must be last include
-#include "FusionPlant.generated.h"
+#include "SpookyFusionPlant.generated.h"
 
 //Unreal engine specific struct containing the results of a calibration between two 3D sensor systems
 USTRUCT()
@@ -45,12 +45,12 @@ struct FCalibrationResult {
 
 //Unreal engine interface layer linking to generic code from the fusion module
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class UFusionPlant : public UActorComponent
+class USpookyFusionPlant : public UActorComponent
 {
 	GENERATED_BODY()
 
 	//Fusionplant
-	fusion::Core plant;
+	spooky::Core plant;
 
 	//Input Skeletons
 	std::vector<UPoseableMeshComponent*> skeletons;
@@ -64,7 +64,7 @@ protected:
 public:	
 
 	// Sets default values for this component's properties
-	UFusionPlant();
+	USpookyFusionPlant();
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -179,20 +179,20 @@ public:
 	void CopyPose(UPoseableMeshComponent* target, const UPoseableMeshComponent* input);
 
 	//Methods for creating measurements which can then be sent to the fusion plant
-	fusion::Measurement::Ptr CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence = 1);
-	fusion::Measurement::Ptr CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector4 uncertainty, float confidence = 1);
-	fusion::Measurement::Ptr CreateScaleMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector scale, FVector uncertainty, float confidence = 1);
-	fusion::Measurement::Ptr CreatePoseMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector v, FQuat q, Eigen::Matrix<float,7,1> uncertainty, float confidence = 1);
+	spooky::Measurement::Ptr CreatePositionMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector position, FVector uncertainty, float confidence = 1);
+	spooky::Measurement::Ptr CreateRotationMeasurement(FString system_name, int sensorID, float timestamp_sec, FQuat rotation, FVector4 uncertainty, float confidence = 1);
+	spooky::Measurement::Ptr CreateScaleMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector scale, FVector uncertainty, float confidence = 1);
+	spooky::Measurement::Ptr CreatePoseMeasurement(FString system_name, int sensorID, float timestamp_sec, FVector v, FQuat q, Eigen::Matrix<float,7,1> uncertainty, float confidence = 1);
 	
 	//Sets data common to all types of measurements
-	void SetCommonMeasurementData(fusion::Measurement::Ptr& m, FString system_name, int sensorID, float timestamp_sec, float confidence);
+	void SetCommonMeasurementData(spooky::Measurement::Ptr& m, FString system_name, int sensorID, float timestamp_sec, float confidence);
 
 	//Convert names to nodeDescriptors
-	std::vector<fusion::NodeDescriptor> convertToNodeDescriptors(const TArray<FString>& names);
+	std::vector<spooky::NodeDescriptor> convertToNodeDescriptors(const TArray<FString>& names);
 
 	//Convert Transform3D to FMatrix
-	FMatrix convert(const fusion::Transform3D& T);
-	fusion::Transform3D convert(const FMatrix& T);
+	FMatrix convert(const spooky::Transform3D& T);
+	spooky::Transform3D convert(const FMatrix& T);
 //===========================
 //DEBUG
 //===========================

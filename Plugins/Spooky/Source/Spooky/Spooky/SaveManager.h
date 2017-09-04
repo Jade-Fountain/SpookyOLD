@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FusionTypes.h"
 #include <fstream>
 
-namespace fusion {
+namespace spooky {
 	
 	/*	Savemanager is responsible for loading and saving data from/to files. In particular, calibration results
 	*/

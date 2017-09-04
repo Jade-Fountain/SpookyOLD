@@ -24,7 +24,7 @@
 #include "Utilities/DataStructures.h"
 #include "Utilities/CalibrationUtilities.h"
 
-namespace fusion {
+namespace spooky {
 
 	//Encapsulation for storing measurements	
 	class CalibrationDataSet {

@@ -26,7 +26,7 @@
 #pragma once
 
 
-namespace fusion {
+namespace spooky {
 
 	//For convenience and abstraction, typedef some basic structs
 

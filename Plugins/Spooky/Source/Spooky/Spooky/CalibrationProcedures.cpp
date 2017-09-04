@@ -20,7 +20,7 @@
 #include "Logging.h"
 #include "Utilities/Conventions.h"
 
-namespace fusion {
+namespace spooky {
 
 	CalibrationResult Calibrator::updateCalibration(const CalibrationResult& newCalibration, const CalibrationResult& currentCalibration) const{
 

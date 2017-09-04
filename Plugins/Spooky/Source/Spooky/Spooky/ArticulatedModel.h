@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Calibration.h"
 #include "Utilities/DataStructures.h"
 
-namespace fusion {
+namespace spooky {
 
 	class Node{
 	public:

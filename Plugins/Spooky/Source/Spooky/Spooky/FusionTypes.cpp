@@ -20,7 +20,7 @@
 //#define NDEBUG
 #include <cassert>
 
-namespace fusion {
+namespace spooky {
 
 
 	//Define config constants

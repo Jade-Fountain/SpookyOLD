@@ -17,7 +17,7 @@
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
-namespace fusion {
+namespace spooky {
 	namespace utility {
 		//Defines transforms between data of different types
 		namespace convention{

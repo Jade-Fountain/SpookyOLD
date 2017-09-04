@@ -27,7 +27,7 @@
 
 #define M_PI 3.141592654
 
-namespace fusion{
+namespace spooky{
 	namespace utility{
 
 

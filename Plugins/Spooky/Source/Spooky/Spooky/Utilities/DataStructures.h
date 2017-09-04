@@ -23,7 +23,7 @@
 #include <iterator>
 
 
-namespace fusion {
+namespace spooky {
 	namespace utility {
 		template <class X, class Y>
 		class SafeMap {

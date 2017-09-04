@@ -17,7 +17,7 @@
 #include "FusionTypes.h"
 #include "Eigen/Core"
 
-namespace fusion{
+namespace spooky{
 
 	class Articulation{
 	public:

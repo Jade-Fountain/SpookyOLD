@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-namespace fusion {
+namespace spooky {
 	namespace utility {
 
 		using TimePoint = std::chrono::time_point<std::chrono::steady_clock>;

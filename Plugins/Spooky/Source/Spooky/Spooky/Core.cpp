@@ -17,7 +17,7 @@
 #include "Core.h"
 #include <chrono>
 
-namespace fusion {
+namespace spooky {
 
 	void Core::addBoneNode(const NodeDescriptor & node, const NodeDescriptor & parent, const Transform3D& boneTransform)
 	{

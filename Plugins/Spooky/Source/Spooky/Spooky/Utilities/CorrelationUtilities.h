@@ -22,7 +22,7 @@
 #include "Logging.h"
 
 #pragma once
-namespace fusion{
+namespace spooky{
 	namespace utility{
 		namespace correlation {
 			float error_scale = 0.1;
