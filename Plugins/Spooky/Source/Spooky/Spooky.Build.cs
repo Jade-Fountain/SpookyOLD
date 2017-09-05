@@ -29,6 +29,7 @@ public class Spooky : ModuleRules
 			new string[]
 			{
 				"Core",
+                "AnimGraph"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -41,6 +42,7 @@ public class Spooky : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+                "AnimGraph",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
