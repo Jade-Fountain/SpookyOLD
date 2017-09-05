@@ -24,7 +24,7 @@ UAnimGraphNode_GetSpookyResult::UAnimGraphNode_GetSpookyResult(class FObjectInit
 }
 // Begin UEdGraphNode interface.
 FLinearColor UAnimGraphNode_GetSpookyResult::GetNodeTitleColor() const {
-	return FLinearColor(1,1,1,1);
+	return FLinearColor(0,0,0,1);
 }
 FText UAnimGraphNode_GetSpookyResult::GetTooltipText() const {
  	return NSLOCTEXT("Spooky","AnimGraphNodeGetSpookyResult_Tooltip","Returns the result of spooky skeleton fusion.");

@@ -16,6 +16,8 @@
 #pragma once
 
 #include "Animation/AnimNodeBase.h"
+
+#include "SpookyFusionPlant.h"
 #include "AnimNode_GetSpookyResult.generated.h"
 
 USTRUCT()
@@ -25,8 +27,8 @@ struct FAnimNode_GetSpookyResult : public FAnimNode_Base
 	GENERATED_USTRUCT_BODY()
 
 	/** Input link(Base Pose) **/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Links)
-	FComponentSpacePoseLink ComponentPose;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Parameters)
+	USpookyFusionPlant* SpookyFusionPlant;
 
 public:
 	FAnimNode_GetSpookyResult();

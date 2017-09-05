@@ -14,6 +14,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Spooky.h"
+#include "Logging.h"
 #include "AnimNode_GetSpookyResult.h"
 
 	FAnimNode_GetSpookyResult::FAnimNode_GetSpookyResult(){
@@ -27,7 +28,8 @@
 
 	}
 	void FAnimNode_GetSpookyResult::Update(const FAnimationUpdateContext& Context) {
-
+		FUSION_LOG("Updating Spooky Result");
+		FUSION_LOG((SpookyFusionPlant!=NULL ? "Valid" : "INVALID"));
 	}
 	void FAnimNode_GetSpookyResult::Evaluate(FPoseContext& Output) {
 
