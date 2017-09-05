@@ -43,6 +43,18 @@ public class Spooky : ModuleRules
 				"Slate",
 				"SlateCore",
                 "AnimGraph",
+                "Core",
+                "UnrealEd",         // for FAssetEditorManager
+				"AssetTools",       // class FAssetTypeActions_Base
+                "Slate",
+                "SlateCore",
+                "PropertyEditor",
+                "EditorStyle",
+                "DesktopWidgets",
+                "DesktopPlatform",
+                "Projects",
+                "InputCore",
+                "BlueprintGraph"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

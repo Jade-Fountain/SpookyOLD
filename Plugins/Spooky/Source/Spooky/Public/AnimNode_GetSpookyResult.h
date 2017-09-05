@@ -24,6 +24,10 @@ struct FAnimNode_GetSpookyResult : public FAnimNode_Base
 	
 	GENERATED_USTRUCT_BODY()
 
+	/** Input link(Base Pose) **/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Links)
+	FComponentSpacePoseLink ComponentPose;
+
 public:
 	FAnimNode_GetSpookyResult();
 
@@ -35,15 +39,15 @@ public:
 	virtual void GatherDebugData(FNodeDebugData& DebugData) override;
 	// End of FAnimNode_Base interface
 
-#if WITH_EDITOR
-	bool InitBoneMap();
-	void SetTargetSkeleton(const USkeleton* Skeleton);
-	void ValueSet_Name(int32 ChangeAtIndex);
-	void ValueSet_ID(int32 ChangeAtIndex);
-	void Add_BoneMap(int32 AddAtIndex);
-	void Del_BoneMap();
-	void Revert_BoneMap();
-#endif
+// #if WITH_EDITOR
+// 	bool InitBoneMap();
+// 	void SetTargetSkeleton(const USkeleton* Skeleton);
+// 	void ValueSet_Name(int32 ChangeAtIndex);
+// 	void ValueSet_ID(int32 ChangeAtIndex);
+// 	void Add_BoneMap(int32 AddAtIndex);
+// 	void Del_BoneMap();
+// 	void Revert_BoneMap();
+// #endif
 
 
 };

@@ -19,7 +19,9 @@
 
 #include "AnimGraphNode_GetSpookyResult.h"
 
+UAnimGraphNode_GetSpookyResult::UAnimGraphNode_GetSpookyResult(class FObjectInitializer const &) {
 
+}
 // Begin UEdGraphNode interface.
 FLinearColor UAnimGraphNode_GetSpookyResult::GetNodeTitleColor() const {
 	return FLinearColor(1,1,1,1);
