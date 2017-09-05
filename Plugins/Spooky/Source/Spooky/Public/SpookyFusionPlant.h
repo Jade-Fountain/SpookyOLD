@@ -1,4 +1,4 @@
-/*  This file is part of UnrealFusion, a sensor fusion plugin for VR in the Unreal Engine
+/*  This file is part of SpookyUnreal, a sensor fusion plugin for VR in the Unreal Engine
     Copyright (C) 2017 Jake Fountain
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,12 +35,12 @@ USTRUCT()
 struct FCalibrationResult {
 	GENERATED_BODY()
 		
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FTransform transform;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") bool calibrated = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") bool refining = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") float quality = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FString system1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fusion") FString system2;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spooky") FTransform transform;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spooky") bool calibrated = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spooky") bool refining = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spooky") float quality = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spooky") FString system1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spooky") FString system2;
 };
 
 //Unreal engine interface layer linking to generic code from the fusion module
@@ -77,23 +77,23 @@ public:
 //===========================
 
 	//Add complete skeleton to list of fusion objects
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void Configure(float input_units_m = 1, float output_units_m = 1);
 
 	//Add complete skeleton to list of fusion objects
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var);
 
 	//Set the output target which will have the complete fused skeleton pose applied
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void SetOutputTarget(UPoseableMeshComponent* poseable_mesh);
 	
 	//Perform some setup postprocessing
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void FinaliseSetup();
 
 	//Set the reference frame for the skeleton
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void SetReferenceFrame(FString system_name);
 
 
@@ -101,53 +101,53 @@ public:
 //TODO: Contruction of sensor nodes
 
 	////Add a new sensor node model
-	//UFUNCTION(BlueprintCallable, Category = "Fusion")
+	//UFUNCTION(BlueprintCallable, Category = "Spooky")
 	//void AddSensorNode(FString nodeName, FTransform initialState, FTransform initialCovariance);
 
 	////Add a new sensor node model
-	//UFUNCTION(BlueprintCallable, Category = "Fusion")
+	//UFUNCTION(BlueprintCallable, Category = "Spooky")
 	//void SetHomeCoordinateSpace(FString systemName);
 
 //===========================
 //Update functions
 //===========================
 	//Add vec3 measurement
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void AddPositionMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, bool globalSpace = true, float confidence = 1);
 	
 	//Add rotation quaternion method
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FRotator measurement, FVector4 covariance, bool globalSpace = true, float confidence = 1);
 
 	//Add transform measurement in local space
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void AddPoseMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FTransform measurement, FVector position_var, FVector4 quaternion_var, bool globalSpace = true, float confidence = 1);
 
 	//Adds measurements for whole skeleton
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void addSkeletonMeasurement(int skel_index, float timestamp_sec);
 
 	//Align, calibrate and fuse all added data
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void Fuse(float timestamp_sec);
 	
 	//Copies the results of fusion to the target skeleton
 	// Default output units is centimeters as that is what Unreal Engine uses
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void UpdateSkeletonOutput();
 //===========================
 //Data retrieval functions
 //===========================
 	//Gets the calibration result mapping T:s1->s2
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	FCalibrationResult getCalibrationResult(FString s1, FString s2);
 	
 	//Gets the name of the node which the specified sensor is attached to
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	FString getCorrelationResult(FString s1, int sensorID);
 
 	//Gets the result of fusion for node 
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	FTransform getNodeGlobalPose(FString node);
 
 //===========================
@@ -155,15 +155,15 @@ public:
 //===========================
 
 	//Sets save/load location	
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void setSaveDirectory(FString dir);
 
 	//Saves the calibration result mapping T:s1->s2
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void saveCalibrationResult(FString s1, FString s2);
 	
 	//Loads the calibration result mapping T:s1->s2
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void loadCalibrationResult(FString s1, FString s2);
 	
 //===========================
@@ -171,7 +171,7 @@ public:
 //===========================
 
 	//Compute axis angle representation (x,y,z,alpha)
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	FVector4 getRotatorAxisAngle(FRotator R);
 
 
@@ -198,15 +198,15 @@ public:
 //===========================
 
 	//For testing blueprints: TODO delete
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	FVector4 GetTestPosition();
 
 	//For testing blueprints: TODO delete
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	FString GetCalibrationStateSummary();
 
 	//For testing blueprints: TODO delete
-	UFUNCTION(BlueprintCallable, Category = "Fusion")
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	FString GetCalibrationTimingSummary();
 
 };

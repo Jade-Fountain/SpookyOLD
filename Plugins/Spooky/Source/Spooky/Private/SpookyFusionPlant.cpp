@@ -55,7 +55,7 @@ void USpookyFusionPlant::TickComponent( float DeltaTime, ELevelTick TickType, FA
 }
 
 
-UFUNCTION(BlueprintCallable, Category = "Fusion") void USpookyFusionPlant::Configure(float input_units_m, float output_units_m)
+UFUNCTION(BlueprintCallable, Category = "Spooky") void USpookyFusionPlant::Configure(float input_units_m, float output_units_m)
 {
 	plant.config.units.input_m = input_units_m;
 	plant.config.units.output_m = output_units_m;
@@ -81,7 +81,7 @@ UFUNCTION(BlueprintCallable, Category = "Fusion") void USpookyFusionPlant::Confi
 	plant.config.calibrator.fault_distance_threshold = calibration_fault_distance_threshold;*/
 }
 
-UFUNCTION(BlueprintCallable, Category = "Fusion") void USpookyFusionPlant::AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var)
+UFUNCTION(BlueprintCallable, Category = "Spooky") void USpookyFusionPlant::AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var)
 {
 	//Add skeleton reference
 	skeletons.push_back(poseable_mesh);
@@ -96,7 +96,7 @@ UFUNCTION(BlueprintCallable, Category = "Fusion") void USpookyFusionPlant::AddSk
 }
 
 
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 {
 	fusedSkeleton = poseable_mesh;
@@ -123,13 +123,13 @@ void USpookyFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 	}
 }
 
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::FinaliseSetup() {
 	plant.finaliseSetup();
 }
 
 //Set the reference frame for the skeleton
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::SetReferenceFrame(FString system_name) {
 	plant.setReferenceSystem(spooky::SystemDescriptor(TCHAR_TO_UTF8(*system_name)));
 }
@@ -139,7 +139,7 @@ void USpookyFusionPlant::SetReferenceFrame(FString system_name) {
 //===========================
 
 
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::AddPositionMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FVector measurement, FVector covariance, bool globalSpace, float confidence)
 {
 	Measurement::Ptr m = CreatePositionMeasurement(systemName, sensorID, timestamp_sec, measurement, covariance, confidence);
@@ -147,7 +147,7 @@ void USpookyFusionPlant::AddPositionMeasurement(TArray<FString> nodeNames, FStri
 	plant.addMeasurement(m, convertToNodeDescriptors(nodeNames));
 }
 
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::AddRotationMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FRotator measurement, FVector4 covariance, bool globalSpace, float confidence)
 {
 	Measurement::Ptr m = CreateRotationMeasurement(systemName,sensorID,timestamp_sec, measurement.Quaternion(),covariance,confidence);
@@ -155,7 +155,7 @@ void USpookyFusionPlant::AddRotationMeasurement(TArray<FString> nodeNames, FStri
 	plant.addMeasurement(m, convertToNodeDescriptors(nodeNames));
 }
 
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::AddPoseMeasurement(TArray<FString> nodeNames, FString systemName, int sensorID, float timestamp_sec, FTransform measurement, FVector position_var, FVector4 quaternion_var, bool globalSpace, float confidence)
 {
 	Eigen::Vector3f vv(&position_var[0]);
@@ -167,7 +167,7 @@ void USpookyFusionPlant::AddPoseMeasurement(TArray<FString> nodeNames, FString s
 	plant.addMeasurement(m, convertToNodeDescriptors(nodeNames));
 }
 
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::addSkeletonMeasurement(int skel_index, float timestamp_sec) {
 	//For each bone
 	auto& skeleton = skeletons[skel_index];
@@ -184,7 +184,7 @@ void USpookyFusionPlant::addSkeletonMeasurement(int skel_index, float timestamp_
 		plant.addMeasurement(m, bone_name);
 	}
 }
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::Fuse(float timestamp_sec)
 {
 	spooky::utility::profiler.startTimer("AAA FUSION TIME");
@@ -196,7 +196,7 @@ void USpookyFusionPlant::Fuse(float timestamp_sec)
 	//FUSION_LOG(spooky::utility::profiler.getReport());
 }
 
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::UpdateSkeletonOutput() {
 	//For each bone
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
@@ -255,19 +255,19 @@ FTransform USpookyFusionPlant::getNodeGlobalPose(FString node)
 //===========================
 
 //Sets save/load location	
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::setSaveDirectory(FString dir) {
 	plant.setSaveDirectory(TCHAR_TO_UTF8(*dir));
 }
 
 //Saves the calibration result mapping T:s1->s2
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::saveCalibrationResult(FString s1, FString s2){
 	plant.saveCalibration(spooky::SystemDescriptor(TCHAR_TO_UTF8(*s1)),spooky::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
 }
 
 //Loads the calibration result mapping T:s1->s2
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::loadCalibrationResult(FString s1, FString s2){
 	plant.loadCalibration(spooky::SystemDescriptor(TCHAR_TO_UTF8(*s1)), spooky::SystemDescriptor(TCHAR_TO_UTF8(*s2)));
 }
@@ -277,7 +277,7 @@ void USpookyFusionPlant::loadCalibrationResult(FString s1, FString s2){
 //===========================
 
 //Compute axis angle representation (x,y,z,alpha)
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 FVector4 USpookyFusionPlant::getRotatorAxisAngle(FRotator R) {
 	float angle;
 	FVector axis;
@@ -419,7 +419,7 @@ spooky::Transform3D USpookyFusionPlant::convert(const FMatrix& T) {
 //===========================
 
 
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 FVector4 USpookyFusionPlant::GetTestPosition() {
 	FVector4 v = fusedSkeleton->GetBoneTransformByName("hand_l",EBoneSpaces::WorldSpace).GetLocation();
 	//UE_LOG(LogTemp, Warning, TEXT("Left hand Pose = %s"), *v.ToString());
@@ -427,13 +427,13 @@ FVector4 USpookyFusionPlant::GetTestPosition() {
 }
 
 //For testing blueprints: TODO delete
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 FString USpookyFusionPlant::GetCalibrationStateSummary() {
 	std::string s = plant.getCalibratorStateSummary();
 	return s.c_str();
 }
 //For testing blueprints: TODO delete
-UFUNCTION(BlueprintCallable, Category = "Fusion")
+UFUNCTION(BlueprintCallable, Category = "Spooky")
 FString USpookyFusionPlant::GetCalibrationTimingSummary() {
 	std::string s = plant.getTimingSummary();
 	return s.c_str();
