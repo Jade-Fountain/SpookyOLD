@@ -118,7 +118,7 @@ void USpookyFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 		else {
 			plant.addBoneNode(bone_desc, parent_desc, bonePoseLocal);
 		}
-		FUSION_LOG("Adding Bone: " + bone_desc.name + ", parent = " + parent_desc.name);
+		SPOOKY_LOG("Adding Bone: " + bone_desc.name + ", parent = " + parent_desc.name);
 		
 	}
 }
@@ -168,7 +168,7 @@ void USpookyFusionPlant::AddPoseMeasurement(TArray<FString> nodeNames, FString s
 }
 
 UFUNCTION(BlueprintCallable, Category = "Spooky")
-void USpookyFusionPlant::addSkeletonMeasurement(int skel_index, float timestamp_sec) {
+void USpookyFusionPlant::addSkeletonMeasurement(int skel_index) {
 	//For each bone
 	auto& skeleton = skeletons[skel_index];
 	TArray<FMeshBoneInfo> boneInfo = skeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
@@ -179,28 +179,29 @@ void USpookyFusionPlant::addSkeletonMeasurement(int skel_index, float timestamp_
 		//TODO: support confidences
 		//TODO: doesnt seem like the best way to do this!
 		//TODO: support skeleton group measurement input properly: need skeleton->getUncertianty(i), get confidence, time stamp, etc
+		float timestamp_sec = 0;// skeleton->getLatestMeasurementTime();
 		Measurement::Ptr m = CreatePoseMeasurement(skeleton->GetName(), i, timestamp_sec, measurement.GetTranslation(), measurement.GetRotation(), skeletonCovariances[skel_index], 1);
 		m->globalSpace = false;
 		plant.addMeasurement(m, bone_name);
 	}
 }
 UFUNCTION(BlueprintCallable, Category = "Spooky")
-void USpookyFusionPlant::Fuse(float timestamp_sec)
+void USpookyFusionPlant::Fuse()
 {
 	spooky::utility::profiler.startTimer("AAA FUSION TIME");
 	for (int i = 0; i < skeletons.size(); i++) {
-		addSkeletonMeasurement(i, timestamp_sec);
+		addSkeletonMeasurement(i);
 	}
 	plant.fuse();
 	spooky::utility::profiler.endTimer("AAA FUSION TIME");
-	//FUSION_LOG(spooky::utility::profiler.getReport());
+	//SPOOKY_LOG(spooky::utility::profiler.getReport());
 }
 
 UFUNCTION(BlueprintCallable, Category = "Spooky")
 void USpookyFusionPlant::UpdateSkeletonOutput() {
 	//For each bone
 	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
-	//FUSION_LOG("\n\n\n\n Skeleton Poses = \n\n\n\n");
+	//SPOOKY_LOG("\n\n\n\n Skeleton Poses = \n\n\n\n");
 	for (int i = 0; i < boneInfo.Num(); i++) {
 		FMeshBoneInfo& bone = boneInfo[i];
 		spooky::NodeDescriptor bone_name = spooky::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
@@ -210,8 +211,16 @@ void USpookyFusionPlant::UpdateSkeletonOutput() {
 		fusedSkeleton->BoneSpaceTransforms[i].SetTranslation(fusedSkeleton->BoneSpaceTransforms[i].GetTranslation() / plant.config.units.output_m);
 		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
 		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
-
 	}
+}
+
+UFUNCTION(BlueprintCallable, Category = "Spooky")
+FTransform USpookyFusionPlant::getBoneTransform(const FString& name) {
+	spooky::NodeDescriptor bone_name = spooky::NodeDescriptor(TCHAR_TO_UTF8(*(name)));
+	spooky::Transform3D T = plant.getNodeLocalPose(bone_name);
+	FTransform result(convert(T));
+	result.SetTranslation(result.GetTranslation() / plant.config.units.output_m);
+	return result;
 }
 
 

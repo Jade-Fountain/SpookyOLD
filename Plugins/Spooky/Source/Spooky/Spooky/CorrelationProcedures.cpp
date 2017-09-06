@@ -27,7 +27,7 @@ namespace spooky {
 				return 0;
 			}
 		}
-		FUSION_LOG("WARNING : no correlationm model found for measurement types: " + std::to_string(t1) + " and " + std::to_string(t2));
+		SPOOKY_LOG("WARNING : no correlationm model found for measurement types: " + std::to_string(t1) + " and " + std::to_string(t2));
 		return 0;
 	}
 

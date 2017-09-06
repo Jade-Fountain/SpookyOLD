@@ -165,7 +165,7 @@ namespace spooky{
 					max_count = histogram[i];
 					max_index = i;
 				}
-				//FUSION_LOG("Histogram: " + std::to_string(i * delta + min) + " count = " + std::to_string(histogram[i]));
+				//SPOOKY_LOG("Histogram: " + std::to_string(i * delta + min) + " count = " + std::to_string(histogram[i]));
 			}
 
 			//Return centred max bin

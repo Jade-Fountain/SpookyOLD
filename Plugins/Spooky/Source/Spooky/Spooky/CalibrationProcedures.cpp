@@ -29,45 +29,45 @@ namespace spooky {
 		switch (currentCalibration.state) {
 			case (CalibrationResult::State::UNCALIBRATED):
 			{
-				FUSION_LOG("CalibrationResult::State::UNCALIBRATED");
+				SPOOKY_LOG("CalibrationResult::State::UNCALIBRATED");
 				//DEBUG:: Straight to calibrated
 				if(result.quality > config.initial_quality_threshold){
 					result.state = CalibrationResult::State::REFINING;
-					FUSION_LOG("Calibration passed required threshold: " + std::to_string(config.initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
+					SPOOKY_LOG("Calibration passed required threshold: " + std::to_string(config.initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
 				}
 				else {
 					result.reset();
-					FUSION_LOG("Calibration DID NOT PASS required threshold: " + std::to_string(config.initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
+					SPOOKY_LOG("Calibration DID NOT PASS required threshold: " + std::to_string(config.initial_quality_threshold) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
 				}	
 				break;
 			}
 			case (CalibrationResult::State::REFINING):
 			{
-				FUSION_LOG("CalibrationResult::State::REFINING");
+				SPOOKY_LOG("CalibrationResult::State::REFINING");
 				//Combine calibrations
 				result.updateResult(currentCalibration);
 				//refinement calibration
 				float new_quality = result.quality;
 				if (new_quality - currentCalibration.quality > config.quality_convergence_threshold) {
 					//If large gains are being made keep going
-					FUSION_LOG("REFINING: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+					SPOOKY_LOG("REFINING: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
 					result.state = CalibrationResult::State::REFINING;
 				}
 				else if (new_quality > config.settle_threshold) {
 					//If change is a small improvement, we are done
-					FUSION_LOG("REFINEMENT FINISHED!!! new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+					SPOOKY_LOG("REFINEMENT FINISHED!!! new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
 					result.state = CalibrationResult::State::CALIBRATED;
 				}
 				else {
 					//If we cant improve, then we probably started in a bad state, so start again
-					FUSION_LOG("Starting over: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+					SPOOKY_LOG("Starting over: new_quality = " + std::to_string(new_quality) + ", quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
 					result.state = CalibrationResult::State::UNCALIBRATED;
 				}
 				break;
 			}
 			case (CalibrationResult::State::CALIBRATED):
 			{
-				FUSION_LOG("CalibrationResult::State::CALIBRATED");
+				SPOOKY_LOG("CalibrationResult::State::CALIBRATED");
 				//TODO: distinguish noise vs. actual movement
 				//TODO: implement that fault decay detection thing
 				//TODO: fix fault detection for new model
@@ -80,9 +80,9 @@ namespace spooky {
 				//Debug
 				std::stringstream relss;
 				relss << filtered_relevance.matrix();
-				FUSION_LOG("Filtered relevance = ");
-				FUSION_LOG(relss.str());
-				FUSION_LOG(" Already calibrated - watching for faults (" + currentCalibration.systems.first.name + ", " + currentCalibration.systems.second.name + ") - filtered relevance error = "
+				SPOOKY_LOG("Filtered relevance = ");
+				SPOOKY_LOG(relss.str());
+				SPOOKY_LOG(" Already calibrated - watching for faults (" + currentCalibration.systems.first.name + ", " + currentCalibration.systems.second.name + ") - filtered relevance error = "
 					+ std::to_string(relevance_norm.angle) + ", " + std::to_string(relevance_norm.distance) +
 					" vs. threshold = " + std::to_string(config.fault_angle_threshold) + ", " + std::to_string(config.fault_distance_threshold) + 
 					" result.weight = " + std::to_string(result.weight));
@@ -97,18 +97,18 @@ namespace spooky {
 					//Always start again if faulted
 					//if (result.quality < config.initial_quality_threshold) {
 						//Start again
-						FUSION_LOG("Starting over: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+						SPOOKY_LOG("Starting over: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
 						result.reset();
 						result.state = CalibrationResult::State::UNCALIBRATED;
 					//} else {
 					//	//Try to improve the quality
 					//	//TODO: fix refinement
-					//	FUSION_LOG("Returning to refinement: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
+					//	SPOOKY_LOG("Returning to refinement: result.quality = " + std::to_string(result.quality) + ", old quality = " + std::to_string(currentCalibration.quality) + " result.weight = " + std::to_string(result.weight));
 					//	result.state = CalibrationResult::State::REFINING;
 					//}
 				}
 				else {
-					FUSION_LOG("No fault detected");
+					SPOOKY_LOG("No fault detected");
 					result.state = CalibrationResult::State::CALIBRATED;
 				}
 				break;
@@ -129,7 +129,7 @@ namespace spooky {
 		std::vector<Eigen::Matrix3f> inverse_variances(m1.size());
 		std::stringstream ss;
 		ss << "DATA[" << m1.front()->getSensor()->system.name << ", " << m2.front()->getSensor()->system.name << "]" << std::endl;
-		FUSION_LOG(ss.str());
+		SPOOKY_LOG(ss.str());
 		for (int i = 0; i < m1.size(); i++) {
 			
 			pos1[i] = m1[i]->getPosition();
@@ -195,16 +195,16 @@ namespace spooky {
 		result.relevance = Transform3D::Identity();
 		result.weight = m1.size();
 
-		FUSION_LOG("Performed calibration on new data. error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
+		SPOOKY_LOG("Performed calibration on new data. error: " + std::to_string(result.error) + ", quality = " + std::to_string(result.quality) + " result.weight = " + std::to_string(result.weight));
 
 		//--------------------------------------
 		//Decide what to do with results
 		//--------------------------------------
 
 		ss << "Result: transform[" << result.systems.first.name << "->" << result.systems.second.name << "] = " << std::endl << result.transform.matrix() << std::endl;
-		//FUSION_LOG(ss.str() + " result.weight = " + std::to_string(result.weight));
-		FUSION_LOG("|||||");
-		FUSION_LOG("|||||");
+		//SPOOKY_LOG(ss.str() + " result.weight = " + std::to_string(result.weight));
+		SPOOKY_LOG("|||||");
+		SPOOKY_LOG("|||||");
 		return updateCalibration(result, currentCalibration);
 	}
 
@@ -267,7 +267,7 @@ namespace spooky {
 		ss << "CombinedResult: transform[" << combinedResult.systems.first.name << "->" << combinedResult.systems.second.name << "] = " << std::endl << combinedResult.transform.matrix() << std::endl;
 		ss << "CombinedResult: error[" << combinedResult.systems.first.name << "->" << combinedResult.systems.second.name << "] = " << std::endl << combinedResult.error << std::endl;
 		ss << "CombinedResult: quality[" << combinedResult.systems.first.name << "->" << combinedResult.systems.second.name << "] = " << std::endl << combinedResult.quality << std::endl;
-		FUSION_LOG(ss.str());
+		SPOOKY_LOG(ss.str());
 		return combinedResult;
 	}
 

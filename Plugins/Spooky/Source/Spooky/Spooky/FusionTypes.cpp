@@ -234,7 +234,7 @@ namespace spooky {
 		}
 		//ss << "Source = " << source.front()->getSensor()->system.name << ", " << source.front()->getSensor()->getNode().name << " final count = " << result.size() << std::endl;
 		//ss << "Target = " << target.front()->getSensor()->system.name << ", " << target.front()->getSensor()->getNode().name << " final count = " << target_out.size() << std::endl;
-		//FUSION_LOG(ss.str());
+		//SPOOKY_LOG(ss.str());
 
 		source = result;
 		target = target_out;

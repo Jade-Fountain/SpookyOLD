@@ -22,7 +22,7 @@ UWebsocket::UWebsocket()
 }
 
 void UWebsocket::handle_message(const std::string& message){
-	FUSION_LOG(message);
+	SPOOKY_LOG(message);
 }
 // Called when the game starts
 void UWebsocket::BeginPlay()
@@ -34,17 +34,17 @@ void UWebsocket::BeginPlay()
 
 	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (rc) {
-		FUSION_LOG("WSAStartup Failed.");
+		SPOOKY_LOG("WSAStartup Failed.");
 		return;
 	}
 
 	ws = std::unique_ptr<easywsclient::WebSocket>(easywsclient::WebSocket::from_url_no_mask("ws://127.0.0.1:82"));
 
 	if (ws) {
-		FUSION_LOG("Connection successful " + std::to_string(ws->getReadyState()));
+		SPOOKY_LOG("Connection successful " + std::to_string(ws->getReadyState()));
 	}
 	else {
-		FUSION_LOG("Connection unsuccessful ");
+		SPOOKY_LOG("Connection unsuccessful ");
 	}
 
 
@@ -66,7 +66,7 @@ void UWebsocket::TickComponent( float DeltaTime, ELevelTick TickType, FActorComp
 		ws->send("r");
 		ws->poll(1000);
 		ws->dispatch([this](const std::string & message) {
-			FUSION_LOG(message);
+			SPOOKY_LOG(message);
 			latestString = message;
 		});
 	}

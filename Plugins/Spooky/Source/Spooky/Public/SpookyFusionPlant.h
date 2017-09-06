@@ -19,6 +19,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Components/PoseableMeshComponent.h"
+#include "BoneContainer.h"
 
 #include "Spooky/Core.h"
 #include "Spooky/FusionTypes.h"
@@ -125,16 +126,21 @@ public:
 
 	//Adds measurements for whole skeleton
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
-	void addSkeletonMeasurement(int skel_index, float timestamp_sec);
+	void addSkeletonMeasurement(int skel_index);
 
 	//Align, calibrate and fuse all added data
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
-	void Fuse(float timestamp_sec);
+	void Fuse();
 	
 	//Copies the results of fusion to the target skeleton
 	// Default output units is centimeters as that is what Unreal Engine uses
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void UpdateSkeletonOutput();
+
+	//Gets animation details for driving the skeleton
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
+	FTransform getBoneTransform(const FString& name);
+
 //===========================
 //Data retrieval functions
 //===========================
@@ -146,7 +152,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	FString getCorrelationResult(FString s1, int sensorID);
 
-	//Gets the result of fusion for node 
+	//Gets the result of fusion for a node
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	FTransform getNodeGlobalPose(FString node);
 

@@ -48,10 +48,10 @@ namespace spooky {
 		bool success = saveManager.load(&cal);
 		if (success) {
 			calibrator.setResults(cal);
-			//FUSION_LOG("Loaded Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
+			//SPOOKY_LOG("Loaded Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
 		}
 		else {
-			FUSION_LOG("Loading Calibration[" + s1.name + ", " + s2.name + "] FAILED");
+			SPOOKY_LOG("Loading Calibration[" + s1.name + ", " + s2.name + "] FAILED");
 			if(tryReverse){
 				loadCalibration(s2,s1,false);
 			}
@@ -61,10 +61,10 @@ namespace spooky {
 	void Core::saveCalibration(const SystemDescriptor& s1, const SystemDescriptor& s2) {
 		bool success = saveManager.save(calibrator.getResultsFor(s1, s2));
 		if (success) {
-			//FUSION_LOG("Saved Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
+			//SPOOKY_LOG("Saved Calibration[" + s1.name + ", " + s2.name + "] SUCCESSFULLY");
 		}
 		else {
-			FUSION_LOG("Saving Calibration[" + s1.name + ", " + s2.name + "] FAILED");
+			SPOOKY_LOG("Saving Calibration[" + s1.name + ", " + s2.name + "] FAILED");
 		}
 	}
 
@@ -99,7 +99,7 @@ namespace spooky {
 		//Add new data to calibration, with checking for usefulness
 		utility::profiler.startTimer("Correlator");
 		utility::profiler.startTimer("All");
-		//FUSION_LOG("Fusing: " + std::to_string(measurement_buffer.size()) + "measurements");
+		//SPOOKY_LOG("Fusing: " + std::to_string(measurement_buffer.size()) + "measurements");
 
 		correlator.addMeasurementGroup(measurement_buffer);
 		correlator.identify();

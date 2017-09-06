@@ -22,20 +22,38 @@
 	}
 	// FAnimNode_Base interface
 	void FAnimNode_GetSpookyResult::Initialize(const FAnimationInitializeContext& Context) {
-
+		SPOOKY_LOG("Initialize Spooky Result");
+		SPOOKY_LOG((spookyFP != NULL ? "Valid" : "INVALID"));
 	}
 	void FAnimNode_GetSpookyResult::CacheBones(const FAnimationCacheBonesContext& Context) {
-
+		SPOOKY_LOG("CacheBones Spooky Result");
+		SPOOKY_LOG((spookyFP != NULL ? "Valid" : "INVALID"));
 	}
 	void FAnimNode_GetSpookyResult::Update(const FAnimationUpdateContext& Context) {
-		FUSION_LOG("Updating Spooky Result");
-		FUSION_LOG((SpookyFusionPlant!=NULL ? "Valid" : "INVALID"));
+		if (spookyFP) {
+			SPOOKY_LOG("Fusing");
+			spookyFP->Fuse();
+		}
+		else {
+			SPOOKY_LOG("Update NO FUSION PLANT");
+		}
 	}
-	void FAnimNode_GetSpookyResult::Evaluate(FPoseContext& Output) {
-
+	void FAnimNode_GetSpookyResult::Evaluate(FPoseContext& Output){
+		if (spookyFP) {
+			//Copy new data in from the fusion plant
+			for (int index = 0; index < Output.Pose.GetNumBones(); index++) {
+				FString bone_name = Output.GetAnimBlueprint()->TargetSkeleton->GetReferenceSkeleton().GetBoneName(index).GetPlainNameString();
+				SPOOKY_LOG("Evaluating: Bone " + std::to_string(index)+ " " + std::string(TCHAR_TO_UTF8(*(bone_name))));
+				Output.Pose[FCompactPoseBoneIndex(index)] = spookyFP->getBoneTransform(bone_name);
+			}
+		}
+		else {
+			SPOOKY_LOG("Evaluate NO FUSION PLANT");
+		}
 	}
 	void FAnimNode_GetSpookyResult::GatherDebugData(FNodeDebugData& DebugData) {
-
+		SPOOKY_LOG("GatherDebugData Spooky Result");
+		SPOOKY_LOG((spookyFP != NULL ? "Valid" : "INVALID"));
 	}
 	// End of FAnimNode_Base interface
 

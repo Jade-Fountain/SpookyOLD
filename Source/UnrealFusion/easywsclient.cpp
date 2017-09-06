@@ -219,7 +219,7 @@ class _RealWebSocket : public easywsclient::WebSocket
                 rxbuf.resize(N);
                 closesocket(sockfd);
                 readyState = CLOSED;
-                FUSION_LOG(ret < 0 ? "Connection error!\n" : "Connection closed!\n");
+                SPOOKY_LOG(ret < 0 ? "Connection error!\n" : "Connection closed!\n");
                 break;
             } 
             else {
@@ -235,7 +235,7 @@ class _RealWebSocket : public easywsclient::WebSocket
             else if (ret <= 0) {
                 closesocket(sockfd);
                 readyState = CLOSED;
-                FUSION_LOG(ret < 0 ? "Connection error!\n" : "Connection closed!\n");
+                SPOOKY_LOG(ret < 0 ? "Connection error!\n" : "Connection closed!\n");
                 break;
             }
             else {

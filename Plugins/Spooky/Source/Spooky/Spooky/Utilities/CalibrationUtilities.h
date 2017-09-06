@@ -60,7 +60,7 @@ namespace spooky{
 					//std::stringstream ss;
 					//ss << "Data: x = " << std::endl << x << std::endl << "tx" << std::endl << tx << std::endl;
 					//ss << "Data: y = " << std::endl << y << std::endl << "ty" << std::endl << ty;
-					//FUSION_LOG(ss.str());
+					//SPOOKY_LOG(ss.str());
 
 					return getHistogramPeak(latencies);
 				}
@@ -236,7 +236,7 @@ namespace spooky{
 					//ss << "sigInv =\n " << sigInv << std::endl;
 					//ss << "vecX = \n" << vecX << std::endl;
 					//ss << "X = \n" << X << std::endl;
-					//FUSION_LOG(ss.str());
+					//SPOOKY_LOG(ss.str());
 					
 					if (error != NULL) {
 						auto E = TX.matrix() * A - B;
@@ -286,7 +286,7 @@ namespace spooky{
 					//std::stringstream ss;
 					//ss << "Rotation matrix raw = \n" << T << std::endl;
 					//ss << "Rotation matrix reorth = \n" << TX.matrix() << std::endl;
-					//FUSION_LOG(ss.str());
+					//SPOOKY_LOG(ss.str());
 
 					//If answer invalid, return same as before
 					if (TX.matrix().hasNaN()) return X;
@@ -355,7 +355,7 @@ namespace spooky{
 					//ss << "average error = " << meanError.transpose() << std::endl;
 					//ss << "sphere center = " << sphere.center.transpose();
 					//ss << "sphere radius = " << sphere.r << std::endl;
-					//FUSION_LOG(ss.str());
+					//SPOOKY_LOG(ss.str());
 
 					Eigen::Transform<float, 3, Eigen::Affine> X_new = X;
 

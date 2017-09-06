@@ -209,7 +209,7 @@ namespace spooky {
 			std::set<NodeDescriptor> nodesFinal = utility::setDiff(nodes, eliminatedNodes);
 			if (nodesFinal.size() != 1) {
 				//TODO: fix this log with a second getNodes method
-				//FUSION_LOG(__FILE__ + __LINE__ + std::string(" : attempted to get node of ambiguous sensor"));
+				//SPOOKY_LOG(__FILE__ + __LINE__ + std::string(" : attempted to get node of ambiguous sensor"));
 				return "__AMBIGUOUS__"; 
 			}
 			return *nodesFinal.begin();
@@ -373,7 +373,7 @@ namespace spooky {
 			std::vector<std::vector<ReturnType>> * m1_out, std::vector<std::vector<ReturnType>> * m2_out)
 		{
 			std::map<NodeDescriptor, int> nodes;
-			FUSION_LOG("node 0 = " + m1.front()->getNode().name);
+			SPOOKY_LOG("node 0 = " + m1.front()->getNode().name);
 			for (int i = 0; i < m1.size(); i++) {
 				const auto& currentNode = m1[i]->getNode();
 				assert(currentNode.name == m2[i]->getNode().name);

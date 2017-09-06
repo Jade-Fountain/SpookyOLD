@@ -57,7 +57,7 @@ namespace spooky {
 
 			std::stringstream ss;
 			ss << "Prediction amount[" << desc.name << "] = " << velocity * latency << std::endl;
-			FUSION_LOG(ss.str());
+			SPOOKY_LOG(ss.str());
 			//TODO: scale variance with extrapolation
 			local_state.variance = new_state.variance;
 		}

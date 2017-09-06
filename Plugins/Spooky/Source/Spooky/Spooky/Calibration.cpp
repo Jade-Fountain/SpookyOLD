@@ -202,7 +202,7 @@ namespace spooky {
 			//Debug
 			//std::stringstream ss;
 			//ss << "Results for X: " << system1.name << " --> " << system2.name << "(Combined nodes)\n" << calibrationResults[sysPair].transform.matrix() << "\n";
-			//FUSION_LOG(ss.str());
+			//SPOOKY_LOG(ss.str());
 		}
 	}
 
@@ -400,7 +400,7 @@ namespace spooky {
 				return calPos(m1, m2, calib);
 			}
 		}
-		FUSION_LOG("WARNING : no calibration model found for measurement types: " + std::to_string(t1) + " and " + std::to_string(t2));
+		SPOOKY_LOG("WARNING : no calibration model found for measurement types: " + std::to_string(t1) + " and " + std::to_string(t2));
 		return CalibrationResult();
 	}
 

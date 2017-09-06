@@ -26,9 +26,9 @@ struct FAnimNode_GetSpookyResult : public FAnimNode_Base
 	
 	GENERATED_USTRUCT_BODY()
 
-	/** Input link(Base Pose) **/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Parameters)
-	USpookyFusionPlant* SpookyFusionPlant;
+	/** Spooky Fusion Plant reference required to get data**/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Links, meta = (PinShownByDefault))
+	USpookyFusionPlant* spookyFP;
 
 public:
 	FAnimNode_GetSpookyResult();

@@ -33,14 +33,14 @@ namespace spooky {
 		std::string dummy;
 
 		//System names
-		s >> dummy; s >> r.systems.first.name;	FUSION_LOG(dummy + " " + r.systems.first.name);
-		s >> dummy; s >> r.systems.second.name;	FUSION_LOG(dummy + " " + r.systems.second.name);
+		s >> dummy; s >> r.systems.first.name;	SPOOKY_LOG(dummy + " " + r.systems.first.name);
+		s >> dummy; s >> r.systems.second.name;	SPOOKY_LOG(dummy + " " + r.systems.second.name);
 
 		//State
 		int state;
 		s >> dummy; s >> state;	
 		r.state = CalibrationResult::State(state);
-		FUSION_LOG(dummy + " " + std::to_string(int(r.state)));
+		SPOOKY_LOG(dummy + " " + std::to_string(int(r.state)));
 
 		//Transform
 		s >> dummy;
@@ -52,13 +52,13 @@ namespace spooky {
 		r.transform = Transform3D(M);
 		std::stringstream ss;
 		ss << r.transform.matrix();
-		FUSION_LOG(dummy + " " + ss.str());
+		SPOOKY_LOG(dummy + " " + ss.str());
 
 		//Other
-		s >> dummy; s >> r.latency;		FUSION_LOG(dummy + " " + std::to_string(r.latency));
-		s >> dummy; s >> r.timestamp;	FUSION_LOG(dummy + " " + std::to_string(r.timestamp));
-		s >> dummy; s >> r.error;		FUSION_LOG(dummy + " " + std::to_string(r.error));
-		s >> dummy; s >> r.quality;		FUSION_LOG(dummy + " " + std::to_string(r.quality));
+		s >> dummy; s >> r.latency;		SPOOKY_LOG(dummy + " " + std::to_string(r.latency));
+		s >> dummy; s >> r.timestamp;	SPOOKY_LOG(dummy + " " + std::to_string(r.timestamp));
+		s >> dummy; s >> r.error;		SPOOKY_LOG(dummy + " " + std::to_string(r.error));
+		s >> dummy; s >> r.quality;		SPOOKY_LOG(dummy + " " + std::to_string(r.quality));
 
 		return r;
 	}
@@ -90,7 +90,7 @@ namespace spooky {
 		testFile.open(testDir, std::ios::out);
 		bool success = testFile.is_open();
 		if (!success) {
-			FUSION_LOG("WARNING : Directory " + dir + "/test.txt could not be opened. Make sure the directory exists!");
+			SPOOKY_LOG("WARNING : Directory " + dir + "/test.txt could not be opened. Make sure the directory exists!");
 		}
 		testFile.close();
 		return success;

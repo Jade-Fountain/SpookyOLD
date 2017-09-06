@@ -21,12 +21,12 @@
 #include <string>
 
 //Unreal Engine specific log method. Would need replacement for use in other systems
-inline void FUSION_LOG(std::string s){
+inline void SPOOKY_LOG(std::string s){
 	FString str(s.c_str());
-	UE_LOG(LogTemp, Warning, TEXT("FUSION LOG : %s"),*str);
+	UE_LOG(LogTemp, Warning, TEXT("SPOOKY LOG : %s"),*str);
 }
 
-inline void FUSION_SCREEN_MESSAGE(std::string s) {
+inline void SPOOKY_SCREEN_MESSAGE(std::string s) {
 	FString str(s.c_str());
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("FUSION LOG : %s"), *str));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("SPOOKY LOG : %s"), *str));
 }
