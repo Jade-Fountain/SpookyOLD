@@ -22,23 +22,32 @@
 	}
 	// FAnimNode_Base interface
 	void FAnimNode_GetSpookyResult::Initialize(const FAnimationInitializeContext& Context) {
-		SPOOKY_LOG("Initialize Spooky Result");
+		BasePose.Initialize(Context);
+		SPOOKY_LOG("Initialize Spooky Result Anim Node:");
 		SPOOKY_LOG((spookyFP != NULL ? "Valid" : "INVALID"));
 	}
 	void FAnimNode_GetSpookyResult::CacheBones(const FAnimationCacheBonesContext& Context) {
-		SPOOKY_LOG("CacheBones Spooky Result");
-		SPOOKY_LOG((spookyFP != NULL ? "Valid" : "INVALID"));
+		BasePose.CacheBones(Context);
 	}
 	void FAnimNode_GetSpookyResult::Update(const FAnimationUpdateContext& Context) {
+		//***************************************
+		// Evaluate Graph, see AnimNode_Base, AnimNodeBase.h
+		EvaluateGraphExposedInputs.Execute(Context);
+		//***************************************
 		if (spookyFP) {
 			SPOOKY_LOG("Fusing");
 			spookyFP->Fuse();
 		}
-		else {
-			SPOOKY_LOG("Update NO FUSION PLANT");
-		}
+
+		//************************************************
+		// FPoseLinkBase::Update Active Pose - this is what makes 
+	        //the glowing line thing happen and animations loop
+		//***********************************************
+		BasePose.Update(Context);
 	}
+	
 	void FAnimNode_GetSpookyResult::Evaluate(FPoseContext& Output){
+		SPOOKY_LOG("Evaluating");
 		if (spookyFP) {
 			//Copy new data in from the fusion plant
 			for (int index = 0; index < Output.Pose.GetNumBones(); index++) {
@@ -47,9 +56,7 @@
 				Output.Pose[FCompactPoseBoneIndex(index)] = spookyFP->getBoneTransform(bone_name);
 			}
 		}
-		else {
-			SPOOKY_LOG("Evaluate NO FUSION PLANT");
-		}
+
 	}
 	void FAnimNode_GetSpookyResult::GatherDebugData(FNodeDebugData& DebugData) {
 		SPOOKY_LOG("GatherDebugData Spooky Result");

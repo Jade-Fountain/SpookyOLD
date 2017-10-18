@@ -23,12 +23,17 @@
 USTRUCT()
 struct FAnimNode_GetSpookyResult : public FAnimNode_Base 
 {
-	
+public:
+
 	GENERATED_USTRUCT_BODY()
 
-	/** Spooky Fusion Plant reference required to get data**/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Links, meta = (PinShownByDefault))
-	USpookyFusionPlant* spookyFP;
+		/** (Compulsory?) Base Pose - This Can Be Entire Anim Graph Up To This Point, or Any Combination of Other Nodes*/
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Links)
+		FPoseLink BasePose;
+ 
+		/** Spooky Fusion Plant reference required to get data**/
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Links, meta = (PinShownByDefault))
+		USpookyFusionPlant* spookyFP;
 
 public:
 	FAnimNode_GetSpookyResult();
@@ -50,6 +55,4 @@ public:
 // 	void Del_BoneMap();
 // 	void Revert_BoneMap();
 // #endif
-
-
 };
