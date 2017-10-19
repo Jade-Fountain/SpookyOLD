@@ -26,10 +26,6 @@ struct FAnimNode_GetSpookyResult : public FAnimNode_Base
 public:
 
 	GENERATED_USTRUCT_BODY()
-
-		/** (Compulsory?) Base Pose - This Can Be Entire Anim Graph Up To This Point, or Any Combination of Other Nodes*/
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Links)
-		FPoseLink BasePose;
  
 		/** Spooky Fusion Plant reference required to get data**/
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Links, meta = (PinShownByDefault))
@@ -43,16 +39,5 @@ public:
 	virtual void CacheBones(const FAnimationCacheBonesContext& Context) override;
 	virtual void Update(const FAnimationUpdateContext& Context) override;
 	virtual void Evaluate(FPoseContext& Output) override;
-	virtual void GatherDebugData(FNodeDebugData& DebugData) override;
-	// End of FAnimNode_Base interface
 
-// #if WITH_EDITOR
-// 	bool InitBoneMap();
-// 	void SetTargetSkeleton(const USkeleton* Skeleton);
-// 	void ValueSet_Name(int32 ChangeAtIndex);
-// 	void ValueSet_ID(int32 ChangeAtIndex);
-// 	void Add_BoneMap(int32 AddAtIndex);
-// 	void Del_BoneMap();
-// 	void Revert_BoneMap();
-// #endif
 };

@@ -54,13 +54,8 @@ class USpookyFusionPlant : public UActorComponent
 	spooky::Core plant;
 
 	//Input Skeletons
-	std::vector<UPoseableMeshComponent*> skeletons;
+	std::vector<USkeletalMeshComponent*> skeletons;
 	std::vector<Eigen::Matrix<float, 7, 1>> skeletonCovariances;
-
-protected:
-	//Fusion result
-	UPROPERTY(BlueprintReadOnly)
-	UPoseableMeshComponent* fusedSkeleton;
 
 public:	
 
@@ -83,11 +78,11 @@ public:
 
 	//Add complete skeleton to list of fusion objects
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
-	void AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var);
+	void AddSkeleton(USkeletalMeshComponent* skeletal_mesh, FVector position_var, FVector4 quaternion_var);
 
 	//Set the output target which will have the complete fused skeleton pose applied
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
-	void SetOutputTarget(UPoseableMeshComponent* poseable_mesh);
+	void AddOutputTarget(USkeletalMeshComponent* skeletal_mesh);
 	
 	//Perform some setup postprocessing
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
@@ -131,11 +126,6 @@ public:
 	//Align, calibrate and fuse all added data
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	void Fuse();
-	
-	//Copies the results of fusion to the target skeleton
-	// Default output units is centimeters as that is what Unreal Engine uses
-	UFUNCTION(BlueprintCallable, Category = "Spooky")
-	void UpdateSkeletonOutput();
 
 	//Gets animation details for driving the skeleton
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
@@ -202,10 +192,6 @@ public:
 //===========================
 //DEBUG
 //===========================
-
-	//For testing blueprints: TODO delete
-	UFUNCTION(BlueprintCallable, Category = "Spooky")
-	FVector4 GetTestPosition();
 
 	//For testing blueprints: TODO delete
 	UFUNCTION(BlueprintCallable, Category = "Spooky")

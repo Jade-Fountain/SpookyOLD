@@ -23,10 +23,8 @@
 	}
 	// FAnimNode_Base interface
 	void FAnimNode_GetSpookyResult::Initialize(const FAnimationInitializeContext& Context) {
-		BasePose.Initialize(Context);
 	}
 	void FAnimNode_GetSpookyResult::CacheBones(const FAnimationCacheBonesContext& Context) {
-		BasePose.CacheBones(Context);
 	}
 	void FAnimNode_GetSpookyResult::Update(const FAnimationUpdateContext& Context) {
 		//***************************************
@@ -34,10 +32,6 @@
 		EvaluateGraphExposedInputs.Execute(Context);
 		//***************************************
 
-		//************************************************
-		// FPoseLinkBase::Update Active Pose - this is what makes 
-	        //the glowing line thing happen and animations loop
-		//***********************************************
 	}
 	
 	void FAnimNode_GetSpookyResult::Evaluate(FPoseContext& Output){
@@ -51,30 +45,5 @@
 		}
 
 	}
-	void FAnimNode_GetSpookyResult::GatherDebugData(FNodeDebugData& DebugData) {
-	}
 	// End of FAnimNode_Base interface
 
-// #if WITH_EDITOR
-// 	bool FAnimNode_GetSpookyResult::InitBoneMap(){
-
-// 	}
-// 	void FAnimNode_GetSpookyResult::SetTargetSkeleton(const USkeleton* Skeleton){
-
-// 	}
-// 	void FAnimNode_GetSpookyResult::ValueSet_Name(int32 ChangeAtIndex){
-
-// 	}
-// 	void FAnimNode_GetSpookyResult::ValueSet_ID(int32 ChangeAtIndex){
-
-// 	}
-// 	void FAnimNode_GetSpookyResult::Add_BoneMap(int32 AddAtIndex){
-
-// 	}
-// 	void FAnimNode_GetSpookyResult::Del_BoneMap(){
-
-// 	}
-// 	void FAnimNode_GetSpookyResult::Revert_BoneMap(){
-
-// 	}
-// #endif

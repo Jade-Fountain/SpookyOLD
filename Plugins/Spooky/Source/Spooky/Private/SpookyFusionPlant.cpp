@@ -49,9 +49,6 @@ void USpookyFusionPlant::BeginPlay()
 void USpookyFusionPlant::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
-	if (fusedSkeleton != NULL) {
-		fusedSkeleton->RefreshBoneTransforms(ThisTickFunction);
-	}
 }
 
 
@@ -81,10 +78,11 @@ UFUNCTION(BlueprintCallable, Category = "Spooky") void USpookyFusionPlant::Confi
 	plant.config.calibrator.fault_distance_threshold = calibration_fault_distance_threshold;*/
 }
 
-UFUNCTION(BlueprintCallable, Category = "Spooky") void USpookyFusionPlant::AddSkeleton(UPoseableMeshComponent* poseable_mesh, FVector position_var, FVector4 quaternion_var)
+UFUNCTION(BlueprintCallable, Category = "Spooky") void USpookyFusionPlant::AddSkeleton(USkeletalMeshComponent* skeletal_mesh, FVector position_var, FVector4 quaternion_var)
 {
+	//TODO: enable complete skeleton fusion
 	//Add skeleton reference
-	skeletons.push_back(poseable_mesh);
+	skeletons.push_back(skeletal_mesh);
 
 	//Store uncertainties for later
 	Eigen::Vector3f vv(&position_var[0]);
@@ -97,19 +95,22 @@ UFUNCTION(BlueprintCallable, Category = "Spooky") void USpookyFusionPlant::AddSk
 
 
 UFUNCTION(BlueprintCallable, Category = "Spooky")
-void USpookyFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
+void USpookyFusionPlant::AddOutputTarget(USkeletalMeshComponent * skeletal_mesh)
 {
-	fusedSkeleton = poseable_mesh;
-	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
+	skeletal_mesh = skeletal_mesh;
+	TArray<FMeshBoneInfo> boneInfo = skeletal_mesh->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
 	for (int i = 0; i < boneInfo.Num(); i++) {
 		FMeshBoneInfo& bone = boneInfo[i];
 		//TODO: make more efficient
-		FTransform b = FTransform(fusedSkeleton->SkeletalMesh->GetRefPoseMatrix(i));
+		FTransform b = FTransform(skeletal_mesh->SkeletalMesh->GetRefPoseMatrix(i));
+		//Scale to spooky units
 		b.SetTranslation(b.GetTranslation() * plant.config.units.input_m);
 		spooky::Transform3D bonePoseLocal = convert(b.ToMatrixNoScale());
+		//Set parent
 		spooky::NodeDescriptor parent_desc = (bone.ParentIndex >= 0) ?
 			spooky::NodeDescriptor(TCHAR_TO_UTF8(*(boneInfo[bone.ParentIndex].Name.GetPlainNameString()))) :
 			spooky::NodeDescriptor();
+		//Set bone name
 		spooky::NodeDescriptor bone_desc = spooky::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
 		//TODO: find better way to do this check for pose nodes
 		if (bone.Name.GetPlainNameString() == "pelvis") {
@@ -119,7 +120,6 @@ void USpookyFusionPlant::SetOutputTarget(UPoseableMeshComponent * poseable_mesh)
 			plant.addBoneNode(bone_desc, parent_desc, bonePoseLocal);
 		}
 		SPOOKY_LOG("Adding Bone: " + bone_desc.name + ", parent = " + parent_desc.name);
-		
 	}
 }
 
@@ -195,23 +195,6 @@ void USpookyFusionPlant::Fuse()
 	plant.fuse();
 	spooky::utility::profiler.endTimer("AAA FUSION TIME");
 	//SPOOKY_LOG(spooky::utility::profiler.getReport());
-}
-
-UFUNCTION(BlueprintCallable, Category = "Spooky")
-void USpookyFusionPlant::UpdateSkeletonOutput() {
-	//For each bone
-	TArray<FMeshBoneInfo> boneInfo = fusedSkeleton->SkeletalMesh->RefSkeleton.GetRefBoneInfo();
-	//SPOOKY_LOG("\n\n\n\n Skeleton Poses = \n\n\n\n");
-	for (int i = 0; i < boneInfo.Num(); i++) {
-		FMeshBoneInfo& bone = boneInfo[i];
-		spooky::NodeDescriptor bone_name = spooky::NodeDescriptor(TCHAR_TO_UTF8(*(bone.Name.GetPlainNameString())));
-
-		spooky::Transform3D T = plant.getNodeLocalPose(bone_name);
-		fusedSkeleton->BoneSpaceTransforms[i] = FTransform(convert(T));
-		fusedSkeleton->BoneSpaceTransforms[i].SetTranslation(fusedSkeleton->BoneSpaceTransforms[i].GetTranslation() / plant.config.units.output_m);
-		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(bone.Name.GetPlainNameString()));
-		//UE_LOG(LogTemp, Warning, TEXT("skeleton new pose : %s"), *(fusedSkeleton->BoneSpaceTransforms[i].ToMatrixNoScale().ToString()));
-	}
 }
 
 UFUNCTION(BlueprintCallable, Category = "Spooky")
@@ -426,14 +409,6 @@ spooky::Transform3D USpookyFusionPlant::convert(const FMatrix& T) {
 //===========================
 //DEBUG
 //===========================
-
-
-UFUNCTION(BlueprintCallable, Category = "Spooky")
-FVector4 USpookyFusionPlant::GetTestPosition() {
-	FVector4 v = fusedSkeleton->GetBoneTransformByName("hand_l",EBoneSpaces::WorldSpace).GetLocation();
-	//UE_LOG(LogTemp, Warning, TEXT("Left hand Pose = %s"), *v.ToString());
-	return v;
-}
 
 //For testing blueprints: TODO delete
 UFUNCTION(BlueprintCallable, Category = "Spooky")
