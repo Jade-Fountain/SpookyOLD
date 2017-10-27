@@ -17,7 +17,7 @@
 			"Name": "Spooky",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
-		},
+		}
 	],
 	"Plugins": [
 		{
@@ -33,13 +33,17 @@
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/e47be161e7a24e928560290abd5dcc4f"
 		},
-	    {
-	      "Name": "LeapMotion",
-	      "Enabled": true
-	    }
+		{
+			"Name": "LeapMotion",
+			"Enabled": true
+		},
+		{
+			"Name": "Webcamera",
+			"Enabled": true
+		}
 	],
 	"AdditionalPluginDirectories": [
-		"UnrealFusion/Plugins"
+		"/UnrealFusion/Plugins"
 	],
 	"TargetPlatforms": [
 		"PS4",
