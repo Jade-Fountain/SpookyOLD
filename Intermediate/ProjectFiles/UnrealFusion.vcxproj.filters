@@ -161,33 +161,12 @@
     <Filter Include="Source\UnrealFusion">
       <UniqueIdentifier>{6BDF7159-C763-4DF7-9C45-B81F40576404}</UniqueIdentifier>
     </Filter>
-    <ClCompile Include="..\..\Source\UnrealFusion\AnimNode_TranslateWith.cpp">
-      <Filter>Source\UnrealFusion</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\UnrealFusion\AnimNode_TranslateWith.h">
-      <Filter>Source\UnrealFusion</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\UnrealFusion\easywsclient.cpp">
-      <Filter>Source\UnrealFusion</Filter>
-    </ClCompile>
-    <None Include="..\..\Source\UnrealFusion\easywsclient.hpp">
-      <Filter>Source\UnrealFusion</Filter>
-    </None>
     <None Include="..\..\Source\UnrealFusion\eigen.natvis">
       <Filter>Source\UnrealFusion</Filter>
     </None>
-    <ClCompile Include="..\..\Source\UnrealFusion\FusionPlant.cpp">
-      <Filter>Source\UnrealFusion</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\UnrealFusion\FusionPlant.h">
-      <Filter>Source\UnrealFusion</Filter>
-    </ClInclude>
     <None Include="..\..\Source\UnrealFusion\LICENSE.txt">
       <Filter>Source\UnrealFusion</Filter>
     </None>
-    <ClInclude Include="..\..\Source\UnrealFusion\Logging.h">
-      <Filter>Source\UnrealFusion</Filter>
-    </ClInclude>
     <None Include="..\..\Source\UnrealFusion\UnrealFusion.Build.cs">
       <Filter>Source\UnrealFusion</Filter>
     </None>
@@ -195,12 +174,6 @@
       <Filter>Source\UnrealFusion</Filter>
     </ClCompile>
     <ClInclude Include="..\..\Source\UnrealFusion\UnrealFusion.h">
-      <Filter>Source\UnrealFusion</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\UnrealFusion\Websocket.cpp">
-      <Filter>Source\UnrealFusion</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\UnrealFusion\Websocket.h">
       <Filter>Source\UnrealFusion</Filter>
     </ClInclude>
     <Filter Include="Source\UnrealFusion\sophus">

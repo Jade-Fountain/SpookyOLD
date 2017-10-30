@@ -453,7 +453,6 @@
     <ClCompile Include="..\..\Plugins\Spooky\Source\Spooky\Spooky\Correlator.cpp" />
     <ClCompile Include="..\..\Plugins\Spooky\Source\Spooky\Spooky\FusionTypes.cpp" />
     <ClCompile Include="..\..\Plugins\Spooky\Source\Spooky\Spooky\SaveManager.cpp" />
-    <ClCompile Include="..\..\Source\UnrealFusion\AnimNode_TranslateWith.cpp" />
     <ClInclude Include="..\..\Plugins\Spooky\Source\Spooky\Spooky\ArticulatedModel.h" />
     <ClInclude Include="..\..\Plugins\Spooky\Source\Spooky\Spooky\Articulation.h" />
     <ClInclude Include="..\..\Plugins\Spooky\Source\Spooky\Spooky\Calibration.h" />
@@ -467,19 +466,11 @@
     <ClInclude Include="..\..\Plugins\Spooky\Source\Spooky\Spooky\Utilities\CorrelationUtilities.h" />
     <ClInclude Include="..\..\Plugins\Spooky\Source\Spooky\Spooky\Utilities\DataStructures.h" />
     <ClInclude Include="..\..\Plugins\Spooky\Source\Spooky\Spooky\Utilities\TimeProfiling.h" />
-    <ClInclude Include="..\..\Source\UnrealFusion\AnimNode_TranslateWith.h" />
-    <ClCompile Include="..\..\Source\UnrealFusion\easywsclient.cpp" />
-    <None Include="..\..\Source\UnrealFusion\easywsclient.hpp" />
     <None Include="..\..\Source\UnrealFusion\eigen.natvis" />
-    <ClCompile Include="..\..\Source\UnrealFusion\FusionPlant.cpp" />
-    <ClInclude Include="..\..\Source\UnrealFusion\FusionPlant.h" />
     <None Include="..\..\Source\UnrealFusion\LICENSE.txt" />
-    <ClInclude Include="..\..\Source\UnrealFusion\Logging.h" />
     <None Include="..\..\Source\UnrealFusion\UnrealFusion.Build.cs" />
     <ClCompile Include="..\..\Source\UnrealFusion\UnrealFusion.cpp" />
     <ClInclude Include="..\..\Source\UnrealFusion\UnrealFusion.h" />
-    <ClCompile Include="..\..\Source\UnrealFusion\Websocket.cpp" />
-    <ClInclude Include="..\..\Source\UnrealFusion\Websocket.h" />
     <None Include="..\..\Source\UnrealFusion\sophus\average.hpp" />
     <None Include="..\..\Source\UnrealFusion\sophus\common.hpp" />
     <ClCompile Include="..\..\Source\UnrealFusion\sophus\example_ensure_handler.cpp" />
