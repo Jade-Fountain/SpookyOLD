@@ -9,8 +9,14 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine"
+				"Engine",
+				"Spooky"
 			]
+		},
+		{
+			"Name": "Spooky",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
@@ -30,10 +36,13 @@
 		{
 			"Name": "LeapMotion",
 			"Enabled": true
+		},
+		{
+			"Name": "Webcamera",
+			"Enabled": true
 		}
 	],
 	"AdditionalPluginDirectories": [
-		"/../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../UnrealFusion/Plugins",
 		"/UnrealFusion/Plugins"
 	],
 	"TargetPlatforms": [
