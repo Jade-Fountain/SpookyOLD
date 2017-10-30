@@ -19,6 +19,7 @@ FusionTesting/x64
 *.xcworkspace
 Content/StarterContent/
 Plugins/BlankPlugin/
+Plugins/Webcamera/
 Plugins/PerceptionNeuron/*
 Content/PerceptionNeuronOfficial/
 Intermediate/CachedAssetRegistry.bin
