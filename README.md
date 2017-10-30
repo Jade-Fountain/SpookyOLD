@@ -1,5 +1,5 @@
 # Spooky UE4
-WIP Skeleton-centered Virtual Reality Sensor Fusion plugin for the Unreal Engine
+Skeleton-centered Virtual Reality Sensor Fusion plugin for the Unreal Engine
 
 ## Aims and Introduction
 The rapidly improving quality and availability of head mounted displays (HMDs) has seen a large increase in public interest in virtual reality (VR). HMDs allow for a wide variety of immersive experiences unavailable to other display platforms. However, HMDs typically block out the real world, leaving the user feeling disembodied in the virtual space. Without tracking of the user’s body and hands, interactions within the environment are limited. Furthermore, without visual body and hand representation within the virtual environment, states of presence and immersion are impeded. If the virtual environment is multi-user, communication can also be impeded by inaccurate or limited body or hand tracking.
@@ -8,11 +8,12 @@ Tracking systems for achieving high fidelity body and hand tracking are prohibit
 
 ## Dependencies
 
-###Only supports Windows
+At this time, only windows is supported
 
 UE4 Plugin Optional Dependencies:
  - [Kinect4Unreal](http://www.opaque.media/kinect-4-unreal/) for using the Microsoft Kinect v2
  - [OptiTrack](http://v110.wiki.optitrack.com/index.php?title=OptiTrack_Unreal_Engine_4_Plugin) for using with an OptiTrack motion capture system
+ - VR systems are also supported through UE4 native support VR support (e.g. Oculus Rift w. Touch, HTC Vive, SteamVR, etc.)
  
 Each of the above dependencies are optional, but are supported by Spooky with no additional blueprint configuration.
 
@@ -26,12 +27,17 @@ Each of the above dependencies are optional, but are supported by Spooky with no
 
 ## Spooky Blueprint Structure
 
-###Terms and definitions:
+Terms and definitions:
 
-#### Spooky Fusion Plant - main class for interacting with Spooky
-#### Spirit - a blueprint which sends data from a tracking device to a Spooky Fusion Plant
-#### Skeleton - a blueprint class which serves as the output of the Spooky Fusion Plant
-#### Graveyard - a blueprint which links together multiple spirits and a single skeleton to configure the sensor fusion process
-#### Toys - Extra UE4 assets designed for demonstrating Spooky
+#### Spooky Fusion Plant
+Main class for interacting with Spooky.
+#### Spirit
+A blueprint which sends data from a tracking device to a Spooky Fusion Plant.
+#### Skeleton 
+A blueprint class which serves as the output of the Spooky Fusion Plant.
+#### Graveyard 
+A blueprint which links together multiple spirits and a single skeleton to configure the sensor fusion process.
+#### Toys
+Extra UE4 assets designed for demonstrating Spooky.
 
 
