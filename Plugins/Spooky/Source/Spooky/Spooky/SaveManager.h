@@ -51,6 +51,7 @@ namespace spooky {
 		{
 			//Get save location
 			std::string pathname = getPath(*current);
+			SPOOKY_LOG("Loading " +  pathname + "...");
 			//Open file
 			std::ifstream input;
 			input.open(pathname, std::ios::in);
@@ -70,6 +71,7 @@ namespace spooky {
 		{
 			//Get save location
 			std::string pathname = getPath(result);
+
 			//Open file
 			std::fstream output;
 			output.open(pathname, std::ios::out);

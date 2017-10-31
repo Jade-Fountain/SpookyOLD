@@ -422,3 +422,8 @@ FString USpookyFusionPlant::GetCalibrationTimingSummary() {
 	std::string s = plant.getTimingSummary();
 	return s.c_str();
 }
+
+UFUNCTION(BlueprintCallable, Category = "Spooky")
+FString USpookyFusionPlant::getDefaultUserSavePath() {
+	return FPaths::GameSavedDir();
+}

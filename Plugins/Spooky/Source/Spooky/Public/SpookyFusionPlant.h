@@ -170,6 +170,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Spooky")
 	FVector4 getRotatorAxisAngle(FRotator R);
 
+	UFUNCTION(BlueprintCallable, Category = "Spooky")
+	FString getDefaultUserSavePath();
 
 	//Method to copy data from one poseable mesh to another
 	void CopyPose(UPoseableMeshComponent* target, const UPoseableMeshComponent* input);
@@ -189,6 +191,7 @@ public:
 	//Convert Transform3D to FMatrix
 	FMatrix convert(const spooky::Transform3D& T);
 	spooky::Transform3D convert(const FMatrix& T);
+
 //===========================
 //DEBUG
 //===========================
