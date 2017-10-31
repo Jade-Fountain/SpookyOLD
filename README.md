@@ -22,11 +22,15 @@ Each of the above dependencies are optional, but are supported by Spooky with no
 1. Install the relevant plugin dependencies for your planned use as described above.
 2. Download and extract the latest release of [Spooky](https://github.com/JakeFountain/Spooky/releases/latest).
 3. Open UnrealFusion.uproject in the same version of UE4 Editor that you are using for your project. It will prompt you to build - accept and wait for it to build. 
-> Once the project is open, you should be able to try Content/Spooky/Maps/SpookySoccer.umap (requires Kinect v2 and VR dependencies installed). 
-> For the VRGraveyard (e.g. in SpookySoccer), face the Kinect v2 and hold the VR controllers in the correct hands. 
+> The project should open to Content/Spooky/Maps/SpookySoccer.umap (requires Kinect v2 and VR dependencies installed).
+> Ensure SteamVR or Oculus clients are running and the Kinect v2 is connected, then click the dropdown next to the play button and select VR preview.
+> Face the Kinect v2 and hold the VR controllers in the correct hands (check thumb polarity). 
 > Walk and move your hands to allow spooky to gather data. 
 > After a short time your body will appear, and you can kick the soccer ball. 
 > Spawn more balls by clicking the touchpad or thumbstick.
+> Spooky saves the latest config in \<ProjectName\>/Saved/System1_System2.spky by default, in a human readable format. 
+> This location can be changed in the VRGraveyard blueprint at the SpookyFusionPlant->SetSaveDirectory() function call.
+> Spooky will automatically detect changes in the position of the Kinect v2 or in the VR tracking space and recalibration will occur after about a minute.
 4. To use with your own project:
     * Copy Plugins/Spooky to either your \<ProjectName\>/Plugins folder or Engine/Plugins folder. Go to the Plugins settings and enable Spooky. Restart the editor when prompted.
     * Merge the Content folder with your \<ProjectName\>/Content folder
