@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include <vector>
-#include "../Source/UnrealFusion/Fusion/Utilities/CalibrationUtilities.h"
-#include "../Source/UnrealFusion/Fusion/Utilities/DataStructures.h"
-#include "../Source/UnrealFusion/Fusion/Utilities/CommonMath.h"
+#include "../Source/Spooky/Spooky/Utilities/CalibrationUtilities.h"
+#include "../Source/Spooky/Spooky/Utilities/DataStructures.h"
+#include "../Source/Spooky/Spooky/Utilities/CommonMath.h"
 #include <Windows.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -48,7 +48,7 @@ namespace FusionTesting
 			}
 
 			float error = 0;
-			Eigen::Transform<float, 3, Eigen::Affine> X_ = fusion::utility::calibration::Position::calibrateIdenticalPairTransform_Arun(samplesA, samplesB, &error);
+			Eigen::Transform<float, 3, Eigen::Affine> X_ = spooky::utility::calibration::Position::calibrateIdenticalPairTransform_Arun(samplesA, samplesB, &error);
 
 			std::stringstream ss;
 			ss << "Correct X = \n" << X.matrix() << std::endl;
@@ -66,7 +66,7 @@ namespace FusionTesting
 			Eigen::Vector3f B(0,1,0);
 			Eigen::Vector3f C(0,0,1);
 
-			fusion::utility::Line n = fusion::utility::getCircleNormal(A,B,C);
+			spooky::utility::Line n = spooky::utility::getCircleNormal(A,B,C);
 
 			Eigen::Vector3f dir = n.direction;
 			bool success = dir.cross(Eigen::Vector3f(1,1,1)).isApprox(Eigen::Vector3f(0,0,0),0.0001);
@@ -82,7 +82,7 @@ namespace FusionTesting
 			Eigen::Vector3f C(1, 0, 1);
 			Eigen::Vector3f D(2, 1, 1);
 
-			fusion::utility::Sphere s = fusion::utility::getSphereFrom4Points(A,B,C,D);
+			spooky::utility::Sphere s = spooky::utility::getSphereFrom4Points(A,B,C,D);
 
 			bool success = s.center.isApprox(Eigen::Vector3f(1,1,1)) && std::fabs(s.r-1) < 0.0001;
 			Assert::AreEqual(success, true);
@@ -93,7 +93,7 @@ namespace FusionTesting
 				for (int i = 0; i < 4; i++) {
 					points[i] = Eigen::Vector3f::Random();
 				}
-				fusion::utility::Sphere s = fusion::utility::getSphereFrom4Points(points[0], points[1], points[2], points[3]);
+				spooky::utility::Sphere s = spooky::utility::getSphereFrom4Points(points[0], points[1], points[2], points[3]);
 				Eigen::Vector4f errors(4);
 				for (int i = 0; i < 4; i++) {
 					errors(i) = (points[i] - s.center).norm() - s.r;
@@ -132,7 +132,7 @@ namespace FusionTesting
 				points.col(i) = r * radius + center + noise_level * Eigen::Vector3f::Random();
 			}
 			//Compute ransac
-			fusion::utility::Sphere ransac = fusion::utility::sphereRANSAC(points);
+			spooky::utility::Sphere ransac = spooky::utility::sphereRANSAC(points);
 			
 			//Check correct
 			bool success = ransac.center.isApprox(center, noise_level) && std::fabs(ransac.r - radius) < noise_level;
@@ -149,7 +149,7 @@ namespace FusionTesting
 		TEST_METHOD(QuaternionAverage) {
 			Eigen::MatrixXf single_sample(4,1);
 			single_sample.col(0) = Eigen::Vector4f(1, 1, 2, 4).normalized();
-			Eigen::Quaternionf q_single = fusion::utility::averageQuaternions(single_sample);
+			Eigen::Quaternionf q_single = spooky::utility::averageQuaternions(single_sample);
 			bool single_success = q_single.coeffs().isApprox(single_sample.col(0));
 			Assert::AreEqual(single_success, true, L"Failed single sample test");
 
@@ -159,7 +159,7 @@ namespace FusionTesting
 			wQ.col(1) = Eigen::Vector4f(0, 1, 0, 0.1) * 1;
 			wQ.col(2) = Eigen::Vector4f(0.1, 1, 0, 0) * 1;
 
-			Eigen::Quaternionf q = fusion::utility::averageQuaternions(wQ);
+			Eigen::Quaternionf q = spooky::utility::averageQuaternions(wQ);
 
 			Eigen::Vector4f expected(0, 1, 0, 0);
 			bool success = q.coeffs().isApprox(expected, 0.1) ||
@@ -186,7 +186,7 @@ namespace FusionTesting
 				//Weighted quaternions
 				wQ2.col(i) = wQ2.col(i).normalized() * (max_noise - noise_amount) / max_noise;
 			}
-			Eigen::Quaternionf q2_fit = fusion::utility::averageQuaternions(wQ2);
+			Eigen::Quaternionf q2_fit = spooky::utility::averageQuaternions(wQ2);
 			
 			success =
 			q2_fit.coeffs().isApprox(q2, max_noise / std::sqrt(N)) ||
@@ -235,7 +235,7 @@ namespace FusionTesting
 			}
 
 			float error = 1000;
-			auto result = fusion::utility::calibration::Transform::twoSystems_Kronecker_Shah2013(samplesA, samplesB, &error);
+			auto result = spooky::utility::calibration::Transform::twoSystems_Kronecker_Shah2013(samplesA, samplesB, &error);
 
 			auto Xest = result.first;
 			auto Yest = result.second;
@@ -254,7 +254,7 @@ namespace FusionTesting
 		}
 
 		TEST_METHOD(MultiUseStream) {
-			fusion::utility::MultiUseStream<int, std::string> stream;
+			spooky::utility::MultiUseStream<int, std::string> stream;
 			std::vector<std::string> names;
 			names.push_back("A");
 			names.push_back("B");

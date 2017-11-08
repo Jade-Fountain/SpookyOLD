@@ -31,6 +31,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="..\Source\UnrealFusion\eigen.natvis" />
+    <Natvis Include="..\Source\Spooky\Eigen\eigen.natvis" />
   </ItemGroup>
 </Project>
