@@ -28,7 +28,7 @@
 namespace spooky {
 
 
-	//Centre of a fusion plant
+	//Centre of a fusion plant linking all skeleton elements
 	class Core{
 	private:
 		//Object responsible for saving and loading calibrations
