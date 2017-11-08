@@ -99,7 +99,7 @@ namespace spooky {
 			parent_pose = parent->getGlobalPose();
 		}
 
-		//TODO:
+		//TODO: predict step happens even without new measurements
 		//predict();
 
 		Articulation::Type articulationType = articulations[0].getType();
