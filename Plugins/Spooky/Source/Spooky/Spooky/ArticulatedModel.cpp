@@ -46,11 +46,17 @@ namespace spooky {
 	}
 
 	void Node::updateState(const State& new_state, const float& timestamp, const float& latency) {
+		//We need to recache the global transform next time it is accessed
 		rechacheRequired = true;
+		//If this data is the latest, simply overwrite
 		if (true || timestamp == local_state.last_update_time) {
 			local_state = new_state;
 		}
+		//Try to compensate latency with prediction
+		//What if latency is larger than dt?
+		//TODO: fix or do better
 		else {
+			//TODO: This needs to be much better!
 			Eigen::VectorXf velocity = (new_state.expectation - local_state.expectation) / (timestamp - local_state.last_update_time);
 			local_state.expectation = new_state.expectation + velocity * latency;
 			assert(!std::isnan(local_state.expectation));
@@ -65,28 +71,36 @@ namespace spooky {
 	}
 
 	void Node::setModel(std::vector<Articulation> art){
+		//Store articulations.
 		articulations = art;
+		//Initialise state
 		std::vector<Eigen::VectorXf> state;
+		//Counter keeps track of the highest float count for an articulation
 		int max_n_rows = 1;
 		for(int i = 0; i < articulations.size(); i++){	
 			state.push_back(Articulation::getInitialState(articulations[i].getType()));
 			max_n_rows = (max_n_rows < state.back().rows()) ? state.back().rows() : max_n_rows;
 		}
+		//Copy data to initialised matrix with zeros in unused entries
 		local_state.expectation = Eigen::MatrixXf::Zero(max_n_rows, state.size());
 		for (int i = 0; i < articulations.size(); i++) {
 			local_state.expectation.col(i) = state[i];
 		}
+		//Set initial matrix variance for vec(state)
 		local_state.variance = initial_covariance * Eigen::MatrixXf::Identity(max_n_rows*state.size(), max_n_rows*state.size());
 	}
 
 	void Node::fuse(const Calibrator& calib, const SystemDescriptor& referenceSystem){
 		Transform3D parent_pose = Transform3D::Identity();
 		
-		//If this node has a parent, recursively fuse until we know its transform
+		//If this node has a parent, recursively fuse until we know its global transform
 		if (parent != NULL) {
 			parent->fuse(calib, referenceSystem);
 			parent_pose = parent->getGlobalPose();
 		}
+
+		//TODO:
+		//predict();
 
 		Articulation::Type articulationType = articulations[0].getType();
 		//If pose node or bone node
@@ -100,13 +114,13 @@ namespace spooky {
 					continue;
 				}
 
-				//Optimise this access somehow?
+				//TODO: Optimise this access somehow?
 				CalibrationResult calibResult = calib.getResultsFor(referenceSystem, m->getSystem());
 				if (calibResult.calibrated()) {
 					parent_pose = calibResult.transform * parent_pose;
 				}
 
-				//If measurement is rotation
+				//If measurement is rotation or node is a bone with rigid measurement
 				if(m->type == Measurement::Type::ROTATION ||
 				(articulationType == Articulation::Type::BONE && m->type == Measurement::Type::RIGID_BODY) )
 				{
