@@ -19,10 +19,11 @@ Each of the above dependencies are optional (following the instructions below).
 
 ## How to use
 
-1. Install the relevant plugin dependencies for your planned use as described above.
+1. Install Unreal Engine Editor (tested on v4.14) and the relevant plugin dependencies for your planned use as described above.
 2. Download and extract the latest release of [Spooky](https://github.com/JakeFountain/Spooky/releases/latest).
-3. Edit UnrealFusion.uproject with a text editor and **remove any plugins** that you dont have installed in your UE4 editor.
-4. Open UnrealFusion.uproject in the same version of UE4 Editor that you are using for your project. It will prompt you to build - accept and wait for it to build. (If building fails, then try opening UnrealFusion.sln in Microsoft Visual Studio 2015 and build manually with Ctrl+Shift+B. Then reopen UnrealFusion.project.)
+3. Edit Spooky.uproject with a text editor and **remove any plugins** that you dont have installed in your UE4 editor.
+4. Right click Spooky.uproject and select "Generate Visual Studio project files". This will automatically configure the build information for your system.
+5. Open Spooky.uproject in the same version of UE4 Editor that you are using for your project. It will prompt you to build - accept and wait for it to build. (If building fails, then try opening Spooky.sln in Microsoft Visual Studio 2015 and build manually with Ctrl+Shift+B. Then reopen Spooky.project.)
 > The project should open to Content/Spooky/Maps/SpookySoccer.umap (requires Kinect v2 and VR dependencies installed).
 > Ensure SteamVR or Oculus clients are running and the Kinect v2 is connected, then click the dropdown next to the play button and select VR preview.
 > Face the Kinect v2 and hold the VR controllers in the correct hands (check thumb polarity). 
@@ -32,7 +33,7 @@ Each of the above dependencies are optional (following the instructions below).
 > Spooky saves the latest config in \<ProjectName\>/Saved/System1_System2.spky by default, in a human readable format. 
 > This location can be changed in the VRGraveyard blueprint at the SpookyFusionPlant->SetSaveDirectory() function call.
 > Spooky will automatically detect changes in the position of the Kinect v2 or in the VR tracking space and recalibration will occur after about a minute.
-5. To use with your own project:
+6. To use with your own project:
     * Copy Plugins/Spooky to either your \<ProjectName\>/Plugins folder or Engine/Plugins folder. Go to the Plugins settings and enable Spooky. Restart the editor when prompted.
     * Merge the Content folder with your \<ProjectName\>/Content folder
 
