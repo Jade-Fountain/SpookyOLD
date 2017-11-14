@@ -29,7 +29,9 @@ In the future, each of the above dependencies will be optional.
 2. Download and extract the latest release of [Spooky](https://github.com/JakeFountain/Spooky/releases/latest).
 3. Edit Spooky.uproject with a text editor and **remove any plugins** that you dont have installed in your UE4 editor (note that for now all plugins listed above are compulsory).
 4. Right click Spooky.uproject and select "Generate Visual Studio project files". This will automatically configure the build information for your system.
-5. Open Spooky.uproject in the same version of UE4 Editor that you are using for your project. It will prompt you to build - accept and wait for it to build. (If building fails, then try opening Spooky.sln in Microsoft Visual Studio 2015 and build manually with Ctrl+Shift+B. Then reopen Spooky.project.)
+5. Open Spooky.uproject in the same version of UE4 Editor that you are using for your project. It will prompt you to build - accept and wait for it to build. 
+	- If building fails, then try opening Spooky.sln in Microsoft Visual Studio 2015 and build manually with Ctrl+Shift+B. Then reopen Spooky.project.
+	- If you get the error "ERROR: Couldn't find module rules file for module 'Kinect4Unreal'.", copy the directory (including contents) Plugins/Kinect4Unreal/Source in this repo to the Plugins/Kinect4Unreal directory where you installed Kinect4Unreal.
 > The project should open to Content/Spooky/Maps/SpookySoccer.umap.
 > Ensure SteamVR or Oculus clients are running and the Kinect v2 is connected, then click the dropdown next to the play button and select VR preview.
 > Face the Kinect v2 and hold the VR controllers in the correct hands (check thumb polarity). 
