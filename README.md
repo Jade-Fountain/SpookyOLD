@@ -10,6 +10,12 @@ Tracking systems for achieving high fidelity body and hand tracking are prohibit
 
 At this time, only windows is supported
 
+Compulsory Dependencies:
+ - [Windows SDK 8.1](https://developer.microsoft.com/en-us/windows/downloads/windows-8-1-sdk) 
+ - [Kinect for Windows SDK v1.8](https://www.microsoft.com/en-us/download/details.aspx?id=40278)
+ - [Kinect for Windows Developer Toolkit v1.8](https://www.microsoft.com/en-us/download/details.aspx?id=40276)
+ - [Kinect for Windows Runtime v2.0](https://www.microsoft.com/en-us/download/details.aspx?id=44559)
+
 UE4 Plugin Optional Dependencies:
  - [Kinect4Unreal](http://www.opaque.media/kinect-4-unreal/) for using the Microsoft Kinect v2
  - [OptiTrack](http://v110.wiki.optitrack.com/index.php?title=OptiTrack_Unreal_Engine_4_Plugin) for using with an OptiTrack motion capture system
