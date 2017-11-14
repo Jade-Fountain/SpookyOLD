@@ -16,21 +16,21 @@ Compulsory Dependencies:
  - [Kinect for Windows Developer Toolkit v1.8](https://www.microsoft.com/en-us/download/details.aspx?id=40276)
  - [Kinect for Windows Runtime v2.0](https://www.microsoft.com/en-us/download/details.aspx?id=44559)
 
-UE4 Plugin Optional Dependencies:
+Unreal Plugin Dependencies:
  - [Kinect4Unreal](http://www.opaque.media/kinect-4-unreal/) for using the Microsoft Kinect v2
- - [OptiTrack](http://v110.wiki.optitrack.com/index.php?title=OptiTrack_Unreal_Engine_4_Plugin) for using with an OptiTrack motion capture system
+ - [OptiTrack](http://optitrack.com/downloads/plugins.html) for using with an OptiTrack motion capture system
  - VR systems are also supported through UE4 native support VR support (e.g. Oculus Rift w. Touch, HTC Vive, SteamVR, etc.)
  
-Each of the above dependencies are optional (following the instructions below).
+In the future, each of the above dependencies will be optional.
 
 ## How to use
 
 1. Install Unreal Engine Editor (tested on v4.14) and the relevant plugin dependencies for your planned use as described above.
 2. Download and extract the latest release of [Spooky](https://github.com/JakeFountain/Spooky/releases/latest).
-3. Edit Spooky.uproject with a text editor and **remove any plugins** that you dont have installed in your UE4 editor.
+3. Edit Spooky.uproject with a text editor and **remove any plugins** that you dont have installed in your UE4 editor (note that for now all plugins listed above are compulsory).
 4. Right click Spooky.uproject and select "Generate Visual Studio project files". This will automatically configure the build information for your system.
 5. Open Spooky.uproject in the same version of UE4 Editor that you are using for your project. It will prompt you to build - accept and wait for it to build. (If building fails, then try opening Spooky.sln in Microsoft Visual Studio 2015 and build manually with Ctrl+Shift+B. Then reopen Spooky.project.)
-> The project should open to Content/Spooky/Maps/SpookySoccer.umap (requires Kinect v2 and VR dependencies installed).
+> The project should open to Content/Spooky/Maps/SpookySoccer.umap.
 > Ensure SteamVR or Oculus clients are running and the Kinect v2 is connected, then click the dropdown next to the play button and select VR preview.
 > Face the Kinect v2 and hold the VR controllers in the correct hands (check thumb polarity). 
 > Walk and move your hands to allow spooky to gather data. 
