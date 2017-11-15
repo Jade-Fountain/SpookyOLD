@@ -14,6 +14,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <iostream>
+#include <vector>
 #include <string>
 #include <Eigen/Core>
 #include <Eigen/SVD>
@@ -465,7 +466,7 @@ namespace spooky{
 						throw std::domain_error("CalibrationTools - NEED MORE THAN 2 SAMPLES");
 					}
 					std::pair<Eigen::Transform<float, 3, Eigen::Affine>, Eigen::Transform<float, 3, Eigen::Affine>> 
-						result(Eigen::Matrix4f::Identity(),Eigen::Matrix4f::Identity());
+						result(Eigen::Transform<float, 3, Eigen::Affine>::Identity(),Eigen::Transform<float, 3, Eigen::Affine>::Identity());
 
 					//--------------------------
 					//Rotation part
